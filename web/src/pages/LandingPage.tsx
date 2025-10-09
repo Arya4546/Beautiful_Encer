@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { motion, useScroll } from "framer-motion";
-import { FaInstagram, FaTiktok, FaUsers, FaChartLine, FaRocket, FaComments, FaSearch, FaStar, FaArrowRight, FaCheckCircle } from "react-icons/fa";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { FaUserCheck, FaChartPie, FaUsers, FaChartLine, FaRocket, FaComments, FaSearch, FaStar, FaArrowRight, FaCheckCircle } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 
 const LandingPage = () => {
@@ -49,9 +49,9 @@ const LandingPage = () => {
     { number: "98%", label: "Success Rate" },
   ];
 
-  const platforms = [
-    { icon: <FaInstagram />, name: "Instagram", color: "from-pink-500 via-rose-500 to-orange-500" },
-    { icon: <FaTiktok />, name: "TikTok", color: "from-cyan-400 to-blue-500" },
+  const keyPillars = [
+    { icon: <FaUserCheck />, name: "Authentic Reach", color: "from-emerald-400 to-teal-500" },
+    { icon: <FaChartPie />, name: "Data-Driven Results", color: "from-sky-400 to-blue-500" },
   ];
 
   const benefits = [
@@ -152,14 +152,14 @@ const LandingPage = () => {
               transition={{ delay: 1, duration: 1 }}
               className="flex justify-center gap-4"
             >
-              {platforms.map((platform, idx) => (
+              {keyPillars.map((pillar, idx) => (
                 <motion.div
                   key={idx}
                   whileHover={{ y: -3 }}
-                  className={`bg-gradient-to-r ${platform.color} px-6 py-3 rounded-full text-white font-medium flex items-center gap-2 shadow-lg`}
+                  className={`bg-gradient-to-r ${pillar.color} px-6 py-3 rounded-full text-white font-medium flex items-center gap-2 shadow-lg`}
                 >
-                  <span className="text-2xl">{platform.icon}</span>
-                  {platform.name}
+                  <span className="text-2xl">{pillar.icon}</span>
+                  {pillar.name}
                 </motion.div>
               ))}
             </motion.div>
