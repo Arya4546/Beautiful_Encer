@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, useScroll } from "framer-motion";
 import { FaInstagram, FaTiktok, FaUsers, FaChartLine, FaRocket, FaComments, FaSearch, FaStar, FaArrowRight, FaCheckCircle } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 
