@@ -13,7 +13,7 @@ const upload = multer({
     // Accept images only
     if (!file.mimetype.match(/image\/(jpeg|jpg|png|gif)$/)) {
       const err = new Error('Only image files (jpeg, jpg, png, gif) are allowed!');
-      return cb(err, false);
+      return cb(err as unknown as null, false);
     }
     cb(null, true);
   },
