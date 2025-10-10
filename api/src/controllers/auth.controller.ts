@@ -14,10 +14,21 @@ class AuthController {
   // ===========================
   async influencerSignup(req: Request, res: Response) {
     try {
-      const { name, email, password, phoneNo, socialMediaLink } = req.body;
+      const { name, email, password, phoneNo } = req.body;
 
-      if (!name || !email || !password || !socialMediaLink) {
-        return res.status(400).json({ error: 'Missing required fields' });
+      if (!name || !email || !password) {
+        return res.status(400).json({ error: 'Missing required fields: name, email, and password are required' });
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
+
+      // Validate password strength (min 8 characters)
+      if (password.length < 8) {
+        return res.status(400).json({ error: 'Password must be at least 8 characters long' });
       }
 
       const hashedPassword = await bcrypt.hash(password, 12);
@@ -31,7 +42,6 @@ class AuthController {
           influencer: {
             create: {
               phoneNo,
-              socialMediaLink,
             },
           },
         },
@@ -57,7 +67,7 @@ class AuthController {
 
       const { password: _, ...user } = newUser;
       return res.status(201).json({
-        message: 'Influencer registered. Please check your email for an OTP to verify your account.',
+        message: 'Influencer registered successfully. Please check your email for an OTP to verify your account.',
         userId: user.id,
       });
     } catch (error: any) {
@@ -71,7 +81,7 @@ class AuthController {
   }
 
   // ===========================
-  // VERIFY OTP
+  // VERIFY OTP (Handles both Influencer and Salon)
   // ===========================
   async verifyOtp(req: Request, res: Response) {
     try {
@@ -96,23 +106,111 @@ class AuthController {
       }
 
       // OTP is valid, update user and delete OTP
-      const user = await prisma.user.findUnique({ where: { email } });
+      const user = await prisma.user.findUnique({ 
+        where: { email },
+        include: {
+          influencer: true,
+          salon: true,
+        }
+      });
+      
       if (!user) {
-        // This case should ideally not happen if signup is the only way to get an OTP
         return res.status(404).json({ error: 'User not found' });
       }
 
-      await prisma.influencer.update({
-        where: { userId: user.id },
-        data: { emailVerified: true },
-      });
+      // Update emailVerified based on user role
+      if (user.role === Role.INFLUENCER && user.influencer) {
+        await prisma.influencer.update({
+          where: { userId: user.id },
+          data: { emailVerified: true },
+        });
+      } else if (user.role === Role.SALON && user.salon) {
+        await prisma.salon.update({
+          where: { userId: user.id },
+          data: { emailVerified: true },
+        });
+      }
 
       await prisma.otp.delete({ where: { id: otpEntry.id } });
 
-      return res.status(200).json({ message: 'Email verified successfully. Please complete your onboarding.' });
+      return res.status(200).json({ 
+        message: 'Email verified successfully. Please complete your onboarding.',
+        role: user.role 
+      });
     } catch (error: any) {
       console.error('[AuthController.verifyOtp] Error:', error);
       return res.status(500).json({ error: 'Failed to verify OTP' });
+    }
+  }
+
+  // ===========================
+  // SALON SIGNUP
+  // ===========================
+  async salonSignup(req: Request, res: Response) {
+    try {
+      const { name, email, password, phoneNo } = req.body;
+
+      if (!name || !email || !password) {
+        return res.status(400).json({ error: 'Missing required fields: name, email, and password are required' });
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
+
+      // Validate password strength (min 8 characters)
+      if (password.length < 8) {
+        return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      const newUser = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          role: Role.SALON,
+          salon: {
+            create: {
+              phoneNo,
+            },
+          },
+        },
+        include: {
+          salon: true,
+        },
+      });
+
+      // Generate OTP
+      const otp = crypto.randomInt(100000, 999999).toString();
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+      await prisma.otp.create({
+        data: {
+          email,
+          otp,
+          expiresAt,
+        },
+      });
+
+      // Send OTP email
+      await sendOtpEmail(email, otp);
+
+      const { password: _, ...user } = newUser;
+      return res.status(201).json({
+        message: 'Salon registered successfully. Please check your email for an OTP to verify your account.',
+        userId: user.id,
+      });
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        const target = error.meta?.target ?? [];
+        if (target.includes('email')) return res.status(409).json({ error: 'Email already exists' });
+      }
+      console.error('[AuthController.salonSignup] Error:', error);
+      return res.status(500).json({ error: 'Failed to register salon' });
     }
   }
 

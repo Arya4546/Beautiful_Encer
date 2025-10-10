@@ -7,10 +7,14 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc --build",
     "start": "node dist/server.js",
-    "prisma": "prisma generate"
+    "prisma": "prisma generate",
+    "migrate": "prisma migrate dev",
+    "studio": "prisma studio",
+    "setup": "npm install && prisma generate && prisma migrate dev --name initial_setup"
   },
   "dependencies": {
     "@prisma/client": "^6.17.0",
+    "axios": "^1.7.2",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
     "cors": "^2.8.5",

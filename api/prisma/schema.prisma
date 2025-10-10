@@ -24,7 +24,6 @@ model User {
 model Influencer {
   id              String           @id @default(uuid())
   phoneNo         String?
-  socialMediaLink String
   status          InfluencerStatus @default(PENDING_APPROVAL)
   emailVerified   Boolean          @default(false)
   bio             String?
@@ -36,15 +35,38 @@ model Influencer {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
+  user              User                @relation(fields: [userId], references: [id])
+  userId            String              @unique
+  socialMediaAccounts SocialMediaAccount[]
 }
 
 model Salon {
-  id        String   @id @default(uuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String       @id @default(uuid())
+  phoneNo             String?
+  status              SalonStatus  @default(PENDING_APPROVAL)
+  emailVerified       Boolean      @default(false)
+  
+  // Onboarding fields
+  businessName        String?      // Official business name
+  description         String?      @db.Text
+  profilePic          String?      // Logo/profile picture
+  preferredCategories String[]     // Types of influencers they want to work with
+  
+  // Business details
+  website             String?
+  establishedYear     Int?
+  teamSize            Int?         // Number of staff
+  
+  // Operating hours (stored as JSON string)
+  operatingHours      String?      @db.Text
+  
+  // Social media (optional, not OAuth)
+  instagramHandle     String?
+  tiktokHandle        String?
+  facebookPage        String?
+  
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
 
   user   User   @relation(fields: [userId], references: [id])
   userId String @unique
@@ -60,6 +82,58 @@ model Otp {
   @@unique([email, otp])
 }
 
+model SocialMediaAccount {
+  id                String              @id @default(uuid())
+  platform          SocialMediaPlatform
+  platformUserId    String              // Instagram/TikTok user ID
+  platformUsername  String              // Display username
+  accessToken       String              // Encrypted access token
+  refreshToken      String?             // Encrypted refresh token (if applicable)
+  tokenExpiresAt    DateTime?           // Token expiration
+  isActive          Boolean             @default(true)
+  
+  // Cached metrics (updated periodically)
+  followersCount    Int?
+  followingCount    Int?
+  postsCount        Int?
+  engagementRate    Float?
+  lastSyncedAt      DateTime?
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  influencer        Influencer          @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  influencerId      String
+  
+  posts             SocialMediaPost[]
+
+  @@unique([influencerId, platform])
+  @@index([influencerId])
+}
+
+model SocialMediaPost {
+  id                String              @id @default(uuid())
+  platformPostId    String              // Original post ID from platform
+  caption           String?             @db.Text
+  mediaUrl          String?             // Primary media URL
+  mediaType         MediaType
+  likesCount        Int                 @default(0)
+  commentsCount     Int                 @default(0)
+  sharesCount       Int                 @default(0)
+  viewsCount        Int?
+  engagementRate    Float?
+  postedAt          DateTime
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  socialMediaAccount SocialMediaAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId          String
+
+  @@unique([accountId, platformPostId])
+  @@index([accountId])
+  @@index([postedAt])
+}
+
 enum Role {
   INFLUENCER
   SALON
@@ -71,9 +145,29 @@ enum InfluencerStatus {
   APPROVED
 }
 
+enum SalonStatus {
+  PENDING_APPROVAL
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
 enum Gender {
   MALE
   FEMALE
   NON_BINARY
   PREFER_NOT_TO_SAY
+}
+
+enum SocialMediaPlatform {
+  INSTAGRAM
+  TIKTOK
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  CAROUSEL
+  REEL
+  STORY
 }
