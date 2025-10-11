@@ -24,7 +24,6 @@ model User {
 model Influencer {
   id              String           @id @default(uuid())
   phoneNo         String?
-  status          InfluencerStatus @default(PENDING_APPROVAL)
   emailVerified   Boolean          @default(false)
   bio             String?
   profilePic      String?
@@ -43,7 +42,6 @@ model Influencer {
 model Salon {
   id                  String       @id @default(uuid())
   phoneNo             String?
-  status              SalonStatus  @default(PENDING_APPROVAL)
   emailVerified       Boolean      @default(false)
   
   // Onboarding fields
@@ -138,18 +136,6 @@ enum Role {
   INFLUENCER
   SALON
   ADMIN
-}
-
-enum InfluencerStatus {
-  PENDING_APPROVAL
-  APPROVED
-}
-
-enum SalonStatus {
-  PENDING_APPROVAL
-  APPROVED
-  REJECTED
-  SUSPENDED
 }
 
 enum Gender {

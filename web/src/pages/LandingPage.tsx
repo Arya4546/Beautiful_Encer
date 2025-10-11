@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { FaUserCheck, FaChartPie, FaUsers, FaChartLine, FaRocket, FaComments, FaSearch, FaStar, FaArrowRight, FaCheckCircle } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 
 const LandingPage = () => {
+  const navigate = useNavigate();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const { scrollYProgress } = useScroll();
 
@@ -131,6 +133,7 @@ const LandingPage = () => {
               <motion.button
                 whileHover={{ scale: 1.03, boxShadow: "0 20px 40px rgba(52, 211, 153, 0.4)" }}
                 whileTap={{ scale: 0.98 }}
+                onClick={() => navigate('/signup')}
                 className="group px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold shadow-lg transition-all flex items-center gap-2"
               >
                 Sign Up as Influencer
@@ -139,9 +142,10 @@ const LandingPage = () => {
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={() => navigate('/signup')}
                 className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-xl font-semibold border border-white/20 hover:bg-white/20 transition-all"
               >
-                Sign Up as Brand
+                Sign Up as Salon
               </motion.button>
             </motion.div>
 
@@ -382,6 +386,7 @@ const LandingPage = () => {
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate('/signup')}
                   className="px-10 py-5 bg-white text-emerald-600 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all"
                 >
                   Get Started as Influencer
@@ -389,9 +394,10 @@ const LandingPage = () => {
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => navigate('/signup')}
                   className="px-10 py-5 bg-white/10 backdrop-blur-lg text-white border-2 border-white rounded-xl font-bold hover:bg-white/20 transition-all"
                 >
-                  Get Started as Brand
+                  Get Started as Salon
                 </motion.button>
               </div>
             </div>
