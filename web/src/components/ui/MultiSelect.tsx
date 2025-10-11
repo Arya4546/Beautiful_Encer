@@ -99,9 +99,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                   key={option}
                   onClick={() => toggleOption(option)}
                   className={classNames(
-                    'px-4 py-3 cursor-pointer transition-colors',
+                    'px-4 py-3 cursor-pointer transition-colors text-gray-900',
                     value.includes(option)
-                      ? 'bg-purple-50 text-purple-700'
+                      ? 'bg-primary-50 text-primary-700 font-medium'
                       : 'hover:bg-gray-50'
                   )}
                 >
@@ -110,9 +110,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                       type="checkbox"
                       checked={value.includes(option)}
                       onChange={() => {}}
-                      className="mr-3 h-4 w-4 text-purple-600 rounded"
+                      className="mr-3 h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
                     />
-                    {option}
+                    <span className="text-sm">{option}</span>
                   </div>
                 </div>
               ))}

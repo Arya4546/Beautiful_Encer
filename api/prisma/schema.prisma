@@ -18,7 +18,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt @default(now()) 
   influencer Influencer? 
-  salon      Salon?      
+  salon      Salon?
+  
+  // Connection requests
+  sentRequests     ConnectionRequest[] @relation("SentRequests")
+  receivedRequests ConnectionRequest[] @relation("ReceivedRequests")
 }
 
 model Influencer {
@@ -130,6 +134,33 @@ model SocialMediaPost {
   @@unique([accountId, platformPostId])
   @@index([accountId])
   @@index([postedAt])
+}
+
+model ConnectionRequest {
+  id          String              @id @default(uuid())
+  status      ConnectionStatus    @default(PENDING)
+  message     String?             @db.Text
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  // Sender (can be influencer or salon)
+  senderId    String
+  sender      User                @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
+
+  // Receiver (can be influencer or salon)
+  receiverId  String
+  receiver    User                @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([status])
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 enum Role {

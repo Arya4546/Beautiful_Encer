@@ -10,7 +10,11 @@
     "prisma": "prisma generate",
     "migrate": "prisma migrate dev",
     "studio": "prisma studio",
-    "setup": "npm install && prisma generate && prisma migrate dev --name initial_setup"
+    "setup": "npm install && prisma generate && prisma migrate dev --name initial_setup",
+    "seed": "tsx prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.17.0",
@@ -34,6 +38,7 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.0.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.20.6"

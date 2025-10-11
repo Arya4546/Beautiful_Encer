@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
+import { toast } from '../../utils/toast.util';
 import { FiMail, FiLock } from 'react-icons/fi';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { Button } from '../../components/ui/Button';
@@ -31,7 +31,7 @@ export const LoginPage: React.FC = () => {
   useEffect(() => {
     // Show message from previous page if exists
     if (location.state?.message) {
-      toast.success(location.state.message);
+      toast.success(location.state.message, { key: 'login-redirect-message' });
     }
     
     // Pre-fill email if provided
@@ -47,20 +47,25 @@ export const LoginPage: React.FC = () => {
       const response = await authService.login(data);
       
       setUser(response.user);
-      toast.success('Login successful!');
+      toast.success('Login successful!', { key: 'login-success' });
 
-      // Navigate based on user role
-      if (response.user.role === 'INFLUENCER') {
-        navigate('/influencer/onboarding');
-      } else if (response.user.role === 'SALON') {
-        navigate('/salon/onboarding');
+      // Navigate based on onboarding status
+      if (response.user.hasCompletedOnboarding) {
+        navigate('/discover');
       } else {
-        navigate('/dashboard');
+        // Redirect to onboarding if not completed
+        if (response.user.role === 'INFLUENCER') {
+          navigate('/influencer/onboarding');
+        } else if (response.user.role === 'SALON') {
+          navigate('/salon/onboarding');
+        } else {
+          navigate('/dashboard');
+        }
       }
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || 'Login failed. Please try again.';
-      toast.error(errorMessage);
+      toast.error(errorMessage, { key: 'login-error' });
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +114,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="button"
             className="text-purple-600 hover:text-purple-700 font-semibold"
-            onClick={() => toast.info('Password reset coming soon!')}
+            onClick={() => toast.info('Password reset coming soon!', { key: 'forgot-password' })}
           >
             Forgot password?
           </button>

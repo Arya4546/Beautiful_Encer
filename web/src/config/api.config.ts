@@ -29,4 +29,11 @@ export const API_ENDPOINTS = {
     SYNC: (platform: string) => `/social-media/${platform}/sync`,
     DISCONNECT: (platform: string) => `/social-media/${platform}`,
   },
+  // Discovery endpoints
+  DISCOVERY: {
+    INFLUENCERS: '/discovery/influencers',
+    SALONS: '/discovery/salons',
+    REGIONS: '/discovery/regions',
+    CATEGORIES: '/discovery/categories',
+  },
 } as const;
