@@ -7,6 +7,7 @@ import 'multer';
 // Extend Express Request to include authenticated user info
 interface AuthenticatedRequest extends Request {
   file?: Express.Multer.File;
+  body: any;
   user?: {
     userId: string;
     role: Role; // must match Prisma Role enum
