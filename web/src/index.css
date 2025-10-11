@@ -1,8 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom Animations */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #ffffff;
+  color: #1a1a1a;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fef3f8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e91e63;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #c2185b;
+}
+
+/* React Toastify Custom Styles */
+.Toastify__toast-container {
+  padding: 16px;
+}
+
+.Toastify__toast {
+  margin-bottom: 12px;
+  font-family: 'Inter', sans-serif;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.15) !important;
+  min-height: 64px !important;
+  padding: 16px !important;
+}
+
+.Toastify__toast-body {
+  padding: 0;
+  line-height: 1.5;
+}
+
+.Toastify__close-button {
+  opacity: 0.5;
+  color: #1a1a1a;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1;
+}
+
+.Toastify__progress-bar {
+  height: 3px;
+}
+
+/* Smooth animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -12,27 +79,55 @@
   }
 }
 
-@keyframes blob {
-  0% {
-    transform: translate(0px, 0px) scale(1);
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
   }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-  100% {
-    transform: translate(0px, 0px) scale(1);
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
-.animate-fadeIn {
+.animate-fade-in {
   animation: fadeIn 0.3s ease-in-out;
 }
 
-.animate-blob {
-  animation: blob 7s infinite;
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Professional button styles */
+.btn-primary {
+  @apply bg-magenta text-white px-6 py-3 rounded-xl font-medium hover:bg-magenta-dark transition-all duration-200 shadow-soft hover:shadow-medium;
+}
+
+.btn-secondary {
+  @apply bg-white text-text-primary border border-border px-6 py-3 rounded-xl font-medium hover:bg-background-secondary transition-all duration-200;
+}
+
+/* Input focus styles */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #e91e63;
+  box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite linear;
+  background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background-size: 1000px 100%;
 }
 
 .animation-delay-2000 {
@@ -113,8 +208,4 @@ html {
 
 .Toastify__progress-bar--warning {
   background: #f59e0b;
-}
-
-body {
-  @apply bg-primary text-white;
 }

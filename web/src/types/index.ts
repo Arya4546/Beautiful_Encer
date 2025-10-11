@@ -13,6 +13,17 @@ export interface User {
   role: UserRole;
   createdAt: string;
   updatedAt: string;
+  hasCompletedOnboarding?: boolean;
+  influencer?: {
+    profilePic?: string;
+    bio?: string;
+    categories?: string[];
+  };
+  salon?: {
+    businessName?: string;
+    profilePic?: string;
+    description?: string;
+  };
 }
 
 export interface Influencer {
@@ -48,6 +59,47 @@ export interface Salon {
   createdAt: string;
   updatedAt: string;
   userId: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export interface SocialMediaAccount {
+  id: string;
+  platform: 'INSTAGRAM' | 'TIKTOK';
+  platformUsername: string;
+  followersCount?: number;
+  followingCount?: number;
+  postsCount?: number;
+  engagementRate?: number;
+  isActive: boolean;
+}
+
+export interface InfluencerWithDetails extends Influencer {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  socialMediaAccounts: SocialMediaAccount[];
+}
+
+export interface SalonWithDetails extends Salon {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasMore: boolean;
 }
 
 // API Request/Response types

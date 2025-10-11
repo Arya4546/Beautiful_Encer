@@ -245,11 +245,28 @@ class AuthController {
         path: '/auth/refresh-token', // be specific about the path
       });
 
+      // Check if user has completed onboarding
+      let hasCompletedOnboarding = false;
+      if (user.role === 'INFLUENCER') {
+        const influencer = await prisma.influencer.findUnique({
+          where: { userId: user.id },
+        });
+        hasCompletedOnboarding = !!influencer?.bio; // If bio exists, onboarding is complete
+      } else if (user.role === 'SALON') {
+        const salon = await prisma.salon.findUnique({
+          where: { userId: user.id },
+        });
+        hasCompletedOnboarding = !!salon?.businessName; // If businessName exists, onboarding is complete
+      }
+
       const { password: _, ...userData } = user;
       return res.status(200).json({
         message: 'Login successful',
         accessToken,
-        user: userData,
+        user: {
+          ...userData,
+          hasCompletedOnboarding,
+        },
       });
     } catch (error: any) {
       console.error('[AuthController.login] Error:', error);
