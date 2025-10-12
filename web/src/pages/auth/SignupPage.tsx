@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
-import { toast } from 'react-toastify';
+import { showToast } from '../../utils/toast';
 import { FiMail, FiLock, FiUser, FiPhone } from 'react-icons/fi';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { Button } from '../../components/ui/Button';
@@ -37,7 +37,7 @@ export const SignupPage: React.FC = () => {
 
   const onSubmit = async (data: SignupFormData) => {
     if (!selectedRole) {
-      toast.error('Please select your role');
+      showToast.error('Please select your role');
       return;
     }
 
@@ -51,14 +51,14 @@ export const SignupPage: React.FC = () => {
           ? await authService.influencerSignup(signupData)
           : await authService.salonSignup(signupData);
 
-      toast.success(response.message);
+      showToast.success(response.message);
       
       // Navigate to OTP verification with email
       navigate('/verify-otp', { state: { email: data.email } });
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || 'Signup failed. Please try again.';
-      toast.error(errorMessage);
+      showToast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

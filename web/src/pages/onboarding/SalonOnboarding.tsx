@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
-import { toast } from 'react-toastify';
+import { showToast } from '../../utils/toast';
 import { motion } from 'framer-motion';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { Button } from '../../components/ui/Button';
@@ -42,7 +42,7 @@ export const SalonOnboarding: React.FC = () => {
 
   const onSubmit = async (data: SalonOnboardingRequest) => {
     if (data.preferredCategories.length === 0) {
-      toast.error('Please select at least one preferred category');
+      showToast.error('Please select at least one preferred category');
       return;
     }
 
@@ -51,7 +51,7 @@ export const SalonOnboarding: React.FC = () => {
     try {
       const response = await onboardingService.salonOnboarding(data);
       
-      toast.success(response.message);
+      showToast.success(response.message);
       
       // Navigate to dashboard
       navigate('/dashboard', { 
@@ -62,7 +62,7 @@ export const SalonOnboarding: React.FC = () => {
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || 'Onboarding failed. Please try again.';
-      toast.error(errorMessage);
+      showToast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -6,7 +6,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { toast } from 'react-toastify';
+import { showToast } from '../../utils/toast';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { Button } from '../../components/ui/Button';
 import { authService } from '../../services/auth.service';
@@ -22,7 +22,7 @@ export const VerifyOtpPage: React.FC = () => {
 
   useEffect(() => {
     if (!email) {
-      toast.error('Email not found. Please sign up again.');
+      showToast.error('Email not found. Please sign up again.');
       navigate('/signup');
     }
   }, [email, navigate]);
@@ -76,7 +76,7 @@ export const VerifyOtpPage: React.FC = () => {
 
     const otpString = otp.join('');
     if (otpString.length !== 6) {
-      toast.error('Please enter complete OTP');
+      showToast.error('Please enter complete OTP');
       return;
     }
 
@@ -88,7 +88,7 @@ export const VerifyOtpPage: React.FC = () => {
         otp: otpString,
       });
 
-      toast.success(response.message);
+      showToast.success(response.message);
       
       // Navigate to login
       navigate('/login', { 
@@ -100,7 +100,7 @@ export const VerifyOtpPage: React.FC = () => {
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || 'OTP verification failed';
-      toast.error(errorMessage);
+      showToast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -144,7 +144,7 @@ export const VerifyOtpPage: React.FC = () => {
             <button
               type="button"
               className="text-purple-600 hover:text-purple-700 font-semibold"
-              onClick={() => toast.info('Resend feature coming soon!')}
+              onClick={() => showToast.error('Resend feature coming soon!')}
             >
               Resend
             </button>

@@ -7,6 +7,8 @@ export interface DiscoveryFilters {
   search?: string;
   region?: string;
   categories?: string[];
+  minFollowers?: number;
+  maxFollowers?: number;
 }
 
 export interface DiscoveryResponse<T> {
@@ -29,6 +31,8 @@ class DiscoveryService {
     if (filters.categories && filters.categories.length > 0) {
       params.append('categories', filters.categories.join(','));
     }
+    if (filters.minFollowers) params.append('minFollowers', filters.minFollowers.toString());
+    if (filters.maxFollowers) params.append('maxFollowers', filters.maxFollowers.toString());
 
     const response = await axiosInstance.get(`/discovery/influencers?${params.toString()}`);
     return response.data;

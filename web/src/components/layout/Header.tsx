@@ -2,13 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiLogOut, FiUser, FiSettings, FiChevronDown } from 'react-icons/fi';
 import { useAuthStore } from '../../store/authStore';
-import { toast } from '../../utils/toast.util';
+import { showToast } from '../../utils/toast';
+import { ButtonLoader } from '../ui/Loader';
 
 export const Header: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -23,11 +25,19 @@ export const Header: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    toast.success('Logged out successfully', { key: 'logout' });
-    navigate('/login');
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
     setIsDropdownOpen(false);
+    
+    // Small delay to ensure UI updates
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    logout();
+    showToast.success('Logged out successfully');
+    navigate('/login');
+    
+    // Reset loading state after navigation
+    setIsLoggingOut(false);
   };
 
   const getProfilePic = () => {
@@ -52,11 +62,11 @@ export const Header: React.FC = () => {
   const initials = displayName.charAt(0).toUpperCase();
 
   return (
-    <header className="bg-white border-b border-border sticky top-0 z-50 shadow-soft">
+    <header className="bg-white border-b border-border fixed top-0 left-0 right-0 z-50 shadow-soft">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/discover" className="flex items-center space-x-2">
+          <Link to="/discover" className="flex items-center space-x-2 flex-shrink-0">
             <div className="w-10 h-10 bg-gradient-to-br from-magenta to-magenta-dark rounded-xl flex items-center justify-center">
               <span className="text-white font-bold text-xl">BE</span>
             </div>
@@ -66,37 +76,48 @@ export const Header: React.FC = () => {
           </Link>
 
           {/* Profile Dropdown */}
-          <div className="relative" ref={dropdownRef}>
+          <div className="relative flex-shrink-0" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center space-x-3 hover:bg-background-secondary rounded-xl px-3 py-2 transition-colors"
+              className="flex items-center space-x-3 hover:bg-background-secondary rounded-xl px-3 py-2 transition-colors min-w-[48px]"
+              type="button"
             >
-              {/* Profile Picture */}
-              <div className="relative">
+              {/* Profile Picture - Fixed width to prevent shift */}
+              <div className="relative w-10 h-10 flex-shrink-0">
                 {profilePic ? (
                   <img
                     src={profilePic}
                     alt={displayName}
                     className="w-10 h-10 rounded-full object-cover border-2 border-magenta"
+                    onError={(e) => {
+                      // Fallback to initials if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.nextElementSibling as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
                   />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-magenta to-magenta-dark flex items-center justify-center text-white font-bold border-2 border-magenta">
-                    {initials}
-                  </div>
-                )}
+                ) : null}
+                {/* Fallback initials */}
+                <div 
+                  className="w-10 h-10 rounded-full bg-gradient-to-br from-magenta to-magenta-dark flex items-center justify-center text-white font-bold border-2 border-magenta"
+                  style={{ display: profilePic ? 'none' : 'flex' }}
+                >
+                  {initials}
+                </div>
                 {/* Online indicator */}
                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
               </div>
 
               {/* Name (hidden on mobile) */}
-              <div className="hidden md:block text-left">
-                <p className="text-sm font-semibold text-text-primary">{displayName}</p>
-                <p className="text-xs text-text-tertiary capitalize">{user?.role?.toLowerCase()}</p>
+              <div className="hidden md:block text-left min-w-[120px]">
+                <p className="text-sm font-semibold text-text-primary truncate">{displayName}</p>
+                <p className="text-xs text-text-tertiary capitalize truncate">{user?.role?.toLowerCase()}</p>
               </div>
 
               <FiChevronDown
                 size={16}
-                className={`text-text-secondary transition-transform hidden md:block ${
+                className={`text-text-secondary transition-transform duration-200 hidden md:block ${
                   isDropdownOpen ? 'rotate-180' : ''
                 }`}
               />
@@ -104,9 +125,9 @@ export const Header: React.FC = () => {
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-large border border-border overflow-hidden animate-scale-in">
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-large border border-border overflow-hidden z-50 animate-fade-in-scale origin-top-right">
                 {/* User Info */}
-                <div className="px-4 py-3 border-b border-border bg-background-secondary">
+                <div className="px-4 py-3 border-b border-border bg-gradient-to-br from-magenta/5 to-magenta-dark/5">
                   <p className="text-sm font-semibold text-text-primary truncate">
                     {displayName}
                   </p>
@@ -120,21 +141,11 @@ export const Header: React.FC = () => {
                       navigate('/profile');
                       setIsDropdownOpen(false);
                     }}
-                    className="w-full px-4 py-3 text-left hover:bg-background-secondary transition-colors flex items-center space-x-3 text-text-primary"
+                    className="w-full px-4 py-3 text-left hover:bg-background-secondary transition-colors flex items-center space-x-3 text-text-primary group"
+                    type="button"
                   >
-                    <FiUser size={18} />
-                    <span className="text-sm font-medium">Profile</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      navigate('/settings');
-                      setIsDropdownOpen(false);
-                    }}
-                    className="w-full px-4 py-3 text-left hover:bg-background-secondary transition-colors flex items-center space-x-3 text-text-primary"
-                  >
-                    <FiSettings size={18} />
-                    <span className="text-sm font-medium">Settings</span>
+                    <FiUser size={18} className="group-hover:text-magenta transition-colors" />
+                    <span className="text-sm font-medium">Profile Settings</span>
                   </button>
                 </div>
 
@@ -142,10 +153,21 @@ export const Header: React.FC = () => {
                 <div className="border-t border-border py-2">
                   <button
                     onClick={handleLogout}
-                    className="w-full px-4 py-3 text-left hover:bg-red-50 transition-colors flex items-center space-x-3 text-red-600"
+                    disabled={isLoggingOut}
+                    className="w-full px-4 py-3 text-left hover:bg-red-50 transition-colors flex items-center space-x-3 text-red-600 group disabled:opacity-50 disabled:cursor-not-allowed"
+                    type="button"
                   >
-                    <FiLogOut size={18} />
-                    <span className="text-sm font-medium">Logout</span>
+                    {isLoggingOut ? (
+                      <>
+                        <ButtonLoader />
+                        <span className="text-sm font-medium">Logging out...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FiLogOut size={18} className="group-hover:translate-x-1 transition-transform" />
+                        <span className="text-sm font-medium">Logout</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
