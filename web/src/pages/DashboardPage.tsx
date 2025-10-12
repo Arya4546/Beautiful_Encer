@@ -6,7 +6,7 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { toast } from 'react-toastify';
+import { showToast } from '../utils/toast';
 import { useAuthStore } from '../store/authStore';
 import { Button } from '../components/ui/Button';
 import { FiLogOut, FiUser, FiCheckCircle } from 'react-icons/fi';
@@ -18,13 +18,13 @@ export const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     if (location.state?.message) {
-      toast.success(location.state.message);
+      showToast.success(location.state.message);
     }
   }, [location.state]);
 
   const handleLogout = () => {
     logout();
-    toast.success('Logged out successfully');
+    showToast.success('Logged out successfully');
     navigate('/');
   };
 

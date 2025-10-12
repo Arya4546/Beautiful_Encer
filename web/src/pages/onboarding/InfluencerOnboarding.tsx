@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
-import { toast } from 'react-toastify';
+import { showToast } from '../../utils/toast';
 import { motion } from 'framer-motion';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { Button } from '../../components/ui/Button';
@@ -53,12 +53,12 @@ export const InfluencerOnboarding: React.FC = () => {
 
   const onSubmit = async (data: InfluencerOnboardingRequest) => {
     if (!data.profilePic) {
-      toast.error('Please upload a profile picture');
+      showToast.error('Please upload a profile picture');
       return;
     }
 
     if (data.categories.length === 0) {
-      toast.error('Please select at least one category');
+      showToast.error('Please select at least one category');
       return;
     }
 
@@ -67,7 +67,7 @@ export const InfluencerOnboarding: React.FC = () => {
     try {
       const response = await onboardingService.influencerOnboarding(data);
       
-      toast.success(response.message);
+      showToast.success(response.message);
       
       // Navigate to dashboard
       navigate('/dashboard', { 
@@ -78,7 +78,7 @@ export const InfluencerOnboarding: React.FC = () => {
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || 'Onboarding failed. Please try again.';
-      toast.error(errorMessage);
+      showToast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

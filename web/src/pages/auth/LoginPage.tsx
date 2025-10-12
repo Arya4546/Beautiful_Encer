@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { toast } from '../../utils/toast.util';
+import { showToast } from '../../utils/toast';
 import { FiMail, FiLock } from 'react-icons/fi';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { Button } from '../../components/ui/Button';
@@ -31,7 +31,7 @@ export const LoginPage: React.FC = () => {
   useEffect(() => {
     // Show message from previous page if exists
     if (location.state?.message) {
-      toast.success(location.state.message, { key: 'login-redirect-message' });
+      showToast.success(location.state.message);
     }
     
     // Pre-fill email if provided
@@ -47,7 +47,7 @@ export const LoginPage: React.FC = () => {
       const response = await authService.login(data);
       
       setUser(response.user);
-      toast.success('Login successful!', { key: 'login-success' });
+      showToast.success('Login successful!');
 
       // Navigate based on onboarding status
       if (response.user.hasCompletedOnboarding) {
@@ -65,7 +65,7 @@ export const LoginPage: React.FC = () => {
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || 'Login failed. Please try again.';
-      toast.error(errorMessage, { key: 'login-error' });
+      showToast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -114,7 +114,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="button"
             className="text-purple-600 hover:text-purple-700 font-semibold"
-            onClick={() => toast.info('Password reset coming soon!', { key: 'forgot-password' })}
+            onClick={() => showToast.error('Password reset coming soon!')}
           >
             Forgot password?
           </button>

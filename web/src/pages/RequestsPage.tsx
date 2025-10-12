@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FiUserPlus, FiCheck, FiClock, FiX, FiMessageSquare } from 'react-icons/fi';
 import { useAuthStore } from '../store/authStore';
 import connectionService, { type ConnectionRequest } from '../services/connection.service';
-import { toast } from '../utils/toast.util';
+import { showToast } from '../utils/toast';
 import { Header } from '../components/layout/Header';
+import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
 
 export const RequestsPage: React.FC = () => {
@@ -60,9 +61,7 @@ export const RequestsPage: React.FC = () => {
       
       setHasMore(response.pagination.hasMore);
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to load requests', {
-        key: `fetch-error-${activeTab}`,
-      });
+      showToast.error(error.response?.data?.error || 'Failed to load requests');
     } finally {
       setLoading(false);
     }
@@ -71,45 +70,39 @@ export const RequestsPage: React.FC = () => {
   const handleAcceptRequest = async (requestId: string) => {
     try {
       await connectionService.acceptRequest(requestId);
-      toast.success('Request accepted successfully!', { key: `accept-${requestId}` });
+      showToast.success('Request accepted successfully!');
       // Refresh the list
       setRequests([]);
       setPage(1);
       fetchRequests(1);
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to accept request', {
-        key: `accept-error-${requestId}`,
-      });
+      showToast.error(error.response?.data?.error || 'Failed to accept request');
     }
   };
 
   const handleRejectRequest = async (requestId: string) => {
     try {
       await connectionService.rejectRequest(requestId);
-      toast.success('Request rejected', { key: `reject-${requestId}` });
+      showToast.success('Request rejected');
       // Refresh the list
       setRequests([]);
       setPage(1);
       fetchRequests(1);
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to reject request', {
-        key: `reject-error-${requestId}`,
-      });
+      showToast.error(error.response?.data?.error || 'Failed to reject request');
     }
   };
 
   const handleWithdrawRequest = async (requestId: string) => {
     try {
       await connectionService.withdrawRequest(requestId);
-      toast.success('Request withdrawn', { key: `withdraw-${requestId}` });
+      showToast.success('Request withdrawn');
       // Refresh the list
       setRequests([]);
       setPage(1);
       fetchRequests(1);
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to withdraw request', {
-        key: `withdraw-error-${requestId}`,
-      });
+      showToast.error(error.response?.data?.error || 'Failed to withdraw request');
     }
   };
 
@@ -120,35 +113,40 @@ export const RequestsPage: React.FC = () => {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background">
       <Header />
+      <Sidebar />
       
-      {/* Header */}
-      <div className="bg-white border-b border-border shadow-soft">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-text-primary">Connection Requests</h1>
-          <p className="mt-2 text-text-secondary">Manage your network connections</p>
+      {/* Content with sidebar offset */}
+      <div className="md:ml-64 pt-16">
+        {/* Header */}
+        <div className="bg-white border-b border-border shadow-soft">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <h1 className="text-3xl font-bold text-text-primary">Connection Requests</h1>
+            <p className="mt-2 text-text-secondary">Manage your network connections</p>
+          </div>
         </div>
-      </div>
 
-      {/* Tabs */}
-      <div className="bg-white border-b border-border sticky top-16 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-1">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
+        {/* Tabs */}
+        <div className="bg-white border-b border-border sticky top-16 z-30">
+          <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+            <div className="flex space-x-1 overflow-x-auto">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all ${
+                  className={`flex items-center justify-center gap-2 px-4 sm:px-6 py-4 text-xs sm:text-sm font-medium transition-all whitespace-nowrap flex-1 sm:flex-none ${
                     activeTab === tab.id
                       ? 'text-magenta border-b-2 border-magenta'
                       : 'text-text-secondary hover:text-text-primary border-b-2 border-transparent'
                   }`}
                 >
-                  <Icon size={18} />
-                  {tab.label}
+                  <Icon size={18} className="hidden sm:block" />
+                  <Icon size={16} className="sm:hidden" />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden text-xs">{tab.label}</span>
                 </button>
               );
             })}
@@ -211,7 +209,8 @@ export const RequestsPage: React.FC = () => {
           </div>
         )}
       </div>
-
+      
+      </div>
       <BottomNav />
     </div>
   );
@@ -286,17 +285,23 @@ const RequestCard: React.FC<RequestCardProps> = ({ request, activeTab, onAccept,
                 <>
                   <button
                     onClick={() => onAccept(request.id)}
-                    className="px-4 py-2 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 transition-colors flex items-center gap-2"
+                    className="group relative p-3 bg-green-500 text-white rounded-xl font-medium hover:bg-green-600 transition-all hover:shadow-lg"
+                    title="Accept Request"
                   >
-                    <FiCheck size={16} />
-                    Accept
+                    <FiCheck size={20} />
+                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                      Accept
+                    </span>
                   </button>
                   <button
                     onClick={() => onReject(request.id)}
-                    className="px-4 py-2 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors flex items-center gap-2"
+                    className="group relative p-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-all hover:shadow-lg"
+                    title="Reject Request"
                   >
-                    <FiX size={16} />
-                    Reject
+                    <FiX size={20} />
+                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                      Reject
+                    </span>
                   </button>
                 </>
               )}
@@ -304,17 +309,20 @@ const RequestCard: React.FC<RequestCardProps> = ({ request, activeTab, onAccept,
               {activeTab === 'outgoing' && request.status === 'PENDING' && (
                 <button
                   onClick={() => onWithdraw(request.id)}
-                  className="px-4 py-2 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors flex items-center gap-2"
+                  className="group relative p-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-all hover:shadow-lg"
+                  title="Withdraw Request"
                 >
-                  <FiX size={16} />
-                  Withdraw
+                  <FiX size={20} />
+                  <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    Withdraw
+                  </span>
                 </button>
               )}
 
               {activeTab === 'accepted' && (
                 <div className="px-4 py-2 bg-green-100 text-green-700 rounded-xl font-medium flex items-center gap-2">
                   <FiCheck size={16} />
-                  Connected
+                  <span className="hidden sm:inline">Connected</span>
                 </div>
               )}
             </div>

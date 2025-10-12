@@ -15,6 +15,8 @@ interface DiscoveryQuery {
   search?: string;
   region?: string;
   categories?: string;
+  minFollowers?: string;
+  maxFollowers?: string;
 }
 
 class DiscoveryController {
@@ -31,7 +33,7 @@ class DiscoveryController {
       }
 
       // Parse query parameters
-      const { page = '1', limit = '12', search, region, categories } = req.query as DiscoveryQuery;
+      const { page = '1', limit = '12', search, region, categories, minFollowers, maxFollowers } = req.query as DiscoveryQuery;
       const pageNum = parseInt(page, 10);
       const limitNum = parseInt(limit, 10);
       const skip = (pageNum - 1) * limitNum;
@@ -40,6 +42,18 @@ class DiscoveryController {
       const where: any = {
         emailVerified: true, // Only show verified influencers
       };
+
+      // Follower count filter (via social media accounts)
+      if (minFollowers || maxFollowers) {
+        where.socialMediaAccounts = {
+          some: {
+            followersCount: {
+              ...(minFollowers && { gte: parseInt(minFollowers, 10) }),
+              ...(maxFollowers && { lte: parseInt(maxFollowers, 10) }),
+            },
+          },
+        };
+      }
 
       // Search by name or bio
       if (search) {

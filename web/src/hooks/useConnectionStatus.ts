@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import connectionService, { type ConnectionStatus } from '../services/connection.service';
-import { toast } from '../utils/toast.util';
+import { showToast } from '../utils/toast';
 
 export const useConnectionStatus = (targetUserId: string) => {
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>({ status: 'none' });
@@ -43,13 +43,13 @@ export const useConnectionStatus = (targetUserId: string) => {
     try {
       await connectionService.sendRequest({ receiverId: targetUserId, message });
       if (!isUnmountedRef.current) {
-        toast.success('Connection request sent!', { key: `send-${targetUserId}` });
+        showToast.success('Connection request sent!');
         setConnectionStatus({ status: 'sent' });
       }
     } catch (error: any) {
       if (!isUnmountedRef.current) {
         const errorMsg = error.response?.data?.error || 'Failed to send request';
-        toast.error(errorMsg, { key: `send-error-${targetUserId}` });
+        showToast.error(errorMsg);
       }
     } finally {
       if (!isUnmountedRef.current) {
@@ -65,13 +65,13 @@ export const useConnectionStatus = (targetUserId: string) => {
     try {
       await connectionService.acceptRequest(connectionStatus.requestId);
       if (!isUnmountedRef.current) {
-        toast.success('Request accepted!', { key: `accept-${targetUserId}` });
+        showToast.success('Request accepted!');
         setConnectionStatus({ status: 'connected' });
       }
     } catch (error: any) {
       if (!isUnmountedRef.current) {
         const errorMsg = error.response?.data?.error || 'Failed to accept request';
-        toast.error(errorMsg, { key: `accept-error-${targetUserId}` });
+        showToast.error(errorMsg);
       }
     } finally {
       if (!isUnmountedRef.current) {
@@ -87,13 +87,13 @@ export const useConnectionStatus = (targetUserId: string) => {
     try {
       await connectionService.rejectRequest(connectionStatus.requestId);
       if (!isUnmountedRef.current) {
-        toast.success('Request rejected', { key: `reject-${targetUserId}` });
+        showToast.success('Request rejected');
         setConnectionStatus({ status: 'none' });
       }
     } catch (error: any) {
       if (!isUnmountedRef.current) {
         const errorMsg = error.response?.data?.error || 'Failed to reject request';
-        toast.error(errorMsg, { key: `reject-error-${targetUserId}` });
+        showToast.error(errorMsg);
       }
     } finally {
       if (!isUnmountedRef.current) {
@@ -109,13 +109,13 @@ export const useConnectionStatus = (targetUserId: string) => {
     try {
       await connectionService.withdrawRequest(connectionStatus.requestId);
       if (!isUnmountedRef.current) {
-        toast.success('Request withdrawn', { key: `withdraw-${targetUserId}` });
+        showToast.success('Request withdrawn');
         setConnectionStatus({ status: 'none' });
       }
     } catch (error: any) {
       if (!isUnmountedRef.current) {
         const errorMsg = error.response?.data?.error || 'Failed to withdraw request';
-        toast.error(errorMsg, { key: `withdraw-error-${targetUserId}` });
+        showToast.error(errorMsg);
       }
     } finally {
       if (!isUnmountedRef.current) {

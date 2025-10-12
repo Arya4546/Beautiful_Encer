@@ -23,6 +23,13 @@ model User {
   // Connection requests
   sentRequests     ConnectionRequest[] @relation("SentRequests")
   receivedRequests ConnectionRequest[] @relation("ReceivedRequests")
+  
+  // Chat
+  conversations    ConversationParticipant[]
+  messages         Message[]
+  
+  // Notifications
+  notifications    Notification[]
 }
 
 model Influencer {
@@ -157,6 +164,104 @@ model ConnectionRequest {
   @@index([status])
 }
 
+// Chat system models
+model Conversation {
+  id          String                    @id @default(uuid())
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime                  @updatedAt
+  
+  // Last message for quick access
+  lastMessageAt DateTime?
+  lastMessage   String?                 @db.Text
+  
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([lastMessageAt])
+}
+
+model ConversationParticipant {
+  id             String       @id @default(uuid())
+  conversationId String
+  userId         String
+  joinedAt       DateTime     @default(now())
+  
+  // For unread count
+  lastReadAt     DateTime?
+  
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@index([conversationId])
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  senderId       String
+  content        String       @db.Text
+  messageType    MessageType  @default(TEXT)
+  
+  // For file/image messages
+  fileUrl        String?
+  fileName       String?
+  fileSize       Int?
+  
+  // Message status
+  isEdited       Boolean      @default(false)
+  isDeleted      Boolean      @default(false)
+  deletedAt      DateTime?
+  
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  type        NotificationType
+  title       String
+  message     String           @db.Text
+  isRead      Boolean          @default(false)
+  
+  // Reference IDs for different notification types
+  connectionRequestId String?
+  messageId           String?
+  conversationId      String?
+  
+  // Metadata as JSON
+  metadata    String?          @db.Text
+  
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  
+  // User who receives the notification
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  CONNECTION_REQUEST
+  CONNECTION_ACCEPTED
+  CONNECTION_REJECTED
+  NEW_MESSAGE
+  MESSAGE_REPLY
+  PROFILE_VIEW
+  SYSTEM
+}
+
 enum ConnectionStatus {
   PENDING
   ACCEPTED
@@ -187,4 +292,10 @@ enum MediaType {
   CAROUSEL
   REEL
   STORY
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
 }

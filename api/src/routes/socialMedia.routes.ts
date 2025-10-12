@@ -1,6 +1,7 @@
 import express from 'express';
 import socialMediaController from '../controllers/socialMedia.controller.js';
 import { protect } from '../middlewares/auth.middleware.js';
+import { socialMediaLimiter } from '../middlewares/rateLimiter.middleware.js';
 
 const router = express.Router();
 
@@ -32,11 +33,12 @@ router.get(
 /**
  * @route   POST /api/v1/social-media/instagram/sync
  * @desc    Manually trigger Instagram data sync
- * @access  Protected (Influencer)
+ * @access  Protected (Influencer) + Rate Limited
  */
 router.post(
   '/instagram/sync',
   protect,
+  socialMediaLimiter,
   socialMediaController.syncAccount.bind(socialMediaController)
 );
 
@@ -68,11 +70,12 @@ router.get(
 /**
  * @route   POST /api/v1/social-media/tiktok/sync
  * @desc    Manually trigger TikTok data sync
- * @access  Protected (Influencer)
+ * @access  Protected (Influencer) + Rate Limited
  */
 router.post(
   '/tiktok/sync',
   protect,
+  socialMediaLimiter,
   socialMediaController.syncAccount.bind(socialMediaController)
 );
 
