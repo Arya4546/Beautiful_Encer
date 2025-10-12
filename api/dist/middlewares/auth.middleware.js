@@ -12,3 +12,5 @@ export const protect = (req, res, next) => {
     req.user = payload;
     next();
 };
+// Alias for consistency with other routes
+export const authenticateToken = protect;
