@@ -1,4 +1,5 @@
 import { prisma } from '../lib/prisma.js';
+import notificationController from './notification.controller.js';
 class ConnectionController {
     /**
      * Send a connection request
@@ -110,6 +111,18 @@ class ConnectionController {
                     },
                 },
             });
+            // Create notification for receiver
+            await notificationController.createNotification({
+                userId: receiverId,
+                type: 'CONNECTION_REQUEST',
+                title: 'New Connection Request',
+                message: `${connectionRequest.sender.name} sent you a connection request`,
+                connectionRequestId: connectionRequest.id,
+                metadata: {
+                    senderName: connectionRequest.sender.name,
+                    senderRole: connectionRequest.sender.role,
+                },
+            });
             return res.status(201).json({
                 success: true,
                 message: 'Connection request sent successfully',
@@ -167,6 +180,50 @@ class ConnectionController {
                             role: true,
                         },
                     },
+                },
+            });
+            // Create a conversation between sender and receiver automatically
+            try {
+                // Check if conversation already exists
+                const existingConversation = await prisma.conversation.findFirst({
+                    where: {
+                        participants: {
+                            every: {
+                                userId: {
+                                    in: [request.senderId, request.receiverId],
+                                },
+                            },
+                        },
+                    },
+                });
+                // Only create if doesn't exist
+                if (!existingConversation) {
+                    await prisma.conversation.create({
+                        data: {
+                            participants: {
+                                create: [
+                                    { userId: request.senderId },
+                                    { userId: request.receiverId },
+                                ],
+                            },
+                        },
+                    });
+                }
+            }
+            catch (convError) {
+                console.error('[ConnectionController] Failed to create conversation:', convError);
+                // Don't fail the request if conversation creation fails
+            }
+            // Create notification for sender
+            await notificationController.createNotification({
+                userId: request.senderId,
+                type: 'CONNECTION_ACCEPTED',
+                title: 'Connection Accepted',
+                message: `${updatedRequest.receiver.name} accepted your connection request`,
+                connectionRequestId: updatedRequest.id,
+                metadata: {
+                    receiverName: updatedRequest.receiver.name,
+                    receiverRole: updatedRequest.receiver.role,
                 },
             });
             return res.status(200).json({
