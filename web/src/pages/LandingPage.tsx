@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { FaUserCheck, FaChartPie, FaUsers, FaChartLine, FaRocket, FaComments, FaSearch, FaStar, FaArrowRight, FaCheckCircle } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 
 const LandingPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const { scrollYProgress } = useScroll();
@@ -20,49 +22,49 @@ const LandingPage = () => {
   const features = [
     {
       icon: <FaUsers className="text-4xl" />,
-      title: "Discover Influencers",
-      description: "Search and filter nano and micro-influencers by niche, region, follower count, and engagement metrics.",
+      title: t('landing.features.discover.title'),
+      description: t('landing.features.discover.description'),
       gradient: "from-emerald-400 to-teal-500"
     },
     {
       icon: <FaChartLine className="text-4xl" />,
-      title: "Performance Analytics",
-      description: "Track follower growth, engagement rates, likes, comments, and shares with comprehensive analytics dashboard.",
+      title: t('landing.features.analytics.title'),
+      description: t('landing.features.analytics.description'),
       gradient: "from-sky-400 to-blue-500"
     },
     {
       icon: <FaRocket className="text-4xl" />,
-      title: "Campaign Management",
-      description: "Launch, monitor, and optimize influencer campaigns with real-time performance tracking and reporting.",
+      title: t('landing.features.campaign.title'),
+      description: t('landing.features.campaign.description'),
       gradient: "from-rose-400 to-pink-500"
     },
     {
       icon: <FaComments className="text-4xl" />,
-      title: "Direct Messaging",
-      description: "Communicate seamlessly with influencers through our integrated messaging system without leaving the platform.",
+      title: t('landing.features.messaging.title'),
+      description: t('landing.features.messaging.description'),
       gradient: "from-amber-400 to-orange-500"
     },
   ];
 
   const stats = [
-    { number: "50K+", label: "Active Influencers" },
-    { number: "10K+", label: "Brand Partners" },
-    { number: "1M+", label: "Campaigns" },
-    { number: "98%", label: "Success Rate" },
+    { number: "50K+", label: t('landing.stats.influencers') },
+    { number: "10K+", label: t('landing.stats.brands') },
+    { number: "1M+", label: t('landing.stats.campaigns') },
+    { number: "98%", label: t('landing.stats.successRate') },
   ];
 
   const keyPillars = [
-    { icon: <FaUserCheck />, name: "Authentic Reach", color: "from-emerald-400 to-teal-500" },
-    { icon: <FaChartPie />, name: "Data-Driven Results", color: "from-sky-400 to-blue-500" },
+    { icon: <FaUserCheck />, name: t('landing.pillars.authenticReach'), color: "from-emerald-400 to-teal-500" },
+    { icon: <FaChartPie />, name: t('landing.pillars.dataResults'), color: "from-sky-400 to-blue-500" },
   ];
 
   const benefits = [
-    "Real-time engagement tracking",
-    "Comprehensive audience insights",
-    "Campaign performance metrics",
-    "Verified influencer profiles",
-    "Secure collaboration tools",
-    "24/7 dedicated support"
+    t('landing.benefits.tracking'),
+    t('landing.benefits.insights'),
+    t('landing.benefits.metrics'),
+    t('landing.benefits.verified'),
+    t('landing.benefits.tools'),
+    t('landing.benefits.support')
   ];
 
   return (
@@ -110,18 +112,18 @@ const LandingPage = () => {
               transition={{ delay: 0.5, duration: 0.8 }}
               className="inline-block mb-8 px-6 py-2 bg-emerald-500/20 backdrop-blur-sm rounded-full border border-emerald-400/30"
             >
-              <span className="text-emerald-200 font-medium text-sm">Powering Nano & Micro Influencer Marketing</span>
+              <span className="text-emerald-200 font-medium text-sm">{t('landing.tagline')}</span>
             </motion.div>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-8">
-              Connect With
+              {t('landing.hero.title')}
               <span className="block bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent mt-2">
-                Authentic Influencers
+                {t('landing.hero.subtitle')}
               </span>
             </h1>
 
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-12 leading-relaxed">
-              The ultimate platform for discovering, analyzing, and collaborating with nano and micro-influencers on Instagram and TikTok.
+              {t('landing.hero.description')}
             </p>
 
             <motion.div 
@@ -136,7 +138,7 @@ const LandingPage = () => {
                 onClick={() => navigate('/signup')}
                 className="group px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-xl font-semibold shadow-lg transition-all flex items-center gap-2"
               >
-                Sign Up as Influencer
+                {t('landing.hero.ctaInfluencer')}
                 <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
               </motion.button>
               <motion.button
@@ -145,7 +147,7 @@ const LandingPage = () => {
                 onClick={() => navigate('/signup')}
                 className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white rounded-xl font-semibold border border-white/20 hover:bg-white/20 transition-all"
               >
-                Sign Up as Salon
+                {t('landing.hero.ctaSalon')}
               </motion.button>
             </motion.div>
 
@@ -205,13 +207,13 @@ const LandingPage = () => {
             className="text-center mb-20"
           >
             <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-              Powerful Features for
+              {t('landing.features.subtitleAlt').split('\n')[0]}
               <span className="block bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent mt-2">
-                Seamless Collaboration
+                {t('landing.features.subtitleAlt').split('のための')[1] || t('landing.features.subtitle')}
               </span>
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-              Everything you need to manage influencer relationships and campaigns
+              {t('landing.features.description')}
             </p>
           </motion.div>
 
@@ -247,33 +249,33 @@ const LandingPage = () => {
             viewport={{ once: true }}
             className="text-4xl lg:text-5xl font-bold text-center mb-20"
           >
-            How It Works
+            {t('landing.howItWorks.title')}
           </motion.h2>
 
           <div className="space-y-16">
             {[
               {
                 step: "01",
-                title: "Register & Connect",
-                desc: "Influencers create profiles and connect their Instagram and TikTok accounts for verification.",
+                title: t('landing.howItWorks.step1.title'),
+                desc: t('landing.howItWorks.step1.description'),
                 icon: <FaUsers />
               },
               {
                 step: "02",
-                title: "Data Collection",
-                desc: "System automatically collects public metrics including followers, engagement, and post performance.",
+                title: t('landing.howItWorks.step2.title'),
+                desc: t('landing.howItWorks.step2.description'),
                 icon: <FaSearch />
               },
               {
                 step: "03",
-                title: "Performance Scoring",
-                desc: "Platform calculates engagement scores based on collected data to help brands make informed decisions.",
+                title: t('landing.howItWorks.step3.title'),
+                desc: t('landing.howItWorks.step3.description'),
                 icon: <FaChartLine />
               },
               {
                 step: "04",
-                title: "Connect & Collaborate",
-                desc: "Brands discover influencers through advanced search and connect directly via integrated messaging.",
+                title: t('landing.features.messaging.title'),
+                desc: t('landing.features.messaging.description'),
                 icon: <FaRocket />
               },
             ].map((item, idx) => (
@@ -313,10 +315,10 @@ const LandingPage = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-4xl lg:text-5xl font-bold mb-6">
-                Why Choose Our Platform?
+                {t('landing.whyChoose.title')}
               </h2>
               <p className="text-xl text-gray-300 mb-8">
-                Built specifically for nano and micro-influencer campaigns
+                {t('landing.whyChoose.subtitle')}
               </p>
               <div className="space-y-4">
                 {benefits.map((benefit, idx) => (
@@ -348,14 +350,14 @@ const LandingPage = () => {
                     <FaStar className="text-4xl text-yellow-300" />
                     <div>
                       <div className="text-white font-bold text-2xl">4.9/5</div>
-                      <div className="text-white/70">Average Rating</div>
+                      <div className="text-white/70">{t('landing.whyChoose.rating')}</div>
                     </div>
                   </div>
                   <div className="border-t border-white/20 pt-6">
                     <p className="text-white/90 italic">
-                      "This platform revolutionized how we connect with micro-influencers. The analytics and messaging tools are exceptional!"
+                      "{t('landing.whyChoose.testimonial')}"
                     </p>
-                    <div className="text-white/70 mt-4">— Sarah M., Marketing Director</div>
+                    <div className="text-white/70 mt-4">— {t('landing.whyChoose.testimonialAuthor')}</div>
                   </div>
                 </div>
               </div>
@@ -377,10 +379,10 @@ const LandingPage = () => {
             <div className="absolute inset-0 bg-white/5"></div>
             <div className="relative z-10">
               <h2 className="text-4xl lg:text-5xl font-bold text-white mb-6">
-                Ready to Transform Your Marketing?
+                {t('landing.cta.titleAlt')}
               </h2>
               <p className="text-xl text-white/90 mb-12 max-w-2xl mx-auto">
-                Join thousands of brands and influencers building authentic partnerships
+                {t('landing.cta.descriptionAlt')}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <motion.button
@@ -389,7 +391,7 @@ const LandingPage = () => {
                   onClick={() => navigate('/signup')}
                   className="px-10 py-5 bg-white text-emerald-600 rounded-xl font-bold shadow-xl hover:shadow-2xl transition-all"
                 >
-                  Get Started as Influencer
+                  {t('landing.cta.buttonInfluencer')}
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.03 }}
@@ -397,7 +399,7 @@ const LandingPage = () => {
                   onClick={() => navigate('/signup')}
                   className="px-10 py-5 bg-white/10 backdrop-blur-lg text-white border-2 border-white rounded-xl font-bold hover:bg-white/20 transition-all"
                 >
-                  Get Started as Salon
+                  {t('landing.cta.buttonSalon')}
                 </motion.button>
               </div>
             </div>
@@ -410,38 +412,38 @@ const LandingPage = () => {
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div>
-              <h3 className="text-white font-bold text-xl mb-4">BeautifulEncer</h3>
+              <h3 className="text-white font-bold text-xl mb-4">{t('brand.name')}</h3>
               <p className="text-gray-400 leading-relaxed">
-                Empowering nano and micro-influencer marketing
+                {t('landing.footer.tagline')}
               </p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Platform</h4>
+              <h4 className="text-white font-semibold mb-4">{t('landing.footer.platform')}</h4>
               <ul className="space-y-2">
-                <li><a href="#" className="hover:text-white transition-colors">For Influencers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">For Brands</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Analytics</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">{t('landing.footer.forInfluencers')}</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">{t('landing.footer.forBrands')}</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">{t('landing.features.analytics.title')}</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
+              <h4 className="text-white font-semibold mb-4">{t('landing.footer.company')}</h4>
               <ul className="space-y-2">
-                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">{t('landing.footer.aboutUs')}</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">{t('landing.footer.careers')}</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">{t('common.sendMessage')}</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Support</h4>
+              <h4 className="text-white font-semibold mb-4">{t('landing.footer.support')}</h4>
               <ul className="space-y-2">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">{t('landing.footer.helpCenter')}</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">{t('landing.footer.privacyPolicy')}</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
               </ul>
             </div>
           </div>
           <div className="border-t border-white/10 pt-8 text-center text-gray-400">
-            <p>© {new Date().getFullYear()} BeautifulEncer. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} {t('brand.name')}. {t('footer.copyright')}</p>
           </div>
         </div>
       </footer>

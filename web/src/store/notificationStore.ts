@@ -23,10 +23,17 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   loading: false,
 
   fetchNotifications: async () => {
+    // Check if already fetched in this session
+    const hasFetched = sessionStorage.getItem('notifications_fetched');
+    if (hasFetched) {
+      return; // Skip if already fetched
+    }
+    
     try {
       set({ loading: true });
       const notifications = await notificationService.getNotifications();
       set({ notifications, loading: false });
+      sessionStorage.setItem('notifications_fetched', 'true');
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
       set({ loading: false });
@@ -34,6 +41,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
   },
 
   fetchUnreadCount: async () => {
+    // Already protected in Sidebar component
     try {
       const { count } = await notificationService.getUnreadCount();
       set({ unreadCount: count });

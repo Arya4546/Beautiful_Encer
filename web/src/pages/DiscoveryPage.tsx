@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FiUserPlus, FiCheck, FiClock, FiEye, FiMapPin, FiInstagram, FiActivity } from 'react-icons/fi';
 import { useAuthStore } from '../store/authStore';
 import discoveryService from '../services/discovery.service';
@@ -33,6 +34,7 @@ interface User {
 }
 
 export const DiscoveryPage: React.FC = () => {
+  const { t } = useTranslation();
   const currentUser = useAuthStore((state) => state.user);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,20 +49,54 @@ export const DiscoveryPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const observerTarget = useRef<HTMLDivElement>(null);
+  const fetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isFetchingRef = useRef(false);
+  const lastFetchKey = useRef<string>('');
+  const lastSuccessfulFetch = useRef<number>(0);
+  const isMountedRef = useRef(true);
 
   const isInfluencer = currentUser?.role === 'INFLUENCER';
   const isSalon = currentUser?.role === 'SALON';
+
+  // Track component mount/unmount
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      isFetchingRef.current = false;
+    };
+  }, []);
 
   // Available filter options
   const availableCategories = ['Beauty', 'Fashion', 'Lifestyle', 'Fitness', 'Food', 'Travel', 'Tech', 'Gaming'];
   const availableRegions = ['Tokyo', 'Osaka', 'Kyoto', 'Yokohama', 'Nagoya', 'Sapporo', 'Fukuoka', 'Kobe'];
 
-  // Fetch users when filters change
+  // Fetch users when filters change (with debounce for search)
   useEffect(() => {
-    setUsers([]);
-    setPage(1);
-    setHasMore(true);
-    fetchUsers(1, filters);
+    if (fetchTimeoutRef.current) {
+      clearTimeout(fetchTimeoutRef.current);
+    }
+
+    fetchTimeoutRef.current = setTimeout(() => {
+      const fetchKey = `${JSON.stringify(filters)}_1`;
+      
+      // Prevent duplicate fetches
+      if (lastFetchKey.current === fetchKey || isFetchingRef.current) {
+        return;
+      }
+      
+      lastFetchKey.current = fetchKey;
+      setUsers([]);
+      setPage(1);
+      setHasMore(true);
+      fetchUsers(1, filters);
+    }, filters.search ? 500 : 100); // 500ms for search, 100ms for filters to prevent rapid clicks
+
+    return () => {
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
+    };
   }, [filters]);
 
   // Infinite scroll
@@ -88,7 +124,30 @@ export const DiscoveryPage: React.FC = () => {
   }, [page]);
 
   const fetchUsers = async (pageNum: number, currentFilters: Filters) => {
+    // Check if component is still mounted
+    if (!isMountedRef.current) {
+      console.log('⏸️ Component unmounted, skipping fetch...');
+      return;
+    }
+    
+    // Prevent concurrent requests
+    if (isFetchingRef.current) {
+      console.log('⏸️ Fetch already in progress, skipping...');
+      return;
+    }
+    
+    // Prevent requests within 1 second of last successful fetch (for page 1)
+    if (pageNum === 1) {
+      const timeSinceLastFetch = Date.now() - lastSuccessfulFetch.current;
+      if (timeSinceLastFetch < 1000) {
+        console.log('⏸️ Too soon after last fetch, skipping...');
+        return;
+      }
+    }
+    
+    isFetchingRef.current = true;
     setLoading(true);
+    
     try {
       let response;
       let transformedUsers: User[] = [];
@@ -138,15 +197,18 @@ export const DiscoveryPage: React.FC = () => {
 
       if (pageNum === 1) {
         setUsers(transformedUsers);
+        lastSuccessfulFetch.current = Date.now(); // Track successful fetch
       } else {
         setUsers((prev) => [...prev, ...transformedUsers]);
       }
 
       setHasMore(response.pagination.hasMore);
     } catch (error: any) {
+      console.error('❌ Discovery fetch error:', error);
       showToast.error(error.response?.data?.error || 'Failed to load users');
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
   };
 
@@ -164,10 +226,10 @@ export const DiscoveryPage: React.FC = () => {
         <div className="bg-gradient-to-r from-magenta/5 to-magenta-light/10 border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-2">
-              Discover {isSalon ? 'Influencers' : 'Salons'}
+              {isSalon ? t('discovery.titleInfluencers') : t('discovery.title')}
             </h1>
             <p className="text-text-secondary">
-              Connect with talented {isSalon ? 'influencers' : 'beauty salons'} and grow your network
+              {isSalon ? t('discovery.subtitleInfluencers') : t('discovery.subtitle')}
             </p>
           </div>
         </div>
@@ -189,9 +251,9 @@ export const DiscoveryPage: React.FC = () => {
           ) : users.length === 0 ? (
             <div className="text-center py-20">
               <div className="text-8xl mb-6">🔍</div>
-              <h3 className="text-3xl font-bold text-text-primary mb-3">No users found</h3>
+              <h3 className="text-3xl font-bold text-text-primary mb-3">{t('discovery.noResults')}</h3>
               <p className="text-text-secondary text-lg">
-                Try adjusting your search criteria
+                {t('discovery.noResultsSubtitle')}
               </p>
             </div>
           ) : (
@@ -215,7 +277,7 @@ export const DiscoveryPage: React.FC = () => {
               {/* End of Results */}
               {!hasMore && users.length > 0 && (
                 <div className="text-center py-12 text-text-secondary text-lg">
-                  You've reached the end! 🎉
+                  {t('discovery.endOfResults')}
                 </div>
               )}
             </>

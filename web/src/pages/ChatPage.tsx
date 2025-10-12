@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
 import chatService, { type Conversation, type Message } from '../services/chat.service';
 import { Header } from '../components/layout/Header';
@@ -9,6 +10,7 @@ import { Send, X, ArrowLeft } from 'lucide-react';
 import { showToast } from '../utils/toast';
 
 export const ChatPage: React.FC = () => {
+  const { t } = useTranslation();
   // State management
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
@@ -33,10 +35,18 @@ export const ChatPage: React.FC = () => {
     const token = localStorage.getItem('accessToken');
     if (!token) return;
     
+    // Check if already fetched in this session
+    const hasFetched = sessionStorage.getItem('conversations_fetched');
+    if (hasFetched) {
+      setLoading(false);
+      return;
+    }
+    
     const loadConversations = async () => {
       try {
         const data = await chatService.getConversations();
         setConversations(data);
+        sessionStorage.setItem('conversations_fetched', 'true');
       } catch (error) {
         console.error('Failed to load conversations:', error);
       } finally {
@@ -61,6 +71,7 @@ export const ChatPage: React.FC = () => {
       try {
         const data = await chatService.getConversations();
         setConversations(data);
+        sessionStorage.setItem('conversations_fetched', 'true');
       } catch (error) {
         console.error('Failed to load conversations:', error);
       }
@@ -245,7 +256,7 @@ export const ChatPage: React.FC = () => {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-magenta"></div>
-              <p className="mt-4 text-text-secondary">Loading conversations...</p>
+              <p className="mt-4 text-text-secondary">{t('chat.loadingConversations')}</p>
             </div>
           </div>
         </div>
@@ -270,7 +281,7 @@ export const ChatPage: React.FC = () => {
           >
             {/* Header */}
             <div className="p-4 border-b border-border flex-shrink-0">
-              <h1 className="text-2xl font-bold text-text-primary">Messages</h1>
+              <h1 className="text-2xl font-bold text-text-primary">{t('chat.title')}</h1>
             </div>
 
         {/* Conversations */}
@@ -278,8 +289,8 @@ export const ChatPage: React.FC = () => {
           {conversations.length === 0 ? (
             <div className="p-8 text-center text-text-secondary">
               <div className="text-5xl mb-4">💬</div>
-              <p className="font-semibold text-text-primary text-lg mb-2">No conversations yet</p>
-              <p className="text-sm mb-4">To start chatting:</p>
+              <p className="font-semibold text-text-primary text-lg mb-2">{t('chat.noConversations')}</p>
+              <p className="text-sm mb-4">{t('chat.toStart')}</p>
               <ol className="text-sm text-left max-w-xs mx-auto space-y-2">
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-magenta">1.</span>
@@ -287,7 +298,7 @@ export const ChatPage: React.FC = () => {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-magenta">2.</span>
-                  <span>Connect with users</span>
+                  <span>{t('chat.connectWithUsers')}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-magenta">3.</span>
@@ -494,7 +505,7 @@ export const ChatPage: React.FC = () => {
                       handleSendMessage();
                     }
                   }}
-                  placeholder="Type a message..."
+                  placeholder={t('chat.typePlaceholder')}
                   className="flex-1 resize-none border border-border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-magenta/50"
                   rows={1}
                   disabled={sendingMessage}
@@ -506,7 +517,7 @@ export const ChatPage: React.FC = () => {
                 >
                   <Send size={20} />
                   <span className="hidden sm:inline">
-                    {editingMessage ? 'Update' : 'Send'}
+                    {editingMessage ? t('chat.update') : t('chat.send')}
                   </span>
                 </button>
               </div>
@@ -517,10 +528,10 @@ export const ChatPage: React.FC = () => {
             <div>
               <div className="text-6xl mb-4">💬</div>
               <h2 className="text-2xl font-bold text-text-primary mb-2">
-                Select a conversation
+                {t('chat.selectConversation')}
               </h2>
               <p className="text-text-secondary">
-                Choose a conversation from the list to start chatting
+                {t('chat.chooseConversation')}
               </p>
             </div>
           </div>

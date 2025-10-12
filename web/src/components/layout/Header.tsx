@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FiLogOut, FiUser, FiSettings, FiChevronDown } from 'react-icons/fi';
 import { useAuthStore } from '../../store/authStore';
 import { showToast } from '../../utils/toast';
 import { ButtonLoader } from '../ui/Loader';
+import { LanguageSwitcher } from '../LanguageSwitcher';
 
 export const Header: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
@@ -33,7 +36,7 @@ export const Header: React.FC = () => {
     await new Promise(resolve => setTimeout(resolve, 300));
     
     logout();
-    showToast.success('Logged out successfully');
+    showToast.success(t('toast.success.logoutSuccess'));
     navigate('/login');
     
     // Reset loading state after navigation
@@ -71,12 +74,16 @@ export const Header: React.FC = () => {
               <span className="text-white font-bold text-xl">BE</span>
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-magenta to-magenta-dark bg-clip-text text-transparent hidden sm:block">
-              Beautiful Encer
+              {t('brand.name')}
             </span>
           </Link>
 
-          {/* Profile Dropdown */}
-          <div className="relative flex-shrink-0" ref={dropdownRef}>
+          {/* Language Switcher & Profile */}
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher />
+            
+            {/* Profile Dropdown */}
+            <div className="relative flex-shrink-0" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center space-x-3 hover:bg-background-secondary rounded-xl px-3 py-2 transition-colors min-w-[48px]"
@@ -145,7 +152,7 @@ export const Header: React.FC = () => {
                     type="button"
                   >
                     <FiUser size={18} className="group-hover:text-magenta transition-colors" />
-                    <span className="text-sm font-medium">Profile Settings</span>
+                    <span className="text-sm font-medium">{t('nav.profile')}</span>
                   </button>
                 </div>
 
@@ -160,18 +167,19 @@ export const Header: React.FC = () => {
                     {isLoggingOut ? (
                       <>
                         <ButtonLoader />
-                        <span className="text-sm font-medium">Logging out...</span>
+                        <span className="text-sm font-medium">{t('common.loading')}</span>
                       </>
                     ) : (
                       <>
                         <FiLogOut size={18} className="group-hover:translate-x-1 transition-transform" />
-                        <span className="text-sm font-medium">Logout</span>
+                        <span className="text-sm font-medium">{t('common.logout')}</span>
                       </>
                     )}
                   </button>
                 </div>
               </div>
             )}
+            </div>
           </div>
         </div>
       </div>

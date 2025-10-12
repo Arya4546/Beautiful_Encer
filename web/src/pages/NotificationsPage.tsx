@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
@@ -8,6 +9,7 @@ import { Bell, Check, CheckCheck, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export const NotificationsPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     notifications,
@@ -89,7 +91,7 @@ export const NotificationsPage: React.FC = () => {
             <div className="p-6 border-b border-border flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-text-primary">Notifications</h1>
+                  <h1 className="text-2xl font-bold text-text-primary">{t('notifications.title')}</h1>
                   <p className="text-sm text-text-secondary mt-1">
                     Stay updated with your latest activities
                   </p>
@@ -100,7 +102,7 @@ export const NotificationsPage: React.FC = () => {
                     className="flex items-center space-x-2 px-4 py-2 bg-magenta text-white rounded-lg hover:bg-magenta/90 transition-colors"
                   >
                     <CheckCheck size={18} />
-                    <span className="hidden sm:inline">Mark All Read</span>
+                    <span className="hidden sm:inline">{t('notifications.markAllRead')}</span>
                   </button>
                 )}
               </div>
@@ -114,7 +116,7 @@ export const NotificationsPage: React.FC = () => {
                     <Bell size={40} className="text-gray-400" />
                   </div>
                   <h2 className="text-xl font-semibold text-text-primary mb-2">
-                    No notifications yet
+                    {t('notifications.noNotifications')}
                   </h2>
                   <p className="text-text-secondary max-w-md">
                     When you get connection requests, messages, or other updates, they'll appear here.

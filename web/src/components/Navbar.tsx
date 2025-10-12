@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBars, FaTimes } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -38,10 +41,18 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <a href="#" className="text-2xl font-bold">
-            <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-              Beautiful
-            </span>
-            <span className="text-white">Encer</span>
+            {t('i18n.language') === 'ja' ? (
+              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                {t('brand.name')}
+              </span>
+            ) : (
+              <>
+                <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                  Beautiful
+                </span>
+                <span className="text-white">Encer</span>
+              </>
+            )}
           </a>
 
           {/* Desktop Nav */}
@@ -59,15 +70,16 @@ const Navbar = () => {
 
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center space-x-4">
+            <LanguageSwitcher />
             <button className="text-gray-300 hover:text-white transition-colors">
-              Sign In
+              {t('common.login')}
             </button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg font-semibold shadow-md"
             >
-              Sign Up
+              {t('common.signup')}
             </motion.button>
           </div>
 
@@ -101,16 +113,17 @@ const Navbar = () => {
                   {link.name}
                 </a>
               ))}
+              <LanguageSwitcher />
               <div className="flex flex-col items-center space-y-4 pt-4 w-full px-8">
                  <button className="w-full py-3 text-lg text-gray-300 hover:text-white transition-colors">
-                    Sign In
+                    {t('common.login')}
                   </button>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="w-full py-3 text-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg font-semibold shadow-md"
                   >
-                    Sign Up
+                    {t('common.signup')}
                   </motion.button>
               </div>
             </div>
