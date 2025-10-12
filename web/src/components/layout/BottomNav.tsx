@@ -1,17 +1,19 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FiHome, FiUsers, FiMessageCircle, FiBell, FiUser } from 'react-icons/fi';
 import { useNotificationStore } from '../../store/notificationStore';
 
 export const BottomNav: React.FC = () => {
+  const { t } = useTranslation();
   const unreadCount = useNotificationStore((state) => state.unreadCount);
 
   const navItems = [
-    { to: '/discover', icon: FiHome, label: 'Home', badge: 0 },
-    { to: '/requests', icon: FiUsers, label: 'Requests', badge: 0 },
-    { to: '/chat', icon: FiMessageCircle, label: 'Chats', badge: 0 },
-    { to: '/notifications', icon: FiBell, label: 'Notifications', badge: unreadCount },
-    { to: '/profile', icon: FiUser, label: 'Profile', badge: 0 },
+    { to: '/discover', icon: FiHome, label: t('nav.discover'), badge: 0 },
+    { to: '/requests', icon: FiUsers, label: t('nav.requests'), badge: 0 },
+    { to: '/chat', icon: FiMessageCircle, label: t('nav.chat'), badge: 0 },
+    { to: '/notifications', icon: FiBell, label: t('nav.notifications'), badge: unreadCount },
+    { to: '/profile', icon: FiUser, label: t('nav.profile'), badge: 0 },
   ];
 
   return (

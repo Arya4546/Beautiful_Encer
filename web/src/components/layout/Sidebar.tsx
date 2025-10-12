@@ -1,18 +1,24 @@
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FiHome, FiUsers, FiMessageCircle, FiBell, FiUser } from 'react-icons/fi';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useAuthStore } from '../../store/authStore';
 import { io, Socket } from 'socket.io-client';
 
 export const Sidebar: React.FC = () => {
+  const { t } = useTranslation();
   const { unreadCount, fetchUnreadCount, setUnreadCount, addNotification } = useNotificationStore();
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     if (user) {
-      // Fetch initial unread count
-      fetchUnreadCount();
+      // Fetch initial unread count only once
+      const hasFetched = sessionStorage.getItem('unread_count_fetched');
+      if (!hasFetched) {
+        fetchUnreadCount();
+        sessionStorage.setItem('unread_count_fetched', 'true');
+      }
 
       // Setup WebSocket for real-time notifications
       const token = localStorage.getItem('accessToken');
@@ -48,14 +54,14 @@ export const Sidebar: React.FC = () => {
         socket.disconnect();
       };
     }
-  }, [user, fetchUnreadCount, setUnreadCount, addNotification]);
+  }, [user]);
 
   const navItems = [
-    { to: '/discover', icon: FiHome, label: 'Discover', badge: 0 },
-    { to: '/requests', icon: FiUsers, label: 'Requests', badge: 0 },
-    { to: '/chat', icon: FiMessageCircle, label: 'Messages', badge: 0 },
-    { to: '/notifications', icon: FiBell, label: 'Notifications', badge: unreadCount },
-    { to: '/profile', icon: FiUser, label: 'My Profile', badge: 0 },
+    { to: '/discover', icon: FiHome, label: t('nav.discover'), badge: 0 },
+    { to: '/requests', icon: FiUsers, label: t('nav.requests'), badge: 0 },
+    { to: '/chat', icon: FiMessageCircle, label: t('nav.chat'), badge: 0 },
+    { to: '/notifications', icon: FiBell, label: t('nav.notifications'), badge: unreadCount },
+    { to: '/profile', icon: FiUser, label: t('nav.profile'), badge: 0 },
   ];
 
   return (

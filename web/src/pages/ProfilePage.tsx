@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
@@ -43,6 +44,7 @@ interface SettingItem {
 }
 
 export const ProfilePage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, logout, setUser } = useAuthStore();
   const [showModal, setShowModal] = useState<string | null>(null);
@@ -51,6 +53,7 @@ export const ProfilePage: React.FC = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [profileDataLoaded, setProfileDataLoaded] = useState(false);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -92,10 +95,20 @@ export const ProfilePage: React.FC = () => {
   const [deletePassword, setDeletePassword] = useState('');
 
   useEffect(() => {
-    loadProfileData();
-  }, []);
+    // Only load if not already loaded in this session
+    if (!profileDataLoaded) {
+      loadProfileData();
+    }
+  }, [profileDataLoaded]);
 
   const loadProfileData = async () => {
+    // Check if already fetched in this session
+    const hasFetched = sessionStorage.getItem('profile_data_fetched');
+    if (hasFetched && !profileDataLoaded) {
+      setProfileDataLoaded(true);
+      return;
+    }
+    
     try {
       setLoading(true);
       const profile = await profileService.getMyProfile();
@@ -132,6 +145,9 @@ export const ProfilePage: React.FC = () => {
         preferredCategories: profile.salon?.preferredCategories || [],
         profilePic: profile.influencer?.profilePic || profile.salon?.profilePic || '',
       });
+      
+      sessionStorage.setItem('profile_data_fetched', 'true');
+      setProfileDataLoaded(true);
     } catch (error: any) {
       showToast.error('Failed to load profile data');
       console.error(error);
@@ -291,50 +307,50 @@ export const ProfilePage: React.FC = () => {
 
   const settingSections: Array<{ title: string; items: SettingItem[] }> = [
     {
-      title: 'Profile',
+      title: t('profile.sections.profile'),
       items: [
         {
           id: 'profile-info',
-          title: 'Profile Information',
-          subtitle: `Update your name, ${user?.role === 'INFLUENCER' ? 'bio, and region' : 'business details'}`,
+          title: t('profile.information.title'),
+          subtitle: t('profile.information.subtitle'),
           icon: User,
           onClick: () => setShowModal('profile'),
         },
         {
           id: 'profile-picture',
-          title: 'Profile Picture',
-          subtitle: 'Change your profile photo',
+          title: t('profile.picture.title'),
+          subtitle: t('profile.picture.subtitle'),
           icon: Camera,
           onClick: () => setShowModal('profile-picture'),
         },
       ],
     },
     {
-      title: 'Security',
+      title: t('profile.sections.security'),
       items: [
         {
           id: 'change-password',
-          title: 'Change Password',
-          subtitle: 'Update your password regularly for security',
+          title: t('profile.password.title'),
+          subtitle: t('profile.password.subtitle'),
           icon: Lock,
           onClick: () => setShowModal('password'),
         },
       ],
     },
     {
-      title: 'Account',
+      title: t('profile.sections.account'),
       items: [
         {
           id: 'logout',
-          title: 'Logout',
-          subtitle: 'Sign out of your account',
+          title: t('profile.logout.title'),
+          subtitle: t('profile.logout.subtitle'),
           icon: LogOut,
           onClick: handleLogout,
         },
         {
           id: 'delete-account',
-          title: 'Delete Account',
-          subtitle: 'Permanently delete your account and data',
+          title: t('profile.deleteAccount.title'),
+          subtitle: t('profile.deleteAccount.subtitle'),
           icon: Trash2,
           onClick: () => setShowModal('delete'),
         },
@@ -352,9 +368,9 @@ export const ProfilePage: React.FC = () => {
           <div className="h-full flex flex-col bg-white">
             {/* Header */}
             <div className="p-4 md:p-6 border-b border-border flex-shrink-0">
-              <h1 className="text-xl md:text-2xl font-bold text-text-primary">Settings</h1>
+              <h1 className="text-xl md:text-2xl font-bold text-text-primary">{t('profile.title')}</h1>
               <p className="text-xs md:text-sm text-text-secondary mt-1">
-                Manage your account settings and preferences
+                {t('profile.subtitle')}
               </p>
             </div>
 
@@ -455,10 +471,10 @@ export const ProfilePage: React.FC = () => {
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 md:p-6 border-b border-border flex-shrink-0">
               <h2 className="text-lg md:text-xl font-bold text-text-primary">
-                {showModal === 'profile' && 'Edit Profile'}
-                {showModal === 'profile-picture' && 'Update Profile Picture'}
-                {showModal === 'password' && 'Change Password'}
-                {showModal === 'delete' && 'Delete Account'}
+                {showModal === 'profile' && t('profile.editProfile')}
+                {showModal === 'profile-picture' && t('profile.picture.title')}
+                {showModal === 'password' && t('profile.password.title')}
+                {showModal === 'delete' && t('profile.deleteAccount.title')}
               </h2>
               <button
                 onClick={() => {
@@ -477,14 +493,14 @@ export const ProfilePage: React.FC = () => {
                 <form onSubmit={handleProfileUpdate} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-text-primary mb-2">
-                      Full Name
+                      {t('profile.fullName')}
                     </label>
                     <input
                       type="text"
                       value={profileData.name}
                       onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                       className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-magenta/50"
-                      placeholder="Enter your full name"
+                      placeholder={t('profile.enterFullName')}
                       required
                     />
                   </div>
@@ -493,51 +509,51 @@ export const ProfilePage: React.FC = () => {
                     <>
                       <div>
                         <label className="block text-sm font-medium text-text-primary mb-2">
-                          Bio
+                          {t('profile.bio')}
                         </label>
                         <textarea
                           value={profileData.bio}
                           onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
                           className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-magenta/50 min-h-[80px] resize-none"
-                          placeholder="Tell us about yourself"
+                          placeholder={t('profile.tellAboutYourself')}
                         />
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-text-primary mb-2">
-                          Region
+                          {t('profile.region')}
                         </label>
                         <RegionSelector
                           value={profileData.region}
                           onChange={(value) => setProfileData({ ...profileData, region: value })}
-                          placeholder="Select your region"
+                          placeholder={t('profile.selectRegion')}
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-text-primary mb-2">
-                            Age
+                            {t('profile.age')}
                           </label>
                           <input
                             type="number"
                             value={profileData.age || ''}
                             onChange={(e) => setProfileData({ ...profileData, age: parseInt(e.target.value) || 0 })}
                             className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-magenta/50"
-                            placeholder="Age"
+                            placeholder={t('profile.age')}
                             min="0"
                           />
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-text-primary mb-2">
-                            Gender
+                            {t('profile.gender')}
                           </label>
                           <select
                             value={profileData.gender}
                             onChange={(e) => setProfileData({ ...profileData, gender: e.target.value })}
                             className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-magenta/50"
                           >
-                            <option value="">Select</option>
+                            <option value="">{t('profile.select')}</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                             <option value="Other">Other</option>
@@ -595,7 +611,7 @@ export const ProfilePage: React.FC = () => {
                     className="w-full py-3 bg-gradient-to-r from-magenta to-magenta-dark text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center space-x-2"
                   >
                     <Save size={18} />
-                    <span>{loading ? 'Saving...' : 'Save Changes'}</span>
+                    <span>{loading ? t('common.loading') : t('profile.saveChanges')}</span>
                   </button>
                 </form>
               )}
@@ -637,7 +653,7 @@ export const ProfilePage: React.FC = () => {
                   {/* Upload Section */}
                   <div>
                     <label className="block text-sm font-medium text-text-primary mb-3">
-                      {imagePreview ? 'Change Image' : 'Upload New Picture'}
+                      {imagePreview ? t('profile.picture.changeImage') : t('profile.picture.uploadNew')}
                     </label>
                     <input
                       ref={fileInputRef}
@@ -653,11 +669,11 @@ export const ProfilePage: React.FC = () => {
                     >
                       <Upload size={20} className="text-magenta" />
                       <span className="text-sm font-medium text-text-secondary">
-                        Choose from device
+                        {t('profile.picture.chooseDevice')}
                       </span>
                     </label>
                     <p className="text-xs text-text-tertiary mt-2 text-center">
-                      Max size: 5MB • JPG, PNG, GIF
+                      {t('profile.picture.maxSize')}
                     </p>
                   </div>
 
@@ -668,7 +684,7 @@ export const ProfilePage: React.FC = () => {
                     className="w-full py-3 md:py-3.5 bg-gradient-to-r from-magenta to-magenta-dark text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                   >
                     <Save size={18} />
-                    <span>{uploadingImage ? 'Uploading...' : 'Update Profile Picture'}</span>
+                    <span>{uploadingImage ? t('profile.picture.uploading') : t('profile.picture.updateButton')}</span>
                   </button>
                 </div>
               )}
@@ -677,7 +693,7 @@ export const ProfilePage: React.FC = () => {
                 <form onSubmit={handlePasswordChange} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-text-primary mb-2">
-                      Current Password
+                      {t('profile.password.currentPassword')}
                     </label>
                     <div className="relative">
                       <input
@@ -685,7 +701,7 @@ export const ProfilePage: React.FC = () => {
                         value={passwordData.currentPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
                         className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-magenta/50 pr-12"
-                        placeholder="Enter current password"
+                        placeholder={t('profile.password.currentPasswordPlaceholder')}
                         required
                       />
                       <button
@@ -700,7 +716,7 @@ export const ProfilePage: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-text-primary mb-2">
-                      New Password
+                      {t('profile.password.newPassword')}
                     </label>
                     <div className="relative">
                       <input
@@ -708,7 +724,7 @@ export const ProfilePage: React.FC = () => {
                         value={passwordData.newPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                         className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-magenta/50 pr-12"
-                        placeholder="Enter new password"
+                        placeholder={t('profile.password.newPasswordPlaceholder')}
                         required
                       />
                       <button
@@ -723,7 +739,7 @@ export const ProfilePage: React.FC = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-text-primary mb-2">
-                      Confirm New Password
+                      {t('profile.password.confirmPassword')}
                     </label>
                     <div className="relative">
                       <input
@@ -731,7 +747,7 @@ export const ProfilePage: React.FC = () => {
                         value={passwordData.confirmPassword}
                         onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                         className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-magenta/50 pr-12"
-                        placeholder="Confirm new password"
+                        placeholder={t('profile.password.confirmPasswordPlaceholder')}
                         required
                       />
                       <button
@@ -750,7 +766,7 @@ export const ProfilePage: React.FC = () => {
                     className="w-full py-3 bg-gradient-to-r from-magenta to-magenta-dark text-white rounded-lg font-medium hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center space-x-2"
                   >
                     <Check size={18} />
-                    <span>{loading ? 'Changing...' : 'Change Password'}</span>
+                    <span>{loading ? t('profile.password.changing') : t('profile.password.changeButton')}</span>
                   </button>
                 </form>
               )}
@@ -759,20 +775,20 @@ export const ProfilePage: React.FC = () => {
                 <div className="space-y-4">
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                     <p className="text-sm text-red-800 font-medium">
-                      This action cannot be undone. All your data will be permanently deleted.
+                      {t('profile.deleteAccount.warning')}
                     </p>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-text-primary mb-2">
-                      Enter your password to confirm
+                      {t('profile.deleteAccount.confirmLabel')}
                     </label>
                     <input
                       type="password"
                       value={deletePassword}
                       onChange={(e) => setDeletePassword(e.target.value)}
                       className="w-full px-4 py-3 border border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50"
-                      placeholder="Enter your password"
+                      placeholder={t('profile.deleteAccount.confirmPlaceholder')}
                     />
                   </div>
 
@@ -781,14 +797,14 @@ export const ProfilePage: React.FC = () => {
                       onClick={() => setShowModal(null)}
                       className="flex-1 py-3 border border-border rounded-lg font-medium hover:bg-gray-50 transition-colors"
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </button>
                     <button
                       onClick={handleDeleteAccount}
                       disabled={loading || !deletePassword}
                       className="flex-1 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
                     >
-                      {loading ? 'Deleting...' : 'Delete Account'}
+                      {loading ? t('profile.deleteAccount.deleting') : t('profile.deleteAccount.deleteButton')}
                     </button>
                   </div>
                 </div>

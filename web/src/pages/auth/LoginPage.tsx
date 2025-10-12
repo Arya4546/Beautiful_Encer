@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { showToast } from '../../utils/toast';
 import { FiMail, FiLock } from 'react-icons/fi';
 import { AuthLayout } from '../../components/layout/AuthLayout';
@@ -16,6 +17,7 @@ import { useAuthStore } from '../../store/authStore';
 import type { LoginRequest } from '../../types';
 
 export const LoginPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const setUser = useAuthStore((state) => state.setUser);
@@ -47,7 +49,7 @@ export const LoginPage: React.FC = () => {
       const response = await authService.login(data);
       
       setUser(response.user);
-      showToast.success('Login successful!');
+      showToast.success(t('toast.success.loginSuccess'));
 
       // Navigate based on onboarding status
       if (response.user.hasCompletedOnboarding) {
@@ -64,7 +66,7 @@ export const LoginPage: React.FC = () => {
       }
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.error || 'Login failed. Please try again.';
+        error.response?.data?.error || t('toast.error.loginFailed');
       showToast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -73,32 +75,32 @@ export const LoginPage: React.FC = () => {
 
   return (
     <AuthLayout
-      title="Welcome Back"
-      subtitle="Sign in to your account to continue"
+      title={t('auth.login.title')}
+      subtitle={t('auth.login.subtitle')}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
-          label="Email"
+          label={t('auth.login.email')}
           type="email"
-          placeholder="Enter your email"
+          placeholder={t('auth.login.emailPlaceholder')}
           icon={<FiMail />}
           {...register('email', {
-            required: 'Email is required',
+            required: t('auth.validation.emailRequired'),
             pattern: {
               value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: 'Invalid email format',
+              message: t('auth.validation.emailInvalid'),
             },
           })}
           error={errors.email?.message}
         />
 
         <Input
-          label="Password"
+          label={t('auth.login.password')}
           type="password"
-          placeholder="Enter your password"
+          placeholder={t('auth.login.passwordPlaceholder')}
           icon={<FiLock />}
           {...register('password', {
-            required: 'Password is required',
+            required: t('auth.validation.passwordRequired'),
           })}
           error={errors.password?.message}
         />
@@ -114,23 +116,23 @@ export const LoginPage: React.FC = () => {
           <button
             type="button"
             className="text-purple-600 hover:text-purple-700 font-semibold"
-            onClick={() => showToast.error('Password reset coming soon!')}
+            onClick={() => showToast.error(t('toast.error.passwordResetComingSoon'))}
           >
-            Forgot password?
+            {t('auth.login.forgotPassword')}
           </button>
         </div>
 
         <Button type="submit" fullWidth isLoading={isLoading} className="mt-6">
-          Sign In
+          {t('auth.login.button')}
         </Button>
 
         <p className="text-center text-gray-600 text-sm mt-4">
-          Don't have an account?{' '}
+          {t('auth.login.noAccount')}{' '}
           <Link
             to="/signup"
             className="text-purple-600 hover:text-purple-700 font-semibold"
           >
-            Sign up
+            {t('auth.login.signupLink')}
           </Link>
         </p>
       </form>

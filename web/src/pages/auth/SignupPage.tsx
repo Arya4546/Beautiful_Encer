@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { showToast } from '../../utils/toast';
 import { FiMail, FiLock, FiUser, FiPhone } from 'react-icons/fi';
 import { AuthLayout } from '../../components/layout/AuthLayout';
@@ -22,6 +23,7 @@ interface SignupFormData extends SignupRequest {
 }
 
 export const SignupPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +39,7 @@ export const SignupPage: React.FC = () => {
 
   const onSubmit = async (data: SignupFormData) => {
     if (!selectedRole) {
-      showToast.error('Please select your role');
+      showToast.error(t('auth.validation.roleRequired'));
       return;
     }
 
@@ -57,7 +59,7 @@ export const SignupPage: React.FC = () => {
       navigate('/verify-otp', { state: { email: data.email } });
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.error || 'Signup failed. Please try again.';
+        error.response?.data?.error || t('toast.error.signupFailed');
       showToast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -68,8 +70,8 @@ export const SignupPage: React.FC = () => {
   if (!selectedRole) {
     return (
       <AuthLayout
-        title="Join Beautiful Encer"
-        subtitle="Choose your account type to get started"
+        title={t('auth.signup.title')}
+        subtitle={t('auth.signup.subtitle')}
       >
         <div className="space-y-4">
           <motion.button
@@ -96,10 +98,10 @@ export const SignupPage: React.FC = () => {
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-bold text-gray-900 mb-1">
-                  I'm an Influencer
+                  {t('auth.signup.roleInfluencer')}
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  Connect with brands and grow your influence
+                  {t('auth.signup.roleInfluencerDesc')}
                 </p>
               </div>
             </div>
@@ -129,10 +131,10 @@ export const SignupPage: React.FC = () => {
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-bold text-gray-900 mb-1">
-                  I'm a Salon/Business
+                  {t('auth.signup.roleSalon')}
                 </h3>
                 <p className="text-gray-600 text-sm">
-                  Find and collaborate with influencers
+                  {t('auth.signup.roleSalonDesc')}
                 </p>
               </div>
             </div>
@@ -140,12 +142,12 @@ export const SignupPage: React.FC = () => {
 
           <div className="pt-4 text-center">
             <p className="text-gray-600">
-              Already have an account?{' '}
+              {t('auth.signup.haveAccount')}{' '}
               <Link
                 to="/login"
                 className="text-purple-600 hover:text-purple-700 font-semibold"
               >
-                Sign in
+                {t('auth.signup.loginLink')}
               </Link>
             </p>
           </div>
@@ -157,88 +159,88 @@ export const SignupPage: React.FC = () => {
   // Signup form step
   return (
     <AuthLayout
-      title={`Sign up as ${selectedRole === 'influencer' ? 'Influencer' : 'Salon'}`}
-      subtitle="Create your account to get started"
+      title={`${t('common.signup')} ${selectedRole === 'influencer' ? t('auth.signup.roleInfluencer') : t('auth.signup.roleSalon')}`}
+      subtitle={t('auth.signup.subtitle')}
     >
       <button
         onClick={() => setSelectedRole(null)}
         className="text-sm text-gray-600 hover:text-gray-900 mb-4 flex items-center"
       >
-        ← Change role
+        ← {t('auth.signup.back')}
       </button>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
-          label="Full Name"
-          placeholder="Enter your name"
+          label={t('auth.signup.name')}
+          placeholder={t('auth.signup.namePlaceholder')}
           icon={<FiUser />}
-          {...register('name', { required: 'Name is required' })}
+          {...register('name', { required: t('auth.validation.nameRequired') })}
           error={errors.name?.message}
         />
 
         <Input
-          label="Email"
+          label={t('auth.signup.email')}
           type="email"
-          placeholder="Enter your email"
+          placeholder={t('auth.signup.emailPlaceholder')}
           icon={<FiMail />}
           {...register('email', {
-            required: 'Email is required',
+            required: t('auth.validation.emailRequired'),
             pattern: {
               value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: 'Invalid email format',
+              message: t('auth.validation.emailInvalid'),
             },
           })}
           error={errors.email?.message}
         />
 
         <Input
-          label="Phone Number (Optional)"
+          label={t('auth.signup.phone')}
           type="tel"
-          placeholder="+1234567890"
+          placeholder={t('auth.signup.phonePlaceholder')}
           icon={<FiPhone />}
           {...register('phoneNo')}
           error={errors.phoneNo?.message}
         />
 
         <Input
-          label="Password"
+          label={t('auth.signup.password')}
           type="password"
-          placeholder="Create a password"
+          placeholder={t('auth.signup.passwordPlaceholder')}
           icon={<FiLock />}
           {...register('password', {
-            required: 'Password is required',
+            required: t('auth.validation.passwordRequired'),
             minLength: {
               value: 8,
-              message: 'Password must be at least 8 characters',
+              message: t('auth.validation.passwordMin'),
             },
           })}
           error={errors.password?.message}
         />
 
         <Input
-          label="Confirm Password"
+          label={t('auth.signup.confirmPassword')}
           type="password"
-          placeholder="Confirm your password"
+          placeholder={t('auth.signup.confirmPasswordPlaceholder')}
           icon={<FiLock />}
           {...register('confirmPassword', {
-            required: 'Please confirm your password',
+            required: t('auth.validation.passwordRequired'),
             validate: (value) =>
-              value === password || 'Passwords do not match',
+              value === password || t('auth.validation.passwordMismatch'),
           })}
           error={errors.confirmPassword?.message}
         />
 
         <Button type="submit" fullWidth isLoading={isLoading} className="mt-6">
-          Create Account
+          {t('auth.signup.button')}
         </Button>
 
         <p className="text-center text-gray-600 text-sm mt-4">
-          Already have an account?{' '}
+          {t('auth.signup.haveAccount')}{' '}
           <Link
             to="/login"
             className="text-purple-600 hover:text-purple-700 font-semibold"
           >
-            Sign in
+            {t('auth.signup.loginLink')}
           </Link>
         </p>
       </form>

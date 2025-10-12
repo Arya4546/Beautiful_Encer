@@ -1,0 +1,471 @@
+{
+  "brand": {
+    "name": "Beautiful Encer",
+    "tagline": "Empowering nano and micro-influencer marketing"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "submit": "Submit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "logout": "Logout",
+    "login": "Login",
+    "signup": "Sign Up",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "viewProfile": "View Profile",
+    "sendMessage": "Send Message",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "accept": "Accept",
+    "reject": "Reject",
+    "pending": "Pending",
+    "active": "Active",
+    "inactive": "Inactive",
+    "page": "page"
+  },
+  "nav": {
+    "discover": "Discover",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "chat": "Chat",
+    "requests": "Requests",
+    "notifications": "Notifications",
+    "settings": "Settings",
+    "languageSwitch": "Language"
+  },
+  "landing": {
+    "tagline": "Powering Nano & Micro Influencer Marketing",
+    "hero": {
+      "title": "Connect With",
+      "subtitle": "Authentic Influencers",
+      "description": "The ultimate platform for discovering, analyzing, and collaborating with nano and micro-influencers on Instagram and TikTok.",
+      "ctaInfluencer": "Sign Up as Influencer",
+      "ctaSalon": "Sign Up as Salon"
+    },
+    "features": {
+      "title": "Everything You Need",
+      "subtitle": "Powerful Features",
+      "subtitleAlt": "Powerful Features for Seamless Collaboration",
+      "description": "Everything you need to manage influencer relationships and campaigns",
+      "discover": {
+        "title": "Discover Influencers",
+        "description": "Search and filter nano and micro-influencers by niche, region, follower count, and engagement metrics."
+      },
+      "analytics": {
+        "title": "Performance Analytics",
+        "description": "Track follower growth, engagement rates, likes, comments, and shares with comprehensive analytics dashboard."
+      },
+      "campaign": {
+        "title": "Campaign Management",
+        "description": "Launch, monitor, and optimize influencer campaigns with real-time performance tracking and reporting."
+      },
+      "messaging": {
+        "title": "Direct Messaging",
+        "description": "Communicate seamlessly with influencers through our integrated messaging system without leaving the platform."
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "step1": {
+        "title": "Register & Connect",
+        "description": "Influencers create profiles and connect their Instagram and TikTok accounts for verification."
+      },
+      "step2": {
+        "title": "Data Collection",
+        "description": "System automatically collects public metrics including followers, engagement, and post performance."
+      },
+      "step3": {
+        "title": "Performance Scoring",
+        "description": "Advanced algorithms analyze data to generate comprehensive influencer performance scores."
+      }
+    },
+    "whyChoose": {
+      "title": "Why Choose Our Platform?",
+      "subtitle": "Built specifically for nano and micro-influencer campaigns",
+      "rating": "Average Rating",
+      "testimonial": "This platform revolutionized how we connect with micro-influencers. The analytics and messaging tools are exceptional!",
+      "testimonialAuthor": "Sarah M., Marketing Director"
+    },
+    "stats": {
+      "influencers": "Active Influencers",
+      "brands": "Brand Partners",
+      "campaigns": "Campaigns",
+      "successRate": "Success Rate"
+    },
+    "pillars": {
+      "authenticReach": "Authentic Reach",
+      "dataResults": "Data-Driven Results"
+    },
+    "benefits": {
+      "title": "Why Choose Us",
+      "tracking": "Real-time engagement tracking",
+      "insights": "Comprehensive audience insights",
+      "metrics": "Campaign performance metrics",
+      "verified": "Verified influencer profiles",
+      "tools": "Secure collaboration tools",
+      "support": "24/7 dedicated support"
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "titleAlt": "Ready to Transform Your Marketing?",
+      "description": "Join thousands of influencers and brands already growing together",
+      "descriptionAlt": "Join thousands of brands and influencers building authentic partnerships",
+      "button": "Start Your Journey",
+      "buttonInfluencer": "Get Started as Influencer",
+      "buttonSalon": "Get Started as Salon"
+    },
+    "footer": {
+      "tagline": "Empowering nano and micro-influencer marketing",
+      "platform": "Platform",
+      "forInfluencers": "For Influencers",
+      "forBrands": "For Brands",
+      "company": "Company",
+      "aboutUs": "About Us",
+      "careers": "Careers",
+      "support": "Support",
+      "helpCenter": "Help Center",
+      "privacyPolicy": "Privacy Policy"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your account to continue",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot Password?",
+      "button": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up here"
+    },
+    "signup": {
+      "title": "Join Beautiful Encer",
+      "subtitle": "Choose your account type to get started",
+      "roleInfluencer": "I'm an Influencer",
+      "roleInfluencerDesc": "Share your creativity and collaborate with brands",
+      "roleSalon": "I'm a Salon/Brand",
+      "roleSalonDesc": "Discover and partner with authentic influencers",
+      "name": "Full Name",
+      "namePlaceholder": "Enter your full name",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "phone": "Phone Number",
+      "phonePlaceholder": "Enter your phone number",
+      "password": "Password",
+      "passwordPlaceholder": "Create a password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter your password",
+      "button": "Create Account",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in here",
+      "back": "Back to role selection"
+    },
+    "verifyOtp": {
+      "title": "Verify Your Email",
+      "subtitle": "Enter the 6-digit code sent to",
+      "placeholder": "Enter OTP",
+      "button": "Verify",
+      "resend": "Didn't receive the code?",
+      "resendLink": "Resend OTP"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email format",
+      "passwordRequired": "Password is required",
+      "passwordMin": "Password must be at least 8 characters",
+      "passwordMismatch": "Passwords do not match",
+      "nameRequired": "Name is required",
+      "phoneRequired": "Phone number is required",
+      "otpRequired": "OTP is required",
+      "roleRequired": "Please select your role"
+    }
+  },
+  "onboarding": {
+    "influencer": {
+      "title": "Complete Your Profile",
+      "subtitle": "Help brands discover you by completing your profile",
+      "step1": {
+        "title": "Basic Information",
+        "bio": "Bio",
+        "bioPlaceholder": "Tell us about yourself...",
+        "niche": "Primary Niche",
+        "nichePlaceholder": "Select your niche",
+        "region": "Region",
+        "regionPlaceholder": "Select your region",
+        "language": "Languages",
+        "languagePlaceholder": "Select languages you speak"
+      },
+      "step2": {
+        "title": "Social Media Accounts",
+        "instagram": "Connect Instagram",
+        "tiktok": "Connect TikTok",
+        "connected": "Connected",
+        "notConnected": "Not Connected"
+      },
+      "step3": {
+        "title": "Profile Picture",
+        "upload": "Upload Photo",
+        "drag": "Drag and drop or click to upload"
+      },
+      "complete": "Complete Setup"
+    },
+    "salon": {
+      "title": "Complete Your Salon Profile",
+      "subtitle": "Tell influencers about your business",
+      "step1": {
+        "title": "Business Information",
+        "salonName": "Salon Name",
+        "salonNamePlaceholder": "Enter salon name",
+        "description": "Description",
+        "descriptionPlaceholder": "Describe your business...",
+        "website": "Website",
+        "websitePlaceholder": "https://your-website.com",
+        "address": "Address",
+        "addressPlaceholder": "Enter your address"
+      },
+      "step2": {
+        "title": "Business Details",
+        "industry": "Industry",
+        "industryPlaceholder": "Select industry",
+        "size": "Company Size",
+        "sizePlaceholder": "Select size"
+      },
+      "step3": {
+        "title": "Logo & Images",
+        "logo": "Upload Logo",
+        "images": "Upload Images"
+      },
+      "complete": "Complete Setup"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back",
+    "stats": {
+      "connections": "Connections",
+      "engagement": "Engagement Rate",
+      "campaigns": "Active Campaigns",
+      "messages": "Unread Messages"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "noActivity": "No recent activity"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "discover": "Discover Influencers",
+      "viewRequests": "View Requests",
+      "manageProfile": "Manage Profile"
+    }
+  },
+  "discovery": {
+    "title": "Discover Salons",
+    "titleInfluencers": "Discover Influencers",
+    "subtitle": "Connect with talented beauty salons and grow your network",
+    "subtitleInfluencers": "Connect with talented influencers and grow your network",
+    "searchPlaceholder": "Search salons...",
+    "searchPlaceholderInfluencers": "Search influencers...",
+    "filters": "Filters",
+    "region": "Region",
+    "categories": "Categories",
+    "followers": "Followers",
+    "minFollowers": "Min Followers",
+    "maxFollowers": "Max Followers",
+    "applyFilters": "Apply Filters",
+    "clearFilters": "Clear Filters",
+    "noResults": "No users found",
+    "noResultsSubtitle": "Try adjusting your search criteria",
+    "loading": "Loading...",
+    "endOfResults": "You've reached the end! 🎉"
+  },
+  "profile": {
+    "title": "Settings",
+    "subtitle": "Manage your account settings and preferences",
+    "sections": {
+      "profile": "PROFILE",
+      "security": "SECURITY",
+      "account": "ACCOUNT"
+    },
+    "information": {
+      "title": "Profile Information",
+      "subtitle": "Update your name, bio, and region"
+    },
+    "picture": {
+      "title": "Profile Picture",
+      "subtitle": "Change your profile photo",
+      "changeImage": "Change Image",
+      "uploadNew": "Upload New Picture",
+      "chooseDevice": "Choose from device",
+      "maxSize": "Max size: 5MB • JPG, PNG, GIF",
+      "updateButton": "Update Profile Picture",
+      "uploading": "Uploading..."
+    },
+    "password": {
+      "title": "Change Password",
+      "subtitle": "Update your password regularly for security",
+      "currentPassword": "Current Password",
+      "currentPasswordPlaceholder": "Enter current password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmPassword": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "changeButton": "Change Password",
+      "changing": "Changing..."
+    },
+    "logout": {
+      "title": "Logout",
+      "subtitle": "Sign out of your account"
+    },
+    "deleteAccount": {
+      "title": "Delete Account",
+      "subtitle": "Permanently delete your account and all data",
+      "warning": "This action cannot be undone. All your data will be permanently deleted.",
+      "confirmLabel": "Enter your password to confirm",
+      "confirmPlaceholder": "Enter your password",
+      "deleteButton": "Delete Account",
+      "deleting": "Deleting..."
+    },
+    "editProfile": "Edit Profile",
+    "fullName": "Full Name",
+    "enterFullName": "Enter your full name",
+    "bio": "Bio",
+    "tellAboutYourself": "Tell us about yourself",
+    "region": "Region",
+    "selectRegion": "Select your region",
+    "age": "Age",
+    "gender": "Gender",
+    "select": "Select",
+    "saveChanges": "Save Changes"
+  },
+  "chat": {
+    "title": "Messages",
+    "selectChat": "Select a conversation to start messaging",
+    "selectConversation": "Select a conversation",
+    "chooseConversation": "Choose a conversation from the list to start chatting",
+    "typing": "typing...",
+    "online": "online",
+    "offline": "offline",
+    "messagePlaceholder": "Type a message...",
+    "typePlaceholder": "Type a message...",
+    "send": "Send",
+    "update": "Update",
+    "noMessages": "No messages yet",
+    "noConversations": "No conversations yet",
+    "toStart": "To start chatting:",
+    "goToDiscovery": "Go to Discovery",
+    "connectWithUsers": "Connect with users",
+    "viewProfile": "View their profile and click",
+    "message": "Message",
+    "searchConversations": "Search conversations...",
+    "loadingConversations": "Loading conversations...",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "copy": "Copy"
+    }
+  },
+  "requests": {
+    "title": "Connection Requests",
+    "subtitle": "Manage your network connections",
+    "tabs": {
+      "incoming": "Incoming",
+      "outgoing": "Outgoing",
+      "connections": "Connections"
+    },
+    "incoming": {
+      "title": "Requests from others",
+      "noRequests": "No incoming requests",
+      "noRequestsSubtitle": "You don't have any pending requests to respond to"
+    },
+    "outgoing": {
+      "title": "Requests you sent",
+      "noRequests": "No outgoing requests",
+      "noRequestsSubtitle": "You haven't sent any connection requests yet"
+    },
+    "connections": {
+      "noConnections": "No connections yet",
+      "noConnectionsSubtitle": "Start connecting with other users to build your network"
+    },
+    "actions": {
+      "accept": "Accept",
+      "reject": "Reject",
+      "withdraw": "Withdraw",
+      "message": "Message"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "No notifications",
+    "types": {
+      "connection": "New connection request",
+      "message": "New message",
+      "like": "liked your post",
+      "comment": "commented on your post",
+      "follow": "started following you"
+    }
+  },
+  "toast": {
+    "success": {
+      "loginSuccess": "Login successful!",
+      "signupSuccess": "Account created successfully!",
+      "otpSent": "OTP sent successfully",
+      "otpVerified": "Email verified successfully!",
+      "profileUpdated": "Profile updated successfully",
+      "messageSent": "Message sent",
+      "messageDeleted": "Message deleted",
+      "messageUpdated": "Message updated",
+      "connectionSent": "Connection request sent",
+      "connectionAccepted": "Connection accepted",
+      "connectionRejected": "Connection rejected",
+      "logoutSuccess": "Logged out successfully",
+      "dataSynced": "Data synced successfully"
+    },
+    "error": {
+      "loginFailed": "Login failed. Please try again.",
+      "signupFailed": "Signup failed. Please try again.",
+      "otpFailed": "Invalid OTP. Please try again.",
+      "profileUpdateFailed": "Failed to update profile",
+      "messageFailed": "Failed to send message",
+      "connectionFailed": "Failed to send connection request",
+      "syncFailed": "Failed to sync data",
+      "uploadFailed": "Failed to upload file",
+      "networkError": "Network error. Please check your connection.",
+      "somethingWrong": "Something went wrong. Please try again.",
+      "passwordResetComingSoon": "Password reset coming soon!"
+    }
+  },
+  "error": {
+    "404": {
+      "title": "Page Not Found",
+      "message": "The page you're looking for doesn't exist.",
+      "button": "Go Home"
+    },
+    "500": {
+      "title": "Server Error",
+      "message": "Something went wrong on our end.",
+      "button": "Try Again"
+    },
+    "generic": {
+      "title": "Oops!",
+      "message": "An unexpected error occurred.",
+      "button": "Go Back"
+    }
+  },
+  "footer": {
+    "copyright": "All rights reserved."
+  }
+}

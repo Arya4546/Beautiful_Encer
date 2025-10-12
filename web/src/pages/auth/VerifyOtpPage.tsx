@@ -6,12 +6,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { showToast } from '../../utils/toast';
 import { AuthLayout } from '../../components/layout/AuthLayout';
 import { Button } from '../../components/ui/Button';
 import { authService } from '../../services/auth.service';
 
 export const VerifyOtpPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
@@ -76,7 +78,7 @@ export const VerifyOtpPage: React.FC = () => {
 
     const otpString = otp.join('');
     if (otpString.length !== 6) {
-      showToast.error('Please enter complete OTP');
+      showToast.error(t('auth.validation.otpRequired'));
       return;
     }
 
@@ -93,13 +95,13 @@ export const VerifyOtpPage: React.FC = () => {
       // Navigate to login
       navigate('/login', { 
         state: { 
-          message: 'Email verified! Please login to continue.',
+          message: t('toast.success.otpVerified'),
           email 
         } 
       });
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.error || 'OTP verification failed';
+        error.response?.data?.error || t('toast.error.otpFailed');
       showToast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -108,8 +110,8 @@ export const VerifyOtpPage: React.FC = () => {
 
   return (
     <AuthLayout
-      title="Verify Your Email"
-      subtitle={`We've sent a 6-digit code to ${email}`}
+      title={t('auth.verifyOtp.title')}
+      subtitle={`${t('auth.verifyOtp.subtitle')} ${email}`}
     >
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="flex justify-center space-x-3">
@@ -135,18 +137,18 @@ export const VerifyOtpPage: React.FC = () => {
         </div>
 
         <Button type="submit" fullWidth isLoading={isLoading}>
-          Verify OTP
+          {t('auth.verifyOtp.button')}
         </Button>
 
         <div className="text-center space-y-2">
           <p className="text-gray-600 text-sm">
-            Didn't receive the code?{' '}
+            {t('auth.verifyOtp.resend')}{' '}
             <button
               type="button"
               className="text-purple-600 hover:text-purple-700 font-semibold"
               onClick={() => showToast.error('Resend feature coming soon!')}
             >
-              Resend
+              {t('auth.verifyOtp.resendLink')}
             </button>
           </p>
           <p className="text-gray-600 text-sm">
@@ -154,7 +156,7 @@ export const VerifyOtpPage: React.FC = () => {
               to="/signup"
               className="text-purple-600 hover:text-purple-700 font-semibold"
             >
-              ← Back to signup
+              ← {t('common.back')}
             </Link>
           </p>
         </div>

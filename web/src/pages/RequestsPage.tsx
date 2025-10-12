@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FiUserPlus, FiCheck, FiClock, FiX, FiMessageSquare } from 'react-icons/fi';
 import { useAuthStore } from '../store/authStore';
 import connectionService, { type ConnectionRequest } from '../services/connection.service';
@@ -8,6 +9,7 @@ import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
 
 export const RequestsPage: React.FC = () => {
+  const { t } = useTranslation();
   const user = useAuthStore((state) => state.user);
   const [activeTab, setActiveTab] = useState<'incoming' | 'outgoing' | 'accepted'>('incoming');
   const [requests, setRequests] = useState<ConnectionRequest[]>([]);
@@ -18,10 +20,31 @@ export const RequestsPage: React.FC = () => {
 
   // Fetch requests on component mount and tab change
   useEffect(() => {
-    setRequests([]);
-    setPage(1);
-    setHasMore(true);
-    fetchRequests(1);
+    // Check if already fetched for this tab
+    const cacheKey = `requests_${activeTab}_fetched`;
+    const cachedData = sessionStorage.getItem(cacheKey);
+    
+    if (cachedData) {
+      // Use cached data and don't fetch
+      try {
+        const parsed = JSON.parse(cachedData);
+        setRequests(parsed.data || []);
+        setHasMore(parsed.hasMore || false);
+        setLoading(false);
+      } catch (error) {
+        // If parse fails, fetch fresh data
+        setRequests([]);
+        setPage(1);
+        setHasMore(true);
+        fetchRequests(1);
+      }
+    } else {
+      // No cache, fetch fresh data
+      setRequests([]);
+      setPage(1);
+      setHasMore(true);
+      fetchRequests(1);
+    }
   }, [activeTab]);
 
   // Infinite scroll
@@ -55,11 +78,17 @@ export const RequestsPage: React.FC = () => {
       
       if (pageNum === 1) {
         setRequests(response.data);
+        setHasMore(response.pagination.hasMore);
+        // Cache the data for this tab
+        const cacheKey = `requests_${activeTab}_fetched`;
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          data: response.data,
+          hasMore: response.pagination.hasMore
+        }));
       } else {
         setRequests((prev) => [...prev, ...response.data]);
+        setHasMore(response.pagination.hasMore);
       }
-      
-      setHasMore(response.pagination.hasMore);
     } catch (error: any) {
       showToast.error(error.response?.data?.error || 'Failed to load requests');
     } finally {
@@ -71,7 +100,9 @@ export const RequestsPage: React.FC = () => {
     try {
       await connectionService.acceptRequest(requestId);
       showToast.success('Request accepted successfully!');
-      // Refresh the list
+      // Clear cache and refresh the list
+      const cacheKey = `requests_${activeTab}_fetched`;
+      sessionStorage.removeItem(cacheKey);
       setRequests([]);
       setPage(1);
       fetchRequests(1);
@@ -84,7 +115,9 @@ export const RequestsPage: React.FC = () => {
     try {
       await connectionService.rejectRequest(requestId);
       showToast.success('Request rejected');
-      // Refresh the list
+      // Clear cache and refresh the list
+      const cacheKey = `requests_${activeTab}_fetched`;
+      sessionStorage.removeItem(cacheKey);
       setRequests([]);
       setPage(1);
       fetchRequests(1);
@@ -107,9 +140,9 @@ export const RequestsPage: React.FC = () => {
   };
 
   const tabs = [
-    { id: 'incoming', label: 'Incoming', icon: FiUserPlus },
-    { id: 'outgoing', label: 'Outgoing', icon: FiClock },
-    { id: 'accepted', label: 'Connections', icon: FiCheck },
+    { id: 'incoming', label: t('requests.tabs.incoming'), icon: FiUserPlus },
+    { id: 'outgoing', label: t('requests.tabs.outgoing'), icon: FiClock },
+    { id: 'accepted', label: t('requests.tabs.connections'), icon: FiCheck },
   ] as const;
 
   return (
@@ -122,8 +155,8 @@ export const RequestsPage: React.FC = () => {
         {/* Header */}
         <div className="bg-white border-b border-border shadow-soft">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <h1 className="text-3xl font-bold text-text-primary">Connection Requests</h1>
-            <p className="mt-2 text-text-secondary">Manage your network connections</p>
+            <h1 className="text-3xl font-bold text-text-primary">{t('requests.title')}</h1>
+            <p className="mt-2 text-text-secondary">{t('requests.subtitle')}</p>
           </div>
         </div>
 
@@ -166,14 +199,14 @@ export const RequestsPage: React.FC = () => {
               {activeTab === 'incoming' ? '📬' : activeTab === 'outgoing' ? '📤' : '🤝'}
             </div>
             <h3 className="text-2xl font-bold text-text-primary mb-2">
-              {activeTab === 'incoming' ? 'No incoming requests' : activeTab === 'outgoing' ? 'No outgoing requests' : 'No connections yet'}
+              {activeTab === 'incoming' ? t('requests.incoming.noRequests') : activeTab === 'outgoing' ? t('requests.outgoing.noRequests') : t('requests.connections.noConnections')}
             </h3>
             <p className="text-text-secondary">
               {activeTab === 'incoming'
-                ? 'You don\'t have any pending requests to respond to'
+                ? t('requests.incoming.noRequestsSubtitle')
                 : activeTab === 'outgoing'
-                ? 'You haven\'t sent any connection requests yet'
-                : 'Start connecting with other users to build your network'
+                ? t('requests.outgoing.noRequestsSubtitle')
+                : t('requests.connections.noConnectionsSubtitle')
               }
             </p>
           </div>
