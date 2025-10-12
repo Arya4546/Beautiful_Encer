@@ -7,6 +7,20 @@ import type { Request, Response } from 'express';
  * Protects API endpoints from abuse and prevents hitting platform rate limits
  */
 
+// Extend Express Request type to include rateLimit property
+declare global {
+  namespace Express {
+    interface Request {
+      rateLimit?: {
+        limit: number;
+        current: number;
+        remaining: number;
+        resetTime: Date;
+      };
+    }
+  }
+}
+
 /**
  * General API rate limiter
  * 100 requests per 15 minutes per IP
@@ -21,10 +35,13 @@ export const generalLimiter = rateLimit({
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   handler: (req: Request, res: Response) => {
+    const resetTime = req.rateLimit?.resetTime;
+    const retryAfter = resetTime ? Math.ceil((resetTime.getTime() - Date.now()) / 1000) : 900;
+    
     res.status(429).json({
       error: 'RATE_LIMIT_EXCEEDED',
       message: 'Too many requests. Please slow down and try again later.',
-      retryAfter: Math.ceil(req.rateLimit?.resetTime ? (req.rateLimit.resetTime - Date.now()) / 1000 : 900),
+      retryAfter,
     });
   },
 });
@@ -42,10 +59,13 @@ export const authLimiter = rateLimit({
     retryAfter: '15 minutes',
   },
   handler: (req: Request, res: Response) => {
+    const resetTime = req.rateLimit?.resetTime;
+    const retryAfter = resetTime ? Math.ceil((resetTime.getTime() - Date.now()) / 1000) : 900;
+    
     res.status(429).json({
       error: 'AUTH_RATE_LIMIT_EXCEEDED',
       message: 'Too many failed authentication attempts. Please try again later.',
-      retryAfter: Math.ceil(req.rateLimit?.resetTime ? (req.rateLimit.resetTime - Date.now()) / 1000 : 900),
+      retryAfter,
     });
   },
 });
@@ -67,10 +87,13 @@ export const socialMediaLimiter = rateLimit({
     return req.user?.userId || req.ip || 'unknown';
   },
   handler: (req: Request, res: Response) => {
+    const resetTime = req.rateLimit?.resetTime;
+    const retryAfter = resetTime ? Math.ceil((resetTime.getTime() - Date.now()) / 1000) : 900;
+    
     res.status(429).json({
       error: 'SOCIAL_MEDIA_RATE_LIMIT_EXCEEDED',
       message: 'You are making too many social media requests. Please wait a moment and try again.',
-      retryAfter: Math.ceil(req.rateLimit?.resetTime ? (req.rateLimit.resetTime - Date.now()) / 1000 : 900),
+      retryAfter,
       hint: 'Data syncs automatically every 24 hours. Manual syncing should be used sparingly.',
     });
   },
@@ -95,10 +118,13 @@ export const uploadLimiter = rateLimit({
     return req.user?.userId || req.ip || 'unknown';
   },
   handler: (req: Request, res: Response) => {
+    const resetTime = req.rateLimit?.resetTime;
+    const retryAfter = resetTime ? Math.ceil((resetTime.getTime() - Date.now()) / 1000) : 3600;
+    
     res.status(429).json({
       error: 'UPLOAD_RATE_LIMIT_EXCEEDED',
       message: 'You have exceeded the file upload limit. Please try again later.',
-      retryAfter: Math.ceil(req.rateLimit?.resetTime ? (req.rateLimit.resetTime - Date.now()) / 1000 : 3600),
+      retryAfter,
     });
   },
 });
@@ -118,10 +144,13 @@ export const chatLimiter = rateLimit({
     return req.user?.userId || req.ip || 'unknown';
   },
   handler: (req: Request, res: Response) => {
+    const resetTime = req.rateLimit?.resetTime;
+    const retryAfter = resetTime ? Math.ceil((resetTime.getTime() - Date.now()) / 1000) : 300;
+    
     res.status(429).json({
       error: 'CHAT_RATE_LIMIT_EXCEEDED',
       message: 'You are sending messages too quickly. Please slow down.',
-      retryAfter: Math.ceil(req.rateLimit?.resetTime ? (req.rateLimit.resetTime - Date.now()) / 1000 : 300),
+      retryAfter,
     });
   },
 });
@@ -141,10 +170,13 @@ export const connectionLimiter = rateLimit({
     return req.user?.userId || req.ip || 'unknown';
   },
   handler: (req: Request, res: Response) => {
+    const resetTime = req.rateLimit?.resetTime;
+    const retryAfter = resetTime ? Math.ceil((resetTime.getTime() - Date.now()) / 1000) : 86400;
+    
     res.status(429).json({
       error: 'CONNECTION_RATE_LIMIT_EXCEEDED',
       message: 'You have reached your daily limit for connection requests. Please try again tomorrow.',
-      retryAfter: Math.ceil(req.rateLimit?.resetTime ? (req.rateLimit.resetTime - Date.now()) / 1000 : 86400),
+      retryAfter,
     });
   },
 });
