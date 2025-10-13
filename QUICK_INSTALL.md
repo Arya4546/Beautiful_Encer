@@ -49,6 +49,3 @@ Look for these messages in the console:
 
 ## 🆘 Need Help?
 
-- Check `BACKEND_FIXES_IMPLEMENTATION.md` for detailed technical docs
-- Check `OAUTH_CREDENTIALS_SETUP_GUIDE.md` for getting Instagram/TikTok credentials
-- Check `SOCIAL_MEDIA_INTEGRATION_REVIEW.md` for full code review
