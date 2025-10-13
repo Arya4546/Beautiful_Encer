@@ -25,14 +25,21 @@
     "confirm": "Confirm",
     "viewProfile": "View Profile",
     "sendMessage": "Send Message",
+    "message": "Message",
     "connect": "Connect",
+    "connected": "Connected",
     "disconnect": "Disconnect",
     "accept": "Accept",
+    "acceptRequest": "Accept Request",
     "reject": "Reject",
+    "cancelRequest": "Cancel Request",
+    "sendConnectionRequest": "Send Connection Request",
     "pending": "Pending",
     "active": "Active",
     "inactive": "Inactive",
-    "page": "page"
+    "page": "page",
+    "influencer": "Influencer",
+    "salon": "Salon"
   },
   "nav": {
     "discover": "Discover",
@@ -46,6 +53,11 @@
   },
   "landing": {
     "tagline": "Powering Nano & Micro Influencer Marketing",
+    "nav": {
+      "features": "Features",
+      "howItWorks": "How It Works",
+      "benefits": "Benefits"
+    },
     "hero": {
       "title": "Connect With",
       "subtitle": "Authentic Influencers",
@@ -278,10 +290,24 @@
     "subtitleInfluencers": "Connect with talented influencers and grow your network",
     "searchPlaceholder": "Search salons...",
     "searchPlaceholderInfluencers": "Search influencers...",
+    "searchInfluencers": "Search influencers...",
+    "searchSalons": "Search salons...",
     "filters": "Filters",
+    "advancedFilters": "Advanced Filters",
+    "clearAll": "Clear All",
     "region": "Region",
+    "allRegions": "All Regions",
     "categories": "Categories",
     "followers": "Followers",
+    "followerCount": "Follower Count",
+    "followerRanges": {
+      "any": "Any",
+      "1k_to_10k": "1K - 10K",
+      "10k_to_50k": "10K - 50K",
+      "50k_to_100k": "50K - 100K",
+      "100k_to_500k": "100K - 500K",
+      "500k_plus": "500K+"
+    },
     "minFollowers": "Min Followers",
     "maxFollowers": "Max Followers",
     "applyFilters": "Apply Filters",
@@ -408,8 +434,10 @@
   },
   "notifications": {
     "title": "Notifications",
+    "subtitle": "Stay updated with your latest activities",
     "markAllRead": "Mark all as read",
     "noNotifications": "No notifications",
+    "noNotificationsSubtitle": "When you get connection requests, messages, or other updates, they'll appear here.",
     "types": {
       "connection": "New connection request",
       "message": "New message",
@@ -445,8 +473,20 @@
       "uploadFailed": "Failed to upload file",
       "networkError": "Network error. Please check your connection.",
       "somethingWrong": "Something went wrong. Please try again.",
-      "passwordResetComingSoon": "Password reset coming soon!"
+      "passwordResetComingSoon": "Password reset coming soon!",
+      "onlyConnectedUsers": "You can only chat with connected users",
+      "failedToStartChat": "Failed to start chat"
     }
+  },
+  "categories": {
+    "beauty": "Beauty",
+    "fashion": "Fashion",
+    "lifestyle": "Lifestyle",
+    "fitness": "Fitness",
+    "food": "Food",
+    "travel": "Travel",
+    "tech": "Tech",
+    "gaming": "Gaming"
   },
   "error": {
     "404": {

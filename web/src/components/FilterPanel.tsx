@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FiSearch, FiFilter, FiX, FiChevronDown } from 'react-icons/fi';
 
 export interface Filters {
@@ -22,6 +23,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
   availableRegions,
   isInfluencerSearch = false,
 }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     search: '',
@@ -101,7 +103,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary" size={20} />
             <input
               type="text"
-              placeholder={`Search ${isInfluencerSearch ? 'influencers' : 'salons'}...`}
+              placeholder={t(isInfluencerSearch ? 'discovery.searchInfluencers' : 'discovery.searchSalons')}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="w-full pl-12 pr-4 py-3 bg-background rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-magenta focus:border-transparent transition-all"
@@ -126,7 +128,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             }`}
           >
             <FiFilter size={20} />
-            <span className="hidden sm:inline">Filters</span>
+            <span className="hidden sm:inline">{t('discovery.filters')}</span>
             {activeFilterCount > 0 && (
               <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
                 isOpen ? 'bg-white text-magenta' : 'bg-magenta text-white'
@@ -145,13 +147,13 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
         {isOpen && (
           <div className="mt-4 p-6 bg-background rounded-2xl border border-border space-y-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-text-primary">Advanced Filters</h3>
+              <h3 className="text-lg font-bold text-text-primary">{t('discovery.advancedFilters')}</h3>
               {activeFilterCount > 0 && (
                 <button
                   onClick={handleClearFilters}
                   className="text-sm text-magenta hover:underline font-medium"
                 >
-                  Clear All
+                  {t('discovery.clearAll')}
                 </button>
               )}
             </div>
@@ -160,14 +162,14 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             {isInfluencerSearch && availableRegions.length > 0 && (
               <div>
                 <label className="block text-sm font-semibold text-text-primary mb-3">
-                  Region
+                  {t('discovery.region')}
                 </label>
                 <select
                   value={filters.region}
                   onChange={(e) => setFilters({ ...filters, region: e.target.value })}
                   className="w-full px-4 py-3 bg-white rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-magenta focus:border-transparent transition-all"
                 >
-                  <option value="">All Regions</option>
+                  <option value="">{t('discovery.allRegions')}</option>
                   {availableRegions.map((region) => (
                     <option key={region} value={region}>
                       {region}
@@ -181,7 +183,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             {availableCategories.length > 0 && (
               <div>
                 <label className="block text-sm font-semibold text-text-primary mb-3">
-                  Categories
+                  {t('discovery.categories')}
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {availableCategories.map((category) => {
@@ -196,7 +198,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                             : 'bg-white border border-border text-text-primary hover:border-magenta'
                         }`}
                       >
-                        {category}
+                        {t(`categories.${category.toLowerCase().replace(/\s+/g, '_')}`)}
                       </button>
                     );
                   })}
@@ -208,7 +210,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
             {isInfluencerSearch && (
               <div>
                 <label className="block text-sm font-semibold text-text-primary mb-3">
-                  Follower Count
+                  {t('discovery.followerCount')}
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {followerRanges.map((range) => {
@@ -230,7 +232,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({
                             : 'bg-white border border-border text-text-primary hover:border-magenta'
                         }`}
                       >
-                        {range.label}
+                        {t(`discovery.followerRanges.${range.label.toLowerCase().replace(/\s+/g, '_').replace(/\+/g, 'plus').replace(/-/g, 'to')}`)}
                       </button>
                     );
                   })}

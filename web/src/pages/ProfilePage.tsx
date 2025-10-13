@@ -395,7 +395,7 @@ export const ProfilePage: React.FC = () => {
                       <h2 className="text-lg md:text-xl font-bold text-text-primary truncate">{user?.name}</h2>
                       <p className="text-sm text-text-secondary truncate">{user?.email}</p>
                       <div className="mt-2 inline-flex items-center px-2 md:px-3 py-1 bg-magenta/20 text-magenta text-xs md:text-sm rounded-full font-medium">
-                        {user?.role}
+                        {user?.role === 'INFLUENCER' ? t('common.influencer') : t('common.salon')}
                       </div>
                     </div>
                   </div>

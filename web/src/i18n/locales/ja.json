@@ -25,14 +25,21 @@
     "confirm": "確認",
     "viewProfile": "プロフィールを表示",
     "sendMessage": "メッセージを送信",
+    "message": "メッセージ",
     "connect": "つながる",
+    "connected": "接続済み",
     "disconnect": "接続解除",
     "accept": "承認",
+    "acceptRequest": "リクエストを承認",
     "reject": "拒否",
+    "cancelRequest": "リクエストを取り消す",
+    "sendConnectionRequest": "接続リクエストを送信",
     "pending": "保留中",
     "active": "アクティブ",
     "inactive": "非アクティブ",
-    "page": "ページ"
+    "page": "ページ",
+    "influencer": "インフルエンサー",
+    "salon": "サロン"
   },
   "nav": {
     "discover": "発見",
@@ -46,6 +53,11 @@
   },
   "landing": {
     "tagline": "ナノ＆マイクロインフルエンサーマーケティングを支援",
+    "nav": {
+      "features": "機能",
+      "howItWorks": "使い方",
+      "benefits": "メリット"
+    },
     "hero": {
       "title": "本物の",
       "subtitle": "インフルエンサーとつながる",
@@ -278,10 +290,24 @@
     "subtitleInfluencers": "才能あるインフルエンサーとつながり、ネットワークを拡大",
     "searchPlaceholder": "サロンを検索...",
     "searchPlaceholderInfluencers": "インフルエンサーを検索...",
+    "searchInfluencers": "インフルエンサーを検索...",
+    "searchSalons": "サロンを検索...",
     "filters": "フィルター",
+    "advancedFilters": "詳細フィルター",
+    "clearAll": "すべてクリア",
     "region": "地域",
+    "allRegions": "すべての地域",
     "categories": "カテゴリー",
     "followers": "フォロワー",
+    "followerCount": "フォロワー数",
+    "followerRanges": {
+      "any": "すべて",
+      "1k_to_10k": "1K - 10K",
+      "10k_to_50k": "10K - 50K",
+      "50k_to_100k": "50K - 100K",
+      "100k_to_500k": "100K - 500K",
+      "500k_plus": "500K+"
+    },
     "minFollowers": "最小フォロワー",
     "maxFollowers": "最大フォロワー",
     "applyFilters": "フィルターを適用",
@@ -408,8 +434,10 @@
   },
   "notifications": {
     "title": "通知",
+    "subtitle": "最新のアクティビティを確認しましょう",
     "markAllRead": "すべて既読にする",
     "noNotifications": "通知はありません",
+    "noNotificationsSubtitle": "接続リクエスト、メッセージ、その他の更新があると、ここに表示されます。",
     "types": {
       "connection": "新しい接続リクエスト",
       "message": "新しいメッセージ",
@@ -445,8 +473,20 @@
       "uploadFailed": "ファイルのアップロードに失敗しました",
       "networkError": "ネットワークエラー。接続を確認してください。",
       "somethingWrong": "問題が発生しました。もう一度お試しください。",
-      "passwordResetComingSoon": "パスワードリセット機能は近日公開！"
+      "passwordResetComingSoon": "パスワードリセット機能は近日公開！",
+      "onlyConnectedUsers": "接続済みのユーザーとのみチャットできます",
+      "failedToStartChat": "チャットの開始に失敗しました"
     }
+  },
+  "categories": {
+    "beauty": "美容",
+    "fashion": "ファッション",
+    "lifestyle": "ライフスタイル",
+    "fitness": "フィットネス",
+    "food": "フード",
+    "travel": "トラベル",
+    "tech": "テクノロジー",
+    "gaming": "ゲーミング"
   },
   "error": {
     "404": {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FiX, FiMapPin, FiMail, FiCalendar, FiUsers, FiActivity, FiHeart, FiMessageCircle, FiInstagram } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -14,6 +15,7 @@ interface ProfileModalProps {
 }
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onClose }) => {
+  const { t } = useTranslation();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,9 +65,9 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
     } catch (err: any) {
       console.error('Failed to start chat:', err);
       if (err.response?.status === 403) {
-        showToast.error('You can only chat with connected users');
+        showToast.error(t('toast.error.onlyConnectedUsers'));
       } else {
-        showToast.error('Failed to start chat');
+        showToast.error(t('toast.error.failedToStartChat'));
       }
     }
   };
@@ -86,14 +88,14 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
           <div className="flex gap-3">
             <button disabled className="px-6 py-3 bg-green-500 text-white rounded-xl cursor-default flex items-center gap-2">
               <FiUsers size={20} />
-              Connected
+              {t('common.connected')}
             </button>
             <button 
               onClick={handleStartChat}
               className="px-6 py-3 bg-gradient-to-r from-magenta to-magenta-dark text-white rounded-xl hover:shadow-large transition-all flex items-center gap-2"
             >
               <FiMessageCircle size={20} />
-              Message
+              {t('common.message')}
             </button>
           </div>
         );
@@ -104,7 +106,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
             className="px-6 py-3 bg-amber-500 hover:bg-red-500 text-white rounded-xl transition-colors flex items-center gap-2"
           >
             <FiActivity size={20} />
-            Cancel Request
+            {t('common.cancelRequest')}
           </button>
         );
       case 'received':
@@ -114,7 +116,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
             className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-colors flex items-center gap-2"
           >
             <FiUsers size={20} />
-            Accept Request
+            {t('common.acceptRequest')}
           </button>
         );
       default:
@@ -124,7 +126,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
             className="px-6 py-3 bg-gradient-to-r from-magenta to-magenta-dark text-white rounded-xl hover:shadow-large transition-all flex items-center gap-2"
           >
             <FiUsers size={20} />
-            Send Connection Request
+            {t('common.sendConnectionRequest')}
           </button>
         );
     }

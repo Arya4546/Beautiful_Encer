@@ -1,9 +1,11 @@
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaGlobe } from 'react-icons/fa';
 
 export const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
+  const location = useLocation();
 
   const toggleLanguage = () => {
     const newLang = i18n.language === 'ja' ? 'en' : 'ja';
@@ -12,6 +14,13 @@ export const LanguageSwitcher = () => {
   };
 
   const isJapanese = i18n.language === 'ja';
+  
+  // Determine if we're on landing page (dark background) or authenticated pages (white background)
+  const isLandingPage = location.pathname === '/' || location.pathname === '/login' || location.pathname === '/signup';
+  
+  // Dynamic classes based on context
+  const textColorClass = isLandingPage ? 'text-white' : 'text-gray-700';
+  const iconColorClass = isLandingPage ? 'text-emerald-400' : 'text-emerald-600';
 
   return (
     <motion.button
@@ -22,8 +31,8 @@ export const LanguageSwitcher = () => {
       aria-label="Switch language"
       title={isJapanese ? 'Switch to English' : '日本語に切り替え'}
     >
-      <FaGlobe className="text-lg text-emerald-600" />
-      <span className="font-medium text-sm text-gray-700">
+      <FaGlobe className={`text-lg ${iconColorClass}`} />
+      <span className={`font-medium text-sm ${textColorClass}`}>
         {isJapanese ? '日本語' : 'English'}
       </span>
     </motion.button>
