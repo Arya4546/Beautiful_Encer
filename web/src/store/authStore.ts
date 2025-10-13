@@ -38,18 +38,46 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   initializeAuth: () => {
-    const userStr = localStorage.getItem('user');
-    const token = localStorage.getItem('accessToken');
+    try {
+      const userStr = localStorage.getItem('user');
+      const token = localStorage.getItem('accessToken');
 
-    if (userStr && token) {
+      // If no token, clear everything and return
+      if (!token) {
+        localStorage.removeItem('user');
+        set({ user: null, isAuthenticated: false });
+        return;
+      }
+
+      // If token exists but no user data, clear everything
+      if (!userStr) {
+        localStorage.removeItem('accessToken');
+        set({ user: null, isAuthenticated: false });
+        return;
+      }
+
       try {
         const user = JSON.parse(userStr);
+        
+        // Validate that user object has required fields
+        if (!user || !user.id || !user.email) {
+          throw new Error('Invalid user data');
+        }
+        
         set({ user, isAuthenticated: true });
-      } catch (error) {
-        console.error('Failed to parse user from localStorage:', error);
+      } catch (parseError) {
+        console.error('Failed to parse user from localStorage:', parseError);
+        // Clear corrupted data
         localStorage.removeItem('user');
         localStorage.removeItem('accessToken');
+        set({ user: null, isAuthenticated: false });
       }
+    } catch (error) {
+      console.error('Auth initialization error:', error);
+      // Clear everything on error
+      localStorage.removeItem('user');
+      localStorage.removeItem('accessToken');
+      set({ user: null, isAuthenticated: false });
     }
   },
 }));

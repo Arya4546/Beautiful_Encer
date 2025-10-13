@@ -79,9 +79,18 @@ export const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Initialize auth from localStorage
-    initializeAuth();
-    setIsLoading(false);
+    const initialize = async () => {
+      try {
+        // Initialize auth from localStorage
+        await initializeAuth();
+      } catch (error) {
+        console.error('Auth initialization failed:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    initialize();
   }, [initializeAuth]);
 
   if (isLoading) {
