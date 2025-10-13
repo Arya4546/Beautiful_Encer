@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const Navbar = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -18,9 +20,9 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: "Features", href: "#features" },
-    { name: "How It Works", href: "#how-it-works" },
-    { name: "Benefits", href: "#benefits" },
+    { name: t('landing.nav.features'), href: "#features" },
+    { name: t('landing.nav.howItWorks'), href: "#how-it-works" },
+    { name: t('landing.nav.benefits'), href: "#benefits" },
   ];
 
   const menuVariants = {
@@ -71,10 +73,14 @@ const Navbar = () => {
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center space-x-4">
             <LanguageSwitcher />
-            <button className="text-gray-300 hover:text-white transition-colors">
+            <button 
+              onClick={() => navigate('/login')}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
               {t('common.login')}
             </button>
             <motion.button
+              onClick={() => navigate('/signup')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-5 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg font-semibold shadow-md"
@@ -115,10 +121,14 @@ const Navbar = () => {
               ))}
               <LanguageSwitcher />
               <div className="flex flex-col items-center space-y-4 pt-4 w-full px-8">
-                 <button className="w-full py-3 text-lg text-gray-300 hover:text-white transition-colors">
+                 <button 
+                   onClick={() => { navigate('/login'); setIsOpen(false); }}
+                   className="w-full py-3 text-lg text-gray-300 hover:text-white transition-colors"
+                 >
                     {t('common.login')}
                   </button>
                   <motion.button
+                    onClick={() => { navigate('/signup'); setIsOpen(false); }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="w-full py-3 text-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg font-semibold shadow-md"

@@ -93,7 +93,7 @@ export const NotificationsPage: React.FC = () => {
                 <div>
                   <h1 className="text-2xl font-bold text-text-primary">{t('notifications.title')}</h1>
                   <p className="text-sm text-text-secondary mt-1">
-                    Stay updated with your latest activities
+                    {t('notifications.subtitle')}
                   </p>
                 </div>
                 {notifications.some(n => !n.isRead) && (
@@ -119,7 +119,7 @@ export const NotificationsPage: React.FC = () => {
                     {t('notifications.noNotifications')}
                   </h2>
                   <p className="text-text-secondary max-w-md">
-                    When you get connection requests, messages, or other updates, they'll appear here.
+                    {t('notifications.noNotificationsSubtitle')}
                   </p>
                 </div>
               ) : (

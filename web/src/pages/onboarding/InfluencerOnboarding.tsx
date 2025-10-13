@@ -14,6 +14,7 @@ import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { MultiSelect } from '../../components/ui/MultiSelect';
 import { FileUpload } from '../../components/ui/FileUpload';
+import { RegionSelector } from '../../components/common/RegionSelector';
 import { onboardingService } from '../../services/onboarding.service';
 import type { InfluencerOnboardingRequest, Gender } from '../../types';
 
@@ -144,12 +145,24 @@ export const InfluencerOnboarding: React.FC = () => {
         />
 
         {/* Region */}
-        <Input
-          label="Region *"
-          placeholder="e.g., New York, USA"
-          {...register('region', { required: 'Region is required' })}
-          error={errors.region?.message}
-        />
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Region *
+          </label>
+          <Controller
+            name="region"
+            control={control}
+            rules={{ required: 'Region is required' }}
+            render={({ field }) => (
+              <RegionSelector
+                value={field.value || ''}
+                onChange={field.onChange}
+                placeholder="Select your region"
+                error={errors.region?.message}
+              />
+            )}
+          />
+        </div>
 
         {/* Age */}
         <Input

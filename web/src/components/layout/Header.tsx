@@ -119,7 +119,9 @@ export const Header: React.FC = () => {
               {/* Name (hidden on mobile) */}
               <div className="hidden md:block text-left min-w-[120px]">
                 <p className="text-sm font-semibold text-text-primary truncate">{displayName}</p>
-                <p className="text-xs text-text-tertiary capitalize truncate">{user?.role?.toLowerCase()}</p>
+                <p className="text-xs text-text-tertiary capitalize truncate">
+                  {user?.role === 'INFLUENCER' ? t('common.influencer') : t('common.salon')}
+                </p>
               </div>
 
               <FiChevronDown

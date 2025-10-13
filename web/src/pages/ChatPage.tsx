@@ -35,18 +35,10 @@ export const ChatPage: React.FC = () => {
     const token = localStorage.getItem('accessToken');
     if (!token) return;
     
-    // Check if already fetched in this session
-    const hasFetched = sessionStorage.getItem('conversations_fetched');
-    if (hasFetched) {
-      setLoading(false);
-      return;
-    }
-    
     const loadConversations = async () => {
       try {
         const data = await chatService.getConversations();
         setConversations(data);
-        sessionStorage.setItem('conversations_fetched', 'true');
       } catch (error) {
         console.error('Failed to load conversations:', error);
       } finally {
@@ -71,7 +63,6 @@ export const ChatPage: React.FC = () => {
       try {
         const data = await chatService.getConversations();
         setConversations(data);
-        sessionStorage.setItem('conversations_fetched', 'true');
       } catch (error) {
         console.error('Failed to load conversations:', error);
       }
@@ -294,7 +285,7 @@ export const ChatPage: React.FC = () => {
               <ol className="text-sm text-left max-w-xs mx-auto space-y-2">
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-magenta">1.</span>
-                  <span>Go to <span className="font-semibold">Discovery</span> page</span>
+                  <span>{t('chat.goToDiscovery')}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-magenta">2.</span>
@@ -302,7 +293,7 @@ export const ChatPage: React.FC = () => {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="font-semibold text-magenta">3.</span>
-                  <span>View their profile and click <span className="font-semibold text-magenta">"Message"</span></span>
+                  <span>{t('chat.viewProfile')} <span className="font-semibold text-magenta">"{t('chat.message')}"</span></span>
                 </li>
               </ol>
             </div>
