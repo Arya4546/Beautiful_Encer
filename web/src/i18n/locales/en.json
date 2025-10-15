@@ -52,7 +52,7 @@
     "languageSwitch": "Language"
   },
   "landing": {
-    "tagline": "Powering Nano & Micro Influencer Marketing",
+    "tagline": "Connecting Beauty Salons with Authentic Influencers",
     "nav": {
       "features": "Features",
       "howItWorks": "How It Works",
@@ -62,8 +62,13 @@
       "title": "Connect With",
       "subtitle": "Authentic Influencers",
       "description": "The ultimate platform for discovering, analyzing, and collaborating with nano and micro-influencers on Instagram and TikTok.",
-      "ctaInfluencer": "Sign Up as Influencer",
-      "ctaSalon": "Sign Up as Salon"
+      "ctaInfluencer": "Get Started as Influencer",
+      "ctaSalon": "Get Started as Salon"
+    },
+    "trust": {
+      "verified": "Verified Profiles",
+      "secure": "Secure Platform",
+      "support": "24/7 Support"
     },
     "features": {
       "title": "Everything You Need",
@@ -72,38 +77,42 @@
       "description": "Everything you need to manage influencer relationships and campaigns",
       "discover": {
         "title": "Discover Influencers",
-        "description": "Search and filter nano and micro-influencers by niche, region, follower count, and engagement metrics."
+        "description": "Search and filter nano and micro-influencers by niche, region, follower count, and engagement metrics to find the perfect match for your brand."
       },
       "analytics": {
         "title": "Performance Analytics",
-        "description": "Track follower growth, engagement rates, likes, comments, and shares with comprehensive analytics dashboard."
+        "description": "Track follower growth, engagement rates, likes, comments, and shares with comprehensive analytics dashboard and real-time insights."
       },
       "campaign": {
         "title": "Campaign Management",
-        "description": "Launch, monitor, and optimize influencer campaigns with real-time performance tracking and reporting."
+        "description": "Launch, monitor, and optimize influencer campaigns with real-time performance tracking, automated reporting, and ROI analysis."
       },
       "messaging": {
         "title": "Direct Messaging",
-        "description": "Communicate seamlessly with influencers through our integrated messaging system without leaving the platform."
+        "description": "Communicate seamlessly with influencers through our integrated messaging system without leaving the platform. Chat, share files, and collaborate."
       }
     },
     "howItWorks": {
       "title": "How It Works",
       "step1": {
         "title": "Register & Connect",
-        "description": "Influencers create profiles and connect their Instagram and TikTok accounts for verification."
+        "description": "Influencers create profiles and connect their Instagram and TikTok accounts for verification. Quick and easy onboarding process."
       },
       "step2": {
-        "title": "Data Collection",
-        "description": "System automatically collects public metrics including followers, engagement, and post performance."
+        "title": "Automatic Data Collection",
+        "description": "System automatically collects public metrics including followers, engagement, and post performance. No manual entry required."
       },
       "step3": {
         "title": "Performance Scoring",
-        "description": "Advanced algorithms analyze data to generate comprehensive influencer performance scores."
+        "description": "Advanced algorithms analyze data to generate comprehensive influencer performance scores and audience insights."
+      },
+      "step4": {
+        "title": "Connect & Collaborate",
+        "description": "Start conversations, build relationships, and launch successful campaigns with verified influencers in your niche."
       }
     },
     "whyChoose": {
-      "title": "Why Choose Our Platform?",
+      "title": "Why Choose Us?",
       "subtitle": "Built specifically for nano and micro-influencer campaigns",
       "rating": "Average Rating",
       "testimonial": "This platform revolutionized how we connect with micro-influencers. The analytics and messaging tools are exceptional!",
@@ -112,7 +121,7 @@
     "stats": {
       "influencers": "Active Influencers",
       "brands": "Brand Partners",
-      "campaigns": "Campaigns",
+      "campaigns": "Successful Campaigns",
       "successRate": "Success Rate"
     },
     "pillars": {
@@ -138,7 +147,7 @@
       "buttonSalon": "Get Started as Salon"
     },
     "footer": {
-      "tagline": "Empowering nano and micro-influencer marketing",
+      "tagline": "Connecting beauty salons with authentic influencers",
       "platform": "Platform",
       "forInfluencers": "For Influencers",
       "forBrands": "For Brands",

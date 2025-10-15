@@ -1,21 +1,21 @@
 {
   "brand": {
     "name": "ビューティフルエンサー",
-    "tagline": "ナノ・マイクロインフルエンサーマーケティングを支援"
+    "tagline": "ナノ・マイクロインフルエンサーと美容サロンをつなぐプラットフォーム"
   },
   "common": {
     "loading": "読み込み中...",
-    "save": "保存",
+    "save": "保存する",
     "cancel": "キャンセル",
-    "delete": "削除",
+    "delete": "削除する",
     "edit": "編集",
-    "submit": "送信",
+    "submit": "送信する",
     "close": "閉じる",
     "back": "戻る",
     "next": "次へ",
     "previous": "前へ",
     "search": "検索",
-    "filter": "フィルター",
+    "filter": "絞り込み",
     "sort": "並び替え",
     "logout": "ログアウト",
     "login": "ログイン",
@@ -23,127 +23,136 @@
     "yes": "はい",
     "no": "いいえ",
     "confirm": "確認",
-    "viewProfile": "プロフィールを表示",
-    "sendMessage": "メッセージを送信",
+    "viewProfile": "プロフィールを見る",
+    "sendMessage": "メッセージを送る",
     "message": "メッセージ",
     "connect": "つながる",
-    "connected": "接続済み",
-    "disconnect": "接続解除",
-    "accept": "承認",
-    "acceptRequest": "リクエストを承認",
-    "reject": "拒否",
+    "connected": "つながっています",
+    "disconnect": "つながりを解除",
+    "accept": "承認する",
+    "acceptRequest": "リクエストを承認する",
+    "reject": "拒否する",
     "cancelRequest": "リクエストを取り消す",
-    "sendConnectionRequest": "接続リクエストを送信",
+    "sendConnectionRequest": "つながりリクエストを送る",
     "pending": "保留中",
-    "active": "アクティブ",
-    "inactive": "非アクティブ",
+    "active": "利用中",
+    "inactive": "停止中",
     "page": "ページ",
     "influencer": "インフルエンサー",
     "salon": "サロン"
   },
   "nav": {
-    "discover": "発見",
-    "dashboard": "ダッシュボード",
+    "discover": "さがす",
+    "dashboard": "ホーム",
     "profile": "プロフィール",
     "chat": "チャット",
     "requests": "リクエスト",
-    "notifications": "通知",
+    "notifications": "お知らせ",
     "settings": "設定",
-    "languageSwitch": "言語"
+    "languageSwitch": "言語切替"
   },
   "landing": {
-    "tagline": "ナノ＆マイクロインフルエンサーマーケティングを支援",
+    "tagline": "美容サロンと本物のインフルエンサーをつなぐ",
     "nav": {
       "features": "機能",
       "howItWorks": "使い方",
-      "benefits": "メリット"
+      "benefits": "特徴"
     },
     "hero": {
       "title": "本物の",
-      "subtitle": "インフルエンサーとつながる",
-      "description": "InstagramとTikTokのナノ・マイクロインフルエンサーを発見し、分析し、コラボレーションするための究極のプラットフォーム。",
-      "ctaInfluencer": "インフルエンサーとして登録",
-      "ctaSalon": "サロンとして登録"
+      "subtitle": "インフルエンサーとつながろう",
+      "description": "InstagramやTikTokで活躍するナノ・マイクロインフルエンサーを見つけて、データで分析して、コラボレーションできる究極のプラットフォーム。",
+      "ctaInfluencer": "インフルエンサーとして始める",
+      "ctaSalon": "サロンとして始める"
+    },
+    "trust": {
+      "verified": "認証済みプロフィール",
+      "secure": "安全なプラットフォーム",
+      "support": "24時間365日サポート"
     },
     "features": {
-      "title": "必要なすべてがここに",
-      "subtitle": "強力な機能",
-      "subtitleAlt": "シームレスなコラボレーションのための強力な機能",
-      "description": "インフルエンサーとの関係やキャンペーンを管理するために必要なすべて",
+      "title": "必要な機能が全て揃っています",
+      "subtitle": "充実の機能",
+      "subtitleAlt": "スムーズなコラボを実現する充実の機能",
+      "description": "インフルエンサーとの関係やキャンペーンを管理するために必要な全てがここに",
       "discover": {
-        "title": "インフルエンサーを発見",
-        "description": "ニッチ、地域、フォロワー数、エンゲージメント指標でナノ・マイクロインフルエンサーを検索・フィルター。"
+        "title": "インフルエンサーを見つける",
+        "description": "ジャンル、地域、フォロワー数、エンゲージメント率などの条件でナノ・マイクロインフルエンサーを検索・絞り込み。あなたのブランドにぴったりな人を見つけましょう。"
       },
       "analytics": {
         "title": "パフォーマンス分析",
-        "description": "包括的な分析ダッシュボードで、フォロワーの成長、エンゲージメント率、いいね、コメント、シェアを追跡。"
+        "description": "フォロワーの推移、エンゲージメント率、いいね、コメント、シェア数を詳細な分析ダッシュボードとリアルタイムインサイトで確認できます。"
       },
       "campaign": {
         "title": "キャンペーン管理",
-        "description": "リアルタイムのパフォーマンス追跡とレポートでインフルエンサーキャンペーンを開始、監視、最適化。"
+        "description": "リアルタイムでパフォーマンスを追跡し、自動レポート機能とROI分析でインフルエンサーキャンペーンを開始、監視、最適化します。"
       },
       "messaging": {
         "title": "ダイレクトメッセージ",
-        "description": "統合メッセージングシステムを通じて、プラットフォームを離れることなくインフルエンサーとシームレスにコミュニケーション。"
+        "description": "プラットフォーム内の統合メッセージシステムで、外部ツールを使わずにインフルエンサーと直接やり取り。チャット、ファイル共有、コラボレーションが可能です。"
       }
     },
     "howItWorks": {
-      "title": "仕組み",
+      "title": "使い方",
       "step1": {
-        "title": "登録と接続",
-        "description": "インフルエンサーがプロフィールを作成し、InstagramとTikTokアカウントを接続して確認。"
+        "title": "登録してアカウント連携",
+        "description": "インフルエンサーがプロフィールを作成し、InstagramやTikTokアカウントを連携して本人確認。簡単でスピーディーな登録プロセスです。"
       },
       "step2": {
-        "title": "データ収集",
-        "description": "システムが自動的にフォロワー、エンゲージメント、投稿パフォーマンスなどの公開指標を収集。"
+        "title": "データの自動収集",
+        "description": "システムが自動的にフォロワー数、エンゲージメント率、投稿のパフォーマンスなどの公開データを収集します。手動入力は不要です。"
       },
       "step3": {
-        "title": "パフォーマンススコアリング",
-        "description": "高度なアルゴリズムがデータを分析し、包括的なインフルエンサーパフォーマンススコアを生成。"
+        "title": "パフォーマンススコアの算出",
+        "description": "高度なアルゴリズムがデータを分析し、総合的なインフルエンサーパフォーマンススコアとオーディエンスインサイトを算出します。"
+      },
+      "step4": {
+        "title": "つながってコラボ",
+        "description": "認証済みインフルエンサーと会話を始めて、関係を築き、あなたのジャンルで成功するキャンペーンを展開しましょう。"
       }
     },
     "whyChoose": {
-      "title": "当プラットフォームを選ぶ理由",
-      "subtitle": "ナノ・マイクロインフルエンサーキャンペーン専用に構築",
+      "title": "私たちが選ばれる理由",
+      "subtitle": "ナノ・マイクロインフルエンサーキャンペーンに特化したプラットフォーム",
       "rating": "平均評価",
-      "testimonial": "このプラットフォームは、マイクロインフルエンサーとのつながり方に革命をもたらしました。分析とメッセージングツールは素晴らしいです！",
-      "testimonialAuthor": "サラ M.、マーケティングディレクター"
+      "testimonial": "このプラットフォームのおかげで、マイクロインフルエンサーとのつながり方が劇的に変わりました。分析機能もメッセージ機能も本当に使いやすいです！",
+      "testimonialAuthor": "サラ M. さん、マーケティングディレクター"
     },
     "stats": {
-      "influencers": "アクティブインフルエンサー",
-      "brands": "ブランドパートナー",
-      "campaigns": "キャンペーン",
+      "influencers": "登録インフルエンサー",
+      "brands": "提携ブランド",
+      "campaigns": "成功したキャンペーン",
       "successRate": "成功率"
     },
     "pillars": {
       "authenticReach": "本物のリーチ",
-      "dataResults": "データ駆動型の結果"
+      "dataResults": "データに基づいた成果"
     },
     "benefits": {
       "title": "選ばれる理由",
-      "tracking": "リアルタイムエンゲージメント追跡",
-      "insights": "包括的なオーディエンスインサイト",
-      "metrics": "キャンペーンパフォーマンス指標",
+      "tracking": "リアルタイムでエンゲージメントを追跡",
+      "insights": "詳細なオーディエンス分析",
+      "metrics": "キャンペーンのパフォーマンス指標",
       "verified": "認証済みインフルエンサープロフィール",
       "tools": "安全なコラボレーションツール",
-      "support": "24時間365日専任サポート"
+      "support": "24時間365日の専任サポート"
     },
     "cta": {
-      "title": "始める準備はできましたか？",
-      "titleAlt": "マーケティングを変革する準備はできましたか？",
-      "description": "すでに一緒に成長している何千ものインフルエンサーとブランドに参加しよう",
-      "descriptionAlt": "本物のパートナーシップを築く何千ものブランドとインフルエンサーに参加しよう",
-      "button": "旅を始める",
-      "buttonInfluencer": "インフルエンサーとして開始",
-      "buttonSalon": "サロンとして開始"
+      "title": "さあ、始めましょう",
+      "titleAlt": "マーケティングを変革しませんか？",
+      "description": "すでに多くのインフルエンサーとブランドが一緒に成長しています",
+      "descriptionAlt": "本物のパートナーシップを築いている多くのブランドとインフルエンサーに参加しよう",
+      "button": "今すぐ始める",
+      "buttonInfluencer": "インフルエンサーとして始める",
+      "buttonSalon": "サロンとして始める"
     },
     "footer": {
-      "tagline": "ナノ・マイクロインフルエンサーマーケティングを支援",
+      "tagline": "美容サロンと本物のインフルエンサーをつなぐ",
       "platform": "プラットフォーム",
-      "forInfluencers": "インフルエンサー向け",
-      "forBrands": "ブランド向け",
-      "company": "会社",
-      "aboutUs": "会社概要",
+      "forInfluencers": "インフルエンサーの方へ",
+      "forBrands": "ブランドの方へ",
+      "company": "会社情報",
+      "aboutUs": "私たちについて",
       "careers": "採用情報",
       "support": "サポート",
       "helpCenter": "ヘルプセンター",
@@ -153,123 +162,123 @@
   "auth": {
     "login": {
       "title": "おかえりなさい",
-      "subtitle": "アカウントにサインインして続ける",
+      "subtitle": "アカウントにログインしてください",
       "email": "メールアドレス",
-      "emailPlaceholder": "メールアドレスを入力",
+      "emailPlaceholder": "メールアドレスを入力してください",
       "password": "パスワード",
-      "passwordPlaceholder": "パスワードを入力",
+      "passwordPlaceholder": "パスワードを入力してください",
       "forgotPassword": "パスワードをお忘れですか？",
-      "button": "サインイン",
-      "noAccount": "アカウントをお持ちでないですか？",
-      "signupLink": "こちらから登録"
+      "button": "ログインする",
+      "noAccount": "アカウントをお持ちでない方は",
+      "signupLink": "こちらから新規登録"
     },
     "signup": {
-      "title": "ビューティフルエンサーに参加",
-      "subtitle": "アカウントタイプを選択して開始",
+      "title": "ビューティフルエンサーへようこそ",
+      "subtitle": "アカウントタイプを選んで始めましょう",
       "roleInfluencer": "インフルエンサーです",
-      "roleInfluencerDesc": "創造性を共有し、ブランドと協力する",
-      "roleSalon": "サロン/ブランドです",
-      "roleSalonDesc": "本物のインフルエンサーを発見し、パートナーになる",
-      "name": "氏名",
-      "namePlaceholder": "氏名を入力",
+      "roleInfluencerDesc": "クリエイティブな活動を共有して、ブランドとコラボしよう",
+      "roleSalon": "サロン・ブランドです",
+      "roleSalonDesc": "本物のインフルエンサーを見つけて、パートナーになろう",
+      "name": "お名前",
+      "namePlaceholder": "お名前を入力してください",
       "email": "メールアドレス",
-      "emailPlaceholder": "メールアドレスを入力",
+      "emailPlaceholder": "メールアドレスを入力してください",
       "phone": "電話番号",
-      "phonePlaceholder": "電話番号を入力",
+      "phonePlaceholder": "電話番号を入力してください",
       "password": "パスワード",
-      "passwordPlaceholder": "パスワードを作成",
-      "confirmPassword": "パスワード確認",
-      "confirmPasswordPlaceholder": "パスワードを再入力",
-      "button": "アカウントを作成",
-      "haveAccount": "すでにアカウントをお持ちですか？",
-      "loginLink": "こちらからサインイン",
+      "passwordPlaceholder": "パスワードを設定してください",
+      "confirmPassword": "パスワード（確認）",
+      "confirmPasswordPlaceholder": "もう一度パスワードを入力してください",
+      "button": "アカウントを作成する",
+      "haveAccount": "すでにアカウントをお持ちの方は",
+      "loginLink": "こちらからログイン",
       "back": "役割選択に戻る"
     },
     "verifyOtp": {
-      "title": "メールを確認",
-      "subtitle": "送信された6桁のコードを入力",
-      "placeholder": "OTPを入力",
-      "button": "確認",
-      "resend": "コードが届きませんでしたか？",
-      "resendLink": "OTPを再送信"
+      "title": "メールアドレスの確認",
+      "subtitle": "送信された6桁のコードを入力してください",
+      "placeholder": "確認コードを入力",
+      "button": "確認する",
+      "resend": "コードが届きませんか？",
+      "resendLink": "もう一度送信する"
     },
     "validation": {
-      "emailRequired": "メールアドレスは必須です",
-      "emailInvalid": "無効なメールアドレス形式",
-      "passwordRequired": "パスワードは必須です",
-      "passwordMin": "パスワードは8文字以上である必要があります",
+      "emailRequired": "メールアドレスを入力してください",
+      "emailInvalid": "メールアドレスの形式が正しくありません",
+      "passwordRequired": "パスワードを入力してください",
+      "passwordMin": "パスワードは8文字以上で設定してください",
       "passwordMismatch": "パスワードが一致しません",
-      "nameRequired": "名前は必須です",
-      "phoneRequired": "電話番号は必須です",
-      "otpRequired": "OTPは必須です",
+      "nameRequired": "お名前を入力してください",
+      "phoneRequired": "電話番号を入力してください",
+      "otpRequired": "確認コードを入力してください",
       "roleRequired": "役割を選択してください"
     }
   },
   "onboarding": {
     "influencer": {
-      "title": "プロフィールを完成させる",
-      "subtitle": "プロフィールを完成させてブランドに発見してもらいましょう",
+      "title": "プロフィールを完成させましょう",
+      "subtitle": "プロフィールを充実させて、ブランドに見つけてもらいやすくしましょう",
       "step1": {
         "title": "基本情報",
         "bio": "自己紹介",
-        "bioPlaceholder": "自己紹介を入力...",
-        "niche": "主なニッチ",
-        "nichePlaceholder": "ニッチを選択",
-        "region": "地域",
-        "regionPlaceholder": "地域を選択",
-        "language": "言語",
-        "languagePlaceholder": "話せる言語を選択"
+        "bioPlaceholder": "あなた自身について教えてください...",
+        "niche": "専門ジャンル",
+        "nichePlaceholder": "ジャンルを選択してください",
+        "region": "活動地域",
+        "regionPlaceholder": "地域を選択してください",
+        "language": "使用言語",
+        "languagePlaceholder": "対応可能な言語を選択してください"
       },
       "step2": {
-        "title": "ソーシャルメディアアカウント",
-        "instagram": "Instagramに接続",
-        "tiktok": "TikTokに接続",
-        "connected": "接続済み",
-        "notConnected": "未接続"
+        "title": "SNSアカウント連携",
+        "instagram": "Instagramと連携する",
+        "tiktok": "TikTokと連携する",
+        "connected": "連携済み",
+        "notConnected": "未連携"
       },
       "step3": {
         "title": "プロフィール写真",
         "upload": "写真をアップロード",
         "drag": "ドラッグ＆ドロップまたはクリックしてアップロード"
       },
-      "complete": "セットアップを完了"
+      "complete": "セットアップを完了する"
     },
     "salon": {
-      "title": "サロンプロフィールを完成させる",
-      "subtitle": "インフルエンサーにビジネスについて伝えましょう",
+      "title": "サロンプロフィールを完成させましょう",
+      "subtitle": "インフルエンサーにあなたのサロンについて知ってもらいましょう",
       "step1": {
         "title": "ビジネス情報",
         "salonName": "サロン名",
-        "salonNamePlaceholder": "サロン名を入力",
-        "description": "説明",
-        "descriptionPlaceholder": "ビジネスについて説明...",
+        "salonNamePlaceholder": "サロン名を入力してください",
+        "description": "サロンの説明",
+        "descriptionPlaceholder": "サロンについて教えてください...",
         "website": "ウェブサイト",
         "websitePlaceholder": "https://your-website.com",
         "address": "住所",
-        "addressPlaceholder": "住所を入力"
+        "addressPlaceholder": "住所を入力してください"
       },
       "step2": {
-        "title": "ビジネス詳細",
-        "industry": "業界",
-        "industryPlaceholder": "業界を選択",
+        "title": "詳細情報",
+        "industry": "業種",
+        "industryPlaceholder": "業種を選択してください",
         "size": "会社規模",
-        "sizePlaceholder": "規模を選択"
+        "sizePlaceholder": "規模を選択してください"
       },
       "step3": {
         "title": "ロゴと画像",
         "logo": "ロゴをアップロード",
         "images": "画像をアップロード"
       },
-      "complete": "セットアップを完了"
+      "complete": "セットアップを完了する"
     }
   },
   "dashboard": {
-    "title": "ダッシュボード",
+    "title": "ホーム",
     "welcome": "おかえりなさい",
     "stats": {
       "connections": "つながり",
       "engagement": "エンゲージメント率",
-      "campaigns": "アクティブキャンペーン",
+      "campaigns": "進行中のキャンペーン",
       "messages": "未読メッセージ"
     },
     "recentActivity": {
@@ -278,22 +287,22 @@
     },
     "quickActions": {
       "title": "クイックアクション",
-      "discover": "インフルエンサーを発見",
-      "viewRequests": "リクエストを表示",
-      "manageProfile": "プロフィールを管理"
+      "discover": "インフルエンサーを探す",
+      "viewRequests": "リクエストを見る",
+      "manageProfile": "プロフィールを編集する"
     }
   },
   "discovery": {
-    "title": "サロンを発見",
-    "titleInfluencers": "インフルエンサーを発見",
-    "subtitle": "才能ある美容サロンとつながり、ネットワークを拡大",
-    "subtitleInfluencers": "才能あるインフルエンサーとつながり、ネットワークを拡大",
+    "title": "サロンを探す",
+    "titleInfluencers": "インフルエンサーを探す",
+    "subtitle": "素敵な美容サロンとつながって、ネットワークを広げよう",
+    "subtitleInfluencers": "才能あるインフルエンサーとつながって、ネットワークを広げよう",
     "searchPlaceholder": "サロンを検索...",
     "searchPlaceholderInfluencers": "インフルエンサーを検索...",
     "searchInfluencers": "インフルエンサーを検索...",
     "searchSalons": "サロンを検索...",
-    "filters": "フィルター",
-    "advancedFilters": "詳細フィルター",
+    "filters": "絞り込み",
+    "advancedFilters": "詳細絞り込み",
     "clearAll": "すべてクリア",
     "region": "地域",
     "allRegions": "すべての地域",
@@ -302,24 +311,24 @@
     "followerCount": "フォロワー数",
     "followerRanges": {
       "any": "すべて",
-      "1k_to_10k": "1K - 10K",
-      "10k_to_50k": "10K - 50K",
-      "50k_to_100k": "50K - 100K",
-      "100k_to_500k": "100K - 500K",
-      "500k_plus": "500K+"
+      "1k_to_10k": "1,000 〜 10,000",
+      "10k_to_50k": "10,000 〜 50,000",
+      "50k_to_100k": "50,000 〜 100,000",
+      "100k_to_500k": "100,000 〜 500,000",
+      "500k_plus": "500,000以上"
     },
-    "minFollowers": "最小フォロワー",
-    "maxFollowers": "最大フォロワー",
-    "applyFilters": "フィルターを適用",
-    "clearFilters": "フィルターをクリア",
-    "noResults": "ユーザーが見つかりません",
-    "noResultsSubtitle": "検索条件を調整してください",
+    "minFollowers": "最小フォロワー数",
+    "maxFollowers": "最大フォロワー数",
+    "applyFilters": "絞り込みを適用",
+    "clearFilters": "絞り込みをクリア",
+    "noResults": "該当するユーザーが見つかりません",
+    "noResultsSubtitle": "検索条件を変更してみてください",
     "loading": "読み込み中...",
     "endOfResults": "すべて表示しました！🎉"
   },
   "profile": {
     "title": "設定",
-    "subtitle": "アカウント設定と設定を管理",
+    "subtitle": "アカウント設定を管理する",
     "sections": {
       "profile": "プロフィール",
       "security": "セキュリティ",
@@ -327,60 +336,60 @@
     },
     "information": {
       "title": "プロフィール情報",
-      "subtitle": "名前、自己紹介、地域を更新"
+      "subtitle": "お名前、自己紹介、地域を更新できます"
     },
     "picture": {
       "title": "プロフィール写真",
-      "subtitle": "プロフィール写真を変更",
-      "changeImage": "画像を変更",
+      "subtitle": "プロフィール写真を変更する",
+      "changeImage": "写真を変更",
       "uploadNew": "新しい写真をアップロード",
       "chooseDevice": "デバイスから選択",
-      "maxSize": "最大サイズ: 5MB • JPG、PNG、GIF",
+      "maxSize": "最大サイズ：5MB｜対応形式：JPG、PNG、GIF",
       "updateButton": "プロフィール写真を更新",
       "uploading": "アップロード中..."
     },
     "password": {
-      "title": "パスワードを変更",
-      "subtitle": "セキュリティのためにパスワードを定期的に更新",
+      "title": "パスワードの変更",
+      "subtitle": "セキュリティのため、定期的にパスワードを更新しましょう",
       "currentPassword": "現在のパスワード",
-      "currentPasswordPlaceholder": "現在のパスワードを入力",
+      "currentPasswordPlaceholder": "現在のパスワードを入力してください",
       "newPassword": "新しいパスワード",
-      "newPasswordPlaceholder": "新しいパスワードを入力",
-      "confirmPassword": "新しいパスワードを確認",
-      "confirmPasswordPlaceholder": "新しいパスワードを確認",
-      "changeButton": "パスワードを変更",
+      "newPasswordPlaceholder": "新しいパスワードを入力してください",
+      "confirmPassword": "新しいパスワード（確認）",
+      "confirmPasswordPlaceholder": "もう一度新しいパスワードを入力してください",
+      "changeButton": "パスワードを変更する",
       "changing": "変更中..."
     },
     "logout": {
       "title": "ログアウト",
-      "subtitle": "アカウントからサインアウト"
+      "subtitle": "アカウントからログアウトします"
     },
     "deleteAccount": {
-      "title": "アカウントを削除",
-      "subtitle": "アカウントとすべてのデータを完全に削除",
-      "warning": "この操作は取り消すことができません。すべてのデータが完全に削除されます。",
-      "confirmLabel": "確認のためにパスワードを入力してください",
-      "confirmPlaceholder": "パスワードを入力",
-      "deleteButton": "アカウントを削除",
+      "title": "アカウントの削除",
+      "subtitle": "アカウントとすべてのデータを完全に削除します",
+      "warning": "この操作は取り消せません。すべてのデータが完全に削除されます。",
+      "confirmLabel": "削除を確認するため、パスワードを入力してください",
+      "confirmPlaceholder": "パスワードを入力してください",
+      "deleteButton": "アカウントを削除する",
       "deleting": "削除中..."
     },
     "editProfile": "プロフィールを編集",
-    "fullName": "氏名",
-    "enterFullName": "氏名を入力",
+    "fullName": "お名前",
+    "enterFullName": "お名前を入力してください",
     "bio": "自己紹介",
-    "tellAboutYourself": "自己紹介を入力してください",
-    "region": "地域",
-    "selectRegion": "地域を選択",
+    "tellAboutYourself": "あなたについて教えてください",
+    "region": "活動地域",
+    "selectRegion": "地域を選択してください",
     "age": "年齢",
     "gender": "性別",
-    "select": "選択",
-    "saveChanges": "変更を保存"
+    "select": "選択してください",
+    "saveChanges": "変更を保存する"
   },
   "chat": {
     "title": "メッセージ",
-    "selectChat": "メッセージを開始する会話を選択してください",
+    "selectChat": "メッセージを開始する会話を選んでください",
     "selectConversation": "会話を選択",
-    "chooseConversation": "リストから会話を選択してチャットを開始",
+    "chooseConversation": "リストから会話を選んでチャットを始めましょう",
     "typing": "入力中...",
     "online": "オンライン",
     "offline": "オフライン",
@@ -390,10 +399,10 @@
     "update": "更新",
     "noMessages": "まだメッセージがありません",
     "noConversations": "まだ会話はありません",
-    "toStart": "チャットを開始するには：",
-    "goToDiscovery": "発見ページに移動",
+    "toStart": "チャットを始めるには：",
+    "goToDiscovery": "さがすページに移動",
     "connectWithUsers": "ユーザーとつながる",
-    "viewProfile": "プロフィールを表示してクリック",
+    "viewProfile": "プロフィールを見て",
     "message": "メッセージ",
     "searchConversations": "会話を検索...",
     "loadingConversations": "会話を読み込み中...",
@@ -404,77 +413,77 @@
     }
   },
   "requests": {
-    "title": "接続リクエスト",
-    "subtitle": "ネットワーク接続を管理",
+    "title": "つながりリクエスト",
+    "subtitle": "ネットワークのつながりを管理する",
     "tabs": {
       "incoming": "受信",
       "outgoing": "送信済み",
       "connections": "つながり"
     },
     "incoming": {
-      "title": "他のユーザーからのリクエスト",
+      "title": "受信したリクエスト",
       "noRequests": "受信リクエストはありません",
-      "noRequestsSubtitle": "応答する保留中のリクエストはありません"
+      "noRequestsSubtitle": "現在、対応が必要なリクエストはありません"
     },
     "outgoing": {
       "title": "送信したリクエスト",
       "noRequests": "送信済みリクエストはありません",
-      "noRequestsSubtitle": "まだ接続リクエストを送信していません"
+      "noRequestsSubtitle": "まだつながりリクエストを送信していません"
     },
     "connections": {
-      "noConnections": "まだつながりはありません",
-      "noConnectionsSubtitle": "他のユーザーとつながってネットワークを構築しましょう"
+      "noConnections": "まだつながりがありません",
+      "noConnectionsSubtitle": "他のユーザーとつながって、ネットワークを広げましょう"
     },
     "actions": {
-      "accept": "承認",
-      "reject": "拒否",
-      "withdraw": "取り下げ",
-      "message": "メッセージ"
+      "accept": "承認する",
+      "reject": "拒否する",
+      "withdraw": "取り下げる",
+      "message": "メッセージを送る"
     }
   },
   "notifications": {
-    "title": "通知",
-    "subtitle": "最新のアクティビティを確認しましょう",
+    "title": "お知らせ",
+    "subtitle": "最新のアクティビティをチェックしましょう",
     "markAllRead": "すべて既読にする",
-    "noNotifications": "通知はありません",
-    "noNotificationsSubtitle": "接続リクエスト、メッセージ、その他の更新があると、ここに表示されます。",
+    "noNotifications": "お知らせはありません",
+    "noNotificationsSubtitle": "つながりリクエスト、メッセージ、その他の更新があると、ここに表示されます。",
     "types": {
-      "connection": "新しい接続リクエスト",
+      "connection": "新しいつながりリクエスト",
       "message": "新しいメッセージ",
-      "like": "いいねしました",
-      "comment": "コメントしました",
-      "follow": "フォローを開始しました"
+      "like": "いいねされました",
+      "comment": "コメントされました",
+      "follow": "フォローされました"
     }
   },
   "toast": {
     "success": {
-      "loginSuccess": "ログインに成功しました！",
-      "signupSuccess": "アカウントが正常に作成されました！",
-      "otpSent": "OTPが正常に送信されました",
-      "otpVerified": "メールが正常に確認されました！",
-      "profileUpdated": "プロフィールが正常に更新されました",
+      "loginSuccess": "ログインしました！",
+      "signupSuccess": "アカウントを作成しました！",
+      "otpSent": "確認コードを送信しました",
+      "otpVerified": "メールアドレスを確認しました！",
+      "profileUpdated": "プロフィールを更新しました",
       "messageSent": "メッセージを送信しました",
       "messageDeleted": "メッセージを削除しました",
       "messageUpdated": "メッセージを更新しました",
-      "connectionSent": "接続リクエストを送信しました",
-      "connectionAccepted": "接続を承認しました",
-      "connectionRejected": "接続を拒否しました",
-      "logoutSuccess": "ログアウトに成功しました",
-      "dataSynced": "データが正常に同期されました"
+      "connectionSent": "つながりリクエストを送信しました",
+      "connectionAccepted": "つながりを承認しました",
+      "connectionRejected": "つながりを拒否しました",
+      "logoutSuccess": "ログアウトしました",
+      "dataSynced": "データを同期しました"
     },
     "error": {
       "loginFailed": "ログインに失敗しました。もう一度お試しください。",
-      "signupFailed": "登録に失敗しました。もう一度お試しください。",
-      "otpFailed": "無効なOTPです。もう一度お試しください。",
+      "signupFailed": "アカウント作成に失敗しました。もう一度お試しください。",
+      "otpFailed": "確認コードが正しくありません。もう一度お試しください。",
       "profileUpdateFailed": "プロフィールの更新に失敗しました",
       "messageFailed": "メッセージの送信に失敗しました",
-      "connectionFailed": "接続リクエストの送信に失敗しました",
+      "connectionFailed": "つながりリクエストの送信に失敗しました",
       "syncFailed": "データの同期に失敗しました",
       "uploadFailed": "ファイルのアップロードに失敗しました",
-      "networkError": "ネットワークエラー。接続を確認してください。",
-      "somethingWrong": "問題が発生しました。もう一度お試しください。",
-      "passwordResetComingSoon": "パスワードリセット機能は近日公開！",
-      "onlyConnectedUsers": "接続済みのユーザーとのみチャットできます",
+      "networkError": "ネットワークエラーが発生しました。接続を確認してください。",
+      "somethingWrong": "エラーが発生しました。もう一度お試しください。",
+      "passwordResetComingSoon": "パスワードリセット機能は近日公開予定です！",
+      "onlyConnectedUsers": "つながっているユーザーとのみチャットできます",
       "failedToStartChat": "チャットの開始に失敗しました"
     }
   },
@@ -483,29 +492,29 @@
     "fashion": "ファッション",
     "lifestyle": "ライフスタイル",
     "fitness": "フィットネス",
-    "food": "フード",
-    "travel": "トラベル",
+    "food": "グルメ",
+    "travel": "旅行",
     "tech": "テクノロジー",
-    "gaming": "ゲーミング"
+    "gaming": "ゲーム"
   },
   "error": {
     "404": {
       "title": "ページが見つかりません",
-      "message": "お探しのページは存在しません。",
+      "message": "お探しのページは存在しないか、移動した可能性があります。",
       "button": "ホームに戻る"
     },
     "500": {
       "title": "サーバーエラー",
-      "message": "サーバー側で問題が発生しました。",
-      "button": "再試行"
+      "message": "サーバー側で問題が発生しました。しばらくしてからもう一度お試しください。",
+      "button": "再読み込み"
     },
     "generic": {
-      "title": "おっと！",
+      "title": "エラーが発生しました",
       "message": "予期しないエラーが発生しました。",
       "button": "戻る"
     }
   },
   "footer": {
-    "copyright": "全著作権所有。"
+    "copyright": "© 2025 ビューティフルエンサー All rights reserved."
   }
 }
