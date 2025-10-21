@@ -2,16 +2,20 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FiHome, FiUsers, FiMessageCircle, FiBell, FiUser } from 'react-icons/fi';
+import { FaInstagram } from 'react-icons/fa';
 import { useNotificationStore } from '../../store/notificationStore';
+import { useAuthStore } from '../../store/authStore';
 
 export const BottomNav: React.FC = () => {
   const { t } = useTranslation();
   const unreadCount = useNotificationStore((state) => state.unreadCount);
+  const user = useAuthStore((state) => state.user);
 
   const navItems = [
     { to: '/discover', icon: FiHome, label: t('nav.discover'), badge: 0 },
     { to: '/requests', icon: FiUsers, label: t('nav.requests'), badge: 0 },
-    { to: '/chat', icon: FiMessageCircle, label: t('nav.chat'), badge: 0 },
+    // Only show Social Media for influencers on mobile
+    ...(user?.role === 'INFLUENCER' ? [{ to: '/social-media', icon: FaInstagram, label: t('nav.socialMedia'), badge: 0 }] : []),
     { to: '/notifications', icon: FiBell, label: t('nav.notifications'), badge: unreadCount },
     { to: '/profile', icon: FiUser, label: t('nav.profile'), badge: 0 },
   ];

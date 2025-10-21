@@ -22,6 +22,9 @@ router.delete('/:requestId/withdraw', connectionController.withdrawRequest.bind(
 // Get all requests (with optional type filter)
 router.get('/', connectionController.getRequests.bind(connectionController));
 
+// Check connection status for multiple users (bulk)
+router.post('/status/bulk', connectionController.checkBulkConnectionStatus.bind(connectionController));
+
 // Check connection status with a specific user
 router.get('/status/:targetUserId', connectionController.checkConnectionStatus.bind(connectionController));
 

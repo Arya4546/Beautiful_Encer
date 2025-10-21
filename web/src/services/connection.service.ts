@@ -123,6 +123,14 @@ class ConnectionService {
     const response = await axiosInstance.get(`/connections/status/${targetUserId}`);
     return response.data;
   }
+
+  /**
+   * Check connection status for multiple users at once (bulk)
+   */
+  async checkBulkConnectionStatus(userIds: string[]): Promise<{ success: boolean; data: Record<string, ConnectionStatus> }> {
+    const response = await axiosInstance.post(`/connections/status/bulk`, { userIds });
+    return response.data;
+  }
 }
 
 export default new ConnectionService();

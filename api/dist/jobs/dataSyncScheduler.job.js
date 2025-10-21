@@ -1,7 +1,8 @@
 import cron from 'node-cron';
 import { prisma } from '../lib/prisma.js';
 import { SocialMediaPlatform } from '@prisma/client';
-import instagramService from '../services/instagram.service.js';
+// Instagram now uses Apify scraping service
+import apifyInstagramService from '../services/apify.instagram.service.js';
 import tiktokService from '../services/tiktok.service.js';
 /**
  * Data Sync Scheduler Job
@@ -11,6 +12,8 @@ import tiktokService from '../services/tiktok.service.js';
  *
  * Features:
  * - Syncs all active accounts
+ * - Instagram: Uses Apify scraping (7-day cache)
+ * - TikTok: Uses OAuth API
  * - Updates follower counts and engagement metrics
  * - Fetches latest posts/videos
  * - Rate-limited to avoid API throttling
@@ -107,54 +110,19 @@ class DataSyncSchedulerJob {
         }
     }
     /**
-     * Sync Instagram account data
+     * Sync Instagram account data using Apify
      */
     async syncInstagramData(influencerId, account) {
         console.log(`[DataSyncScheduler] Syncing Instagram data for account ${account.id}...`);
-        const accessToken = instagramService.decryptToken(account.accessToken);
-        // Fetch insights
-        const insights = await instagramService.getUserInsights(account.platformUserId, accessToken);
-        // Fetch recent posts
-        const posts = await instagramService.getUserMedia(accessToken, 25);
-        // Calculate engagement rate
-        const engagementRate = instagramService.calculateEngagementRate(posts, insights.followersCount);
-        // Update account metrics
-        await prisma.socialMediaAccount.update({
-            where: { id: account.id },
-            data: {
-                followersCount: insights.followersCount,
-                followingCount: insights.followingCount,
-                postsCount: insights.mediaCount,
-                engagementRate,
-                lastSyncedAt: new Date(),
-            },
-        });
-        // Store/update posts
-        for (const post of posts) {
-            await prisma.socialMediaPost.upsert({
-                where: {
-                    accountId_platformPostId: {
-                        accountId: account.id,
-                        platformPostId: post.id,
-                    },
-                },
-                create: {
-                    accountId: account.id,
-                    platformPostId: post.id,
-                    caption: post.caption,
-                    mediaUrl: post.media_url,
-                    mediaType: this.mapInstagramMediaType(post.media_type),
-                    likesCount: post.like_count || 0,
-                    commentsCount: post.comments_count || 0,
-                    postedAt: new Date(post.timestamp),
-                },
-                update: {
-                    likesCount: post.like_count || 0,
-                    commentsCount: post.comments_count || 0,
-                },
-            });
+        try {
+            // Use Apify service to sync data (respects 7-day cache)
+            await apifyInstagramService.syncInstagramData(account.id);
+            console.log(`[DataSyncScheduler] Instagram sync completed for account ${account.id}`);
         }
-        console.log(`[DataSyncScheduler] Instagram sync completed for account ${account.id}`);
+        catch (error) {
+            console.error(`[DataSyncScheduler] Instagram sync failed for account ${account.id}:`, error.message);
+            throw error;
+        }
     }
     /**
      * Sync TikTok account data

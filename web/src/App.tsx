@@ -15,6 +15,7 @@ import { ChatPage } from "./pages/ChatPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { UserProfilePage } from "./pages/UserProfilePage";
+import SocialMediaPage from "./pages/SocialMediaPage";
 import { NotFoundPage } from "./pages/ErrorPage";
 
 // Route Protection
@@ -112,6 +113,10 @@ const App: React.FC = () => {
         <Route 
           path="/profile/:userId" 
           element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/social-media" 
+          element={<ProtectedRoute><SocialMediaPage /></ProtectedRoute>} 
         />
 
         {/* 404 - Not Found */}

@@ -96,7 +96,10 @@ model SocialMediaAccount {
   platform          SocialMediaPlatform
   platformUserId    String              // Instagram/TikTok user ID
   platformUsername  String              // Display username
-  accessToken       String              // Encrypted access token
+  displayName       String?             // Full name/display name
+  profileUrl        String?             // Profile URL
+  profilePicture    String?             // Profile picture URL
+  accessToken       String              // Encrypted access token (or empty for scraping)
   refreshToken      String?             // Encrypted refresh token (if applicable)
   tokenExpiresAt    DateTime?           // Token expiration
   isActive          Boolean             @default(true)
@@ -107,6 +110,7 @@ model SocialMediaAccount {
   postsCount        Int?
   engagementRate    Float?
   lastSyncedAt      DateTime?
+  metadata          Json?               // Additional platform-specific data
   
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt

@@ -1,13 +1,17 @@
 import cron from 'node-cron';
 import { prisma } from '../lib/prisma.js';
 import { SocialMediaPlatform } from '@prisma/client';
-import instagramService from '../services/instagram.service.js';
+// Instagram now uses Apify scraping - no token refresh needed
+// import instagramService from '../services/instagram.service.js';
 import tiktokService from '../services/tiktok.service.js';
 /**
  * Token Refresh Cron Job
  *
  * Automatically refreshes social media access tokens before they expire
  * Runs daily at 2:00 AM
+ *
+ * NOTE: Instagram now uses Apify scraping and doesn't require token refresh
+ * Only TikTok uses OAuth tokens that need refreshing
  *
  * - Finds tokens expiring within 7 days
  * - Attempts to refresh them
@@ -41,12 +45,16 @@ class TokenRefreshJob {
         const startTime = Date.now();
         try {
             // Find accounts with tokens expiring within 7 days
+            // Skip Instagram accounts (they use Apify scraping, no tokens)
             const expiringAccounts = await prisma.socialMediaAccount.findMany({
                 where: {
                     tokenExpiresAt: {
                         lte: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
                     },
                     isActive: true,
+                    platform: {
+                        not: SocialMediaPlatform.INSTAGRAM, // Skip Instagram, uses Apify
+                    },
                 },
                 include: {
                     influencer: {
@@ -68,11 +76,8 @@ class TokenRefreshJob {
             // Process each account
             for (const account of expiringAccounts) {
                 try {
-                    if (account.platform === SocialMediaPlatform.INSTAGRAM) {
-                        await this.refreshInstagramToken(account);
-                        successCount++;
-                    }
-                    else if (account.platform === SocialMediaPlatform.TIKTOK) {
+                    // Instagram uses Apify scraping - no token refresh needed
+                    if (account.platform === SocialMediaPlatform.TIKTOK) {
                         await this.refreshTikTokToken(account);
                         successCount++;
                     }
@@ -111,28 +116,11 @@ class TokenRefreshJob {
         }
     }
     /**
-     * Refresh Instagram access token
+     * Refresh Instagram access token (DEPRECATED - Instagram now uses Apify scraping)
+     * This method is kept for reference but is no longer called
      */
     async refreshInstagramToken(account) {
-        console.log(`[TokenRefreshJob] Refreshing Instagram token for account ${account.id}...`);
-        // Decrypt current token
-        const currentToken = instagramService.decryptToken(account.accessToken);
-        // Request new long-lived token
-        const newTokenData = await instagramService.refreshAccessToken(currentToken);
-        // Encrypt new token
-        const encryptedToken = instagramService.encryptToken(newTokenData.access_token);
-        // Calculate new expiration (Instagram long-lived tokens last 60 days)
-        const newExpiresAt = new Date(Date.now() + newTokenData.expires_in * 1000);
-        // Update database
-        await prisma.socialMediaAccount.update({
-            where: { id: account.id },
-            data: {
-                accessToken: encryptedToken,
-                tokenExpiresAt: newExpiresAt,
-                updatedAt: new Date(),
-            },
-        });
-        console.log(`[TokenRefreshJob] Instagram token refreshed successfully for account ${account.id}. New expiry: ${newExpiresAt.toISOString()}`);
+        throw new Error('Instagram token refresh is deprecated. Instagram now uses Apify scraping without OAuth tokens.');
     }
     /**
      * Refresh TikTok access token using refresh token

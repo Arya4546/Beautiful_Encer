@@ -15,6 +15,7 @@ import notificationController from './controllers/notification.controller.js';
 import { generalLimiter } from './middlewares/rateLimiter.middleware.js';
 import tokenRefreshJob from './jobs/tokenRefresh.job.js';
 import dataSyncSchedulerJob from './jobs/dataSyncScheduler.job.js';
+import instagramReminderJob from './jobs/instagramReminder.job.js';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 
@@ -132,6 +133,7 @@ app.get('/health', (req: Request, res: Response) => {
 try {
   tokenRefreshJob.init();
   dataSyncSchedulerJob.init();
+  instagramReminderJob.init();
   console.log('[cron]: Automated jobs initialized successfully');
 } catch (error) {
   console.error('[cron]: Failed to initialize automated jobs:', error);
@@ -142,4 +144,5 @@ httpServer.listen(PORT, () => {
   console.log(`[websocket]: WebSocket server ready`);
   console.log(`[cron]: Token refresh job scheduled for 2:00 AM daily`);
   console.log(`[cron]: Data sync job scheduled for 3:00 AM daily`);
+  console.log(`[cron]: Instagram reminder job scheduled for 10:00 AM daily`);
 });

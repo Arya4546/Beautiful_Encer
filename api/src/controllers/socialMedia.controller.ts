@@ -1,137 +1,224 @@
 import type { Request, Response } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { SocialMediaPlatform, MediaType } from '@prisma/client';
-import instagramService from '../services/instagram.service.js';
+import apifyInstagramService from '../services/apify.instagram.service.js';
 import tiktokService from '../services/tiktok.service.js';
 
 /**
  * Social Media Account Linking Controller
- * Handles Instagram and TikTok account connections for influencers
+ * Handles Instagram (via Apify scraping) and TikTok account connections for influencers
  */
 
 class SocialMediaController {
   // ===========================
-  // INSTAGRAM - INITIATE OAUTH
+  // INSTAGRAM - CONNECT VIA USERNAME (APIFY SCRAPING)
   // ===========================
-  async initiateInstagramAuth(req: Request, res: Response) {
+  async connectInstagram(req: Request, res: Response) {
     try {
       const userId = req.user?.userId;
       if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ 
+          error: 'Unauthorized',
+          message: 'You must be logged in to connect an Instagram account'
+        });
       }
 
-      // Generate state with userId for verification after callback
-      const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
-      
-      const authUrl = instagramService.getAuthorizationUrl(state);
+      const { username } = req.body;
 
-      return res.status(200).json({
-        message: 'Redirect user to this URL to connect Instagram',
-        authUrl,
-      });
+      if (!username || typeof username !== 'string' || username.trim() === '') {
+        return res.status(400).json({ 
+          error: 'Invalid username',
+          message: 'Please provide a valid Instagram username'
+        });
+      }
+
+      // Connect Instagram account using Apify scraping
+      const result = await apifyInstagramService.connectInstagramAccount(userId, username);
+
+      return res.status(200).json(result);
+
     } catch (error: any) {
-      console.error('[SocialMediaController.initiateInstagramAuth] Error:', error);
-      return res.status(500).json({ error: 'Failed to initiate Instagram authentication' });
+      console.error('[SocialMediaController.connectInstagram] Error:', error);
+      
+      // Handle specific error cases
+      if (error.message.includes('not found')) {
+        return res.status(404).json({ 
+          error: 'Instagram account not found',
+          message: 'The Instagram username you provided does not exist or is private'
+        });
+      }
+
+      if (error.message.includes('influencer')) {
+        return res.status(403).json({ 
+          error: 'Not an influencer',
+          message: 'Only influencer accounts can connect Instagram'
+        });
+      }
+
+      return res.status(500).json({ 
+        error: 'Failed to connect Instagram',
+        message: error.message || 'An unexpected error occurred while connecting your Instagram account'
+      });
     }
   }
 
   // ===========================
-  // INSTAGRAM - OAUTH CALLBACK
+  // INSTAGRAM - SYNC DATA
   // ===========================
-  async instagramCallback(req: Request, res: Response) {
+  async syncInstagram(req: Request, res: Response) {
     try {
-      const { code, state } = req.query;
-
-      if (!code || typeof code !== 'string') {
-        return res.status(400).json({ error: 'Authorization code is required' });
-      }
-
-      // Decode and verify state
-      let stateData: { userId: string; timestamp: number };
-      try {
-        stateData = JSON.parse(Buffer.from(state as string, 'base64').toString());
-      } catch {
-        return res.status(400).json({ error: 'Invalid state parameter' });
-      }
-
-      const { userId } = stateData;
-
-      // Verify user exists and is an influencer
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        include: { influencer: true },
-      });
-
-      if (!user || !user.influencer) {
-        return res.status(404).json({ error: 'Influencer not found' });
-      }
-
-      // Exchange code for access token
-      const authResponse = await instagramService.exchangeCodeForToken(code);
-
-      // Get long-lived token (60 days validity)
-      const longLivedToken = await instagramService.getLongLivedToken(authResponse.access_token);
-
-      // Fetch user profile
-      const profile = await instagramService.getUserProfile(longLivedToken.access_token);
-
-      // Encrypt tokens before storing
-      const encryptedAccessToken = instagramService.encryptToken(longLivedToken.access_token);
-
-      // Calculate token expiration
-      const tokenExpiresAt = new Date(Date.now() + longLivedToken.expires_in * 1000);
-
-      // Check if account already exists
-      const existingAccount = await prisma.socialMediaAccount.findUnique({
-        where: {
-          influencerId_platform: {
-            influencerId: user.influencer.id,
-            platform: SocialMediaPlatform.INSTAGRAM,
-          },
-        },
-      });
-
-      if (existingAccount) {
-        // Update existing account
-        await prisma.socialMediaAccount.update({
-          where: { id: existingAccount.id },
-          data: {
-            platformUserId: profile.id,
-            platformUsername: profile.username,
-            accessToken: encryptedAccessToken,
-            tokenExpiresAt,
-            isActive: true,
-            lastSyncedAt: new Date(),
-          },
-        });
-      } else {
-        // Create new account
-        await prisma.socialMediaAccount.create({
-          data: {
-            influencerId: user.influencer.id,
-            platform: SocialMediaPlatform.INSTAGRAM,
-            platformUserId: profile.id,
-            platformUsername: profile.username,
-            accessToken: encryptedAccessToken,
-            tokenExpiresAt,
-            isActive: true,
-            lastSyncedAt: new Date(),
-          },
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ 
+          error: 'Unauthorized',
+          message: 'You must be logged in to sync Instagram data'
         });
       }
 
-      // Trigger initial data sync in background (non-blocking)
-      this.syncInstagramData(user.influencer.id).catch((err) => {
-        console.error('[InstagramCallback] Background sync error:', err);
+      const { accountId } = req.body;
+
+      if (!accountId) {
+        return res.status(400).json({ 
+          error: 'Missing account ID',
+          message: 'Please provide the Instagram account ID to sync'
+        });
+      }
+
+      // Verify account belongs to this user
+      const account = await prisma.socialMediaAccount.findUnique({
+        where: { id: accountId },
+        include: { influencer: { include: { user: true } } },
       });
+
+      if (!account) {
+        return res.status(404).json({ 
+          error: 'Account not found',
+          message: 'The Instagram account you are trying to sync does not exist'
+        });
+      }
+
+      if (account.influencer.user.id !== userId) {
+        return res.status(403).json({ 
+          error: 'Forbidden',
+          message: 'You do not have permission to sync this Instagram account'
+        });
+      }
+
+      // Sync Instagram data
+      const result = await apifyInstagramService.syncInstagramData(accountId);
+
+      return res.status(200).json(result);
+
+    } catch (error: any) {
+      console.error('[SocialMediaController.syncInstagram] Error:', error);
+      
+      return res.status(500).json({ 
+        error: 'Failed to sync Instagram data',
+        message: error.message || 'An unexpected error occurred while syncing your Instagram data'
+      });
+    }
+  }
+
+  // ===========================
+  // INSTAGRAM - GET DATA
+  // ===========================
+  async getInstagramData(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ 
+          error: 'Unauthorized',
+          message: 'You must be logged in to view Instagram data'
+        });
+      }
+
+      const { accountId } = req.params;
+
+      // Verify account belongs to this user
+      const account = await prisma.socialMediaAccount.findUnique({
+        where: { id: accountId },
+        include: { influencer: { include: { user: true } } },
+      });
+
+      if (!account) {
+        return res.status(404).json({ 
+          error: 'Account not found',
+          message: 'The Instagram account does not exist'
+        });
+      }
+
+      if (account.influencer.user.id !== userId) {
+        return res.status(403).json({ 
+          error: 'Forbidden',
+          message: 'You do not have permission to view this Instagram account'
+        });
+      }
+
+      // Get Instagram data (from cache or fresh scrape)
+      const result = await apifyInstagramService.getInstagramData(accountId);
+
+      return res.status(200).json(result);
+
+    } catch (error: any) {
+      console.error('[SocialMediaController.getInstagramData] Error:', error);
+      
+      return res.status(500).json({ 
+        error: 'Failed to get Instagram data',
+        message: error.message || 'An unexpected error occurred while fetching Instagram data'
+      });
+    }
+  }
+
+  // ===========================
+  // INSTAGRAM - DISCONNECT
+  // ===========================
+  async disconnectInstagram(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ 
+          error: 'Unauthorized',
+          message: 'You must be logged in to disconnect Instagram'
+        });
+      }
+
+      const { accountId } = req.params;
+
+      // Verify account belongs to this user
+      const account = await prisma.socialMediaAccount.findUnique({
+        where: { id: accountId },
+        include: { influencer: { include: { user: true } } },
+      });
+
+      if (!account) {
+        return res.status(404).json({ 
+          error: 'Account not found',
+          message: 'The Instagram account does not exist'
+        });
+      }
+
+      if (account.influencer.user.id !== userId) {
+        return res.status(403).json({ 
+          error: 'Forbidden',
+          message: 'You do not have permission to disconnect this Instagram account'
+        });
+      }
+
+      // Disconnect Instagram account
+      await apifyInstagramService.disconnectInstagramAccount(accountId);
 
       return res.status(200).json({
-        message: 'Instagram account connected successfully',
-        username: profile.username,
+        success: true,
+        message: 'Instagram account disconnected successfully'
       });
+
     } catch (error: any) {
-      console.error('[SocialMediaController.instagramCallback] Error:', error);
-      return res.status(500).json({ error: 'Failed to connect Instagram account' });
+      console.error('[SocialMediaController.disconnectInstagram] Error:', error);
+      
+      return res.status(500).json({ 
+        error: 'Failed to disconnect Instagram',
+        message: error.message || 'An unexpected error occurred while disconnecting Instagram'
+      });
     }
   }
 
@@ -361,78 +448,7 @@ class SocialMediaController {
     }
   }
 
-  // ===========================
-  // SYNC INSTAGRAM DATA (Background)
-  // ===========================
-  private async syncInstagramData(influencerId: string): Promise<void> {
-    try {
-      const account = await prisma.socialMediaAccount.findUnique({
-        where: {
-          influencerId_platform: {
-            influencerId,
-            platform: SocialMediaPlatform.INSTAGRAM,
-          },
-        },
-      });
-
-      if (!account || !account.isActive) return;
-
-      // Decrypt token
-      const accessToken = instagramService.decryptToken(account.accessToken);
-
-      // Fetch insights
-      const insights = await instagramService.getUserInsights(account.platformUserId, accessToken);
-
-      // Fetch recent posts
-      const posts = await instagramService.getUserMedia(accessToken, 25);
-
-      // Calculate engagement rate
-      const engagementRate = instagramService.calculateEngagementRate(posts, insights.followersCount);
-
-      // Update account metrics
-      await prisma.socialMediaAccount.update({
-        where: { id: account.id },
-        data: {
-          followersCount: insights.followersCount,
-          followingCount: insights.followingCount,
-          postsCount: insights.mediaCount,
-          engagementRate,
-          lastSyncedAt: new Date(),
-        },
-      });
-
-      // Store posts
-      for (const post of posts) {
-        await prisma.socialMediaPost.upsert({
-          where: {
-            accountId_platformPostId: {
-              accountId: account.id,
-              platformPostId: post.id,
-            },
-          },
-          create: {
-            accountId: account.id,
-            platformPostId: post.id,
-            caption: post.caption,
-            mediaUrl: post.media_url,
-            mediaType: this.mapInstagramMediaType(post.media_type),
-            likesCount: post.like_count || 0,
-            commentsCount: post.comments_count || 0,
-            postedAt: new Date(post.timestamp),
-          },
-          update: {
-            likesCount: post.like_count || 0,
-            commentsCount: post.comments_count || 0,
-          },
-        });
-      }
-
-      console.log(`[SyncInstagram] Successfully synced data for influencer ${influencerId}`);
-    } catch (error) {
-      console.error('[SyncInstagram] Error:', error);
-      throw error;
-    }
-  }
+  // Instagram sync now handled by Apify scraping service
 
   // ===========================
   // SYNC TIKTOK DATA (Background)
@@ -538,7 +554,12 @@ class SocialMediaController {
 
       // Trigger sync based on platform
       if (platform === 'INSTAGRAM') {
-        await this.syncInstagramData(user.influencer.id);
+        // Instagram now uses Apify scraping service
+        // Sync handled through dedicated syncInstagram endpoint
+        return res.status(400).json({ 
+          error: 'Please use the dedicated Instagram sync endpoint',
+          message: 'Instagram syncing is now handled separately'
+        });
       } else if (platform === 'TIKTOK') {
         await this.syncTikTokData(user.influencer.id);
       }

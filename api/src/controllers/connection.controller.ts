@@ -539,6 +539,87 @@ class ConnectionController {
       return res.status(500).json({ error: 'Failed to check connection status' });
     }
   }
+
+  /**
+   * Check connection status for multiple users (bulk operation)
+   */
+  async checkBulkConnectionStatus(req: AuthenticatedRequest, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      const { userIds } = req.body;
+
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      if (!Array.isArray(userIds) || userIds.length === 0) {
+        return res.status(400).json({ error: 'userIds array is required' });
+      }
+
+      // Limit to 100 IDs per request
+      if (userIds.length > 100) {
+        return res.status(400).json({ error: 'Maximum 100 user IDs per request' });
+      }
+
+      // Fetch all sent requests
+      const sentRequests = await prisma.connectionRequest.findMany({
+        where: {
+          senderId: userId,
+          receiverId: { in: userIds },
+        },
+        select: {
+          id: true,
+          receiverId: true,
+          status: true,
+        },
+      });
+
+      // Fetch all received requests
+      const receivedRequests = await prisma.connectionRequest.findMany({
+        where: {
+          senderId: { in: userIds },
+          receiverId: userId,
+        },
+        select: {
+          id: true,
+          senderId: true,
+          status: true,
+        },
+      });
+
+      // Build status map
+      const statusMap: Record<string, { status: string; requestId: string | null }> = {};
+
+      userIds.forEach((targetId) => {
+        statusMap[targetId] = { status: 'none', requestId: null };
+      });
+
+      sentRequests.forEach((req) => {
+        statusMap[req.receiverId] = {
+          status: req.status === 'ACCEPTED' ? 'connected' : 'sent',
+          requestId: req.id,
+        };
+      });
+
+      receivedRequests.forEach((req) => {
+        // Only override if not already set (sent takes precedence)
+        if (statusMap[req.senderId].status === 'none') {
+          statusMap[req.senderId] = {
+            status: req.status === 'ACCEPTED' ? 'connected' : 'received',
+            requestId: req.id,
+          };
+        }
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: statusMap,
+      });
+    } catch (error: any) {
+      console.error('[ConnectionController.checkBulkConnectionStatus] Error:', error);
+      return res.status(500).json({ error: 'Failed to check bulk connection status' });
+    }
+  }
 }
 
 export default new ConnectionController();

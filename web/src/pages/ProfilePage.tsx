@@ -27,6 +27,7 @@ import {
   Check,
   Upload,
 } from 'lucide-react';
+import { FaInstagram } from 'react-icons/fa';
 import { useAuthStore } from '../store/authStore';
 import profileService from '../services/profile.service';
 import type { UpdateProfileData, ChangePasswordData } from '../services/profile.service';
@@ -34,6 +35,7 @@ import { showToast } from '../utils/toast';
 import { RegionSelector } from '../components/common/RegionSelector';
 import { getRegionName } from '../constants/regions';
 import { ButtonLoader } from '../components/ui/Loader';
+import InstagramConnect from '../components/InstagramConnect';
 
 interface SettingItem {
   id: string;
@@ -54,6 +56,7 @@ export const ProfilePage: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profileDataLoaded, setProfileDataLoaded] = useState(false);
+  const [instagramModalOpen, setInstagramModalOpen] = useState(false);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -323,6 +326,14 @@ export const ProfilePage: React.FC = () => {
           icon: Camera,
           onClick: () => setShowModal('profile-picture'),
         },
+        // Only show Instagram connection for influencers
+        ...(user?.role === 'INFLUENCER' ? [{
+          id: 'instagram-connect',
+          title: 'Connect Instagram',
+          subtitle: 'Link your Instagram account to showcase your influence',
+          icon: FaInstagram,
+          onClick: () => setInstagramModalOpen(true),
+        }] : []),
       ],
     },
     {
@@ -815,6 +826,20 @@ export const ProfilePage: React.FC = () => {
       )}
 
       <BottomNav />
+
+      {/* Instagram Connect Modal */}
+      {user?.role === 'INFLUENCER' && (
+        <InstagramConnect
+          isOpen={instagramModalOpen}
+          onClose={() => setInstagramModalOpen(false)}
+          onSuccess={() => {
+            setInstagramModalOpen(false);
+            showToast.success('Instagram account connected successfully!');
+            // Optionally reload profile data
+            loadProfileData();
+          }}
+        />
+      )}
     </>
   );
 };
