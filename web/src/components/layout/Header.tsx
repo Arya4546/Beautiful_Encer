@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import { FiLogOut, FiUser, FiSettings, FiChevronDown } from 'react-icons/fi';
+import { FaRocket } from 'react-icons/fa';
 import { useAuthStore } from '../../store/authStore';
 import { showToast } from '../../utils/toast';
 import { ButtonLoader } from '../ui/Loader';
@@ -65,17 +67,24 @@ export const Header: React.FC = () => {
   const initials = displayName.charAt(0).toUpperCase();
 
   return (
-    <header className="bg-white border-b border-border fixed top-0 left-0 right-0 z-50 shadow-soft">
+    <header className="bg-white/80 backdrop-blur-2xl border-b border-pink-200/50 fixed top-0 left-0 right-0 z-50 shadow-xl shadow-pink-500/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/discover" className="flex items-center space-x-2 flex-shrink-0">
-            <div className="w-10 h-10 bg-gradient-to-br from-magenta to-magenta-dark rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-xl">BE</span>
+          {/* Logo with Rocket Icon */}
+          <Link to="/discover" className="flex items-center gap-2 flex-shrink-0 group">
+            <motion.div
+              className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-600 to-fuchsia-600 flex items-center justify-center shadow-lg"
+              whileHover={{ rotate: 360, scale: 1.1 }}
+              transition={{ duration: 0.6 }}
+            >
+              <FaRocket className="text-white text-lg" />
+            </motion.div>
+            <div className="hidden sm:flex flex-col leading-none">
+              <span className="text-xl font-black bg-gradient-to-r from-pink-600 via-rose-600 to-fuchsia-600 bg-clip-text text-transparent">
+                Beautiful
+              </span>
+              <span className="text-xs font-bold text-gray-500 tracking-wider">ENCER</span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-magenta to-magenta-dark bg-clip-text text-transparent hidden sm:block">
-              {t('brand.name')}
-            </span>
           </Link>
 
           {/* Language Switcher & Profile */}
@@ -84,9 +93,11 @@ export const Header: React.FC = () => {
             
             {/* Profile Dropdown */}
             <div className="relative flex-shrink-0" ref={dropdownRef}>
-            <button
+            <motion.button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center space-x-3 hover:bg-background-secondary rounded-xl px-3 py-2 transition-colors min-w-[48px]"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center space-x-3 hover:bg-pink-50 rounded-xl px-3 py-2 transition-all border border-transparent hover:border-pink-200 min-w-[48px]"
               type="button"
             >
               {/* Profile Picture - Fixed width to prevent shift */}
@@ -95,7 +106,7 @@ export const Header: React.FC = () => {
                   <img
                     src={profilePic}
                     alt={displayName}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-magenta"
+                    className="w-10 h-10 rounded-full object-cover border-2 border-pink-500 shadow-lg"
                     onError={(e) => {
                       // Fallback to initials if image fails to load
                       const target = e.target as HTMLImageElement;
@@ -107,7 +118,7 @@ export const Header: React.FC = () => {
                 ) : null}
                 {/* Fallback initials */}
                 <div 
-                  className="w-10 h-10 rounded-full bg-gradient-to-br from-magenta to-magenta-dark flex items-center justify-center text-white font-bold border-2 border-magenta"
+                  className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-600 to-fuchsia-600 flex items-center justify-center text-white font-bold border-2 border-pink-500 shadow-lg"
                   style={{ display: profilePic ? 'none' : 'flex' }}
                 >
                   {initials}
@@ -118,52 +129,60 @@ export const Header: React.FC = () => {
 
               {/* Name (hidden on mobile) */}
               <div className="hidden md:block text-left min-w-[120px]">
-                <p className="text-sm font-semibold text-text-primary truncate">{displayName}</p>
-                <p className="text-xs text-text-tertiary capitalize truncate">
+                <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
+                <p className="text-xs text-gray-500 capitalize truncate">
                   {user?.role === 'INFLUENCER' ? t('common.influencer') : t('common.salon')}
                 </p>
               </div>
 
               <FiChevronDown
                 size={16}
-                className={`text-text-secondary transition-transform duration-200 hidden md:block ${
+                className={`text-gray-500 transition-transform duration-200 hidden md:block ${
                   isDropdownOpen ? 'rotate-180' : ''
                 }`}
               />
-            </button>
+            </motion.button>
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-large border border-border overflow-hidden z-50 animate-fade-in-scale origin-top-right">
+              <motion.div 
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-pink-200 overflow-hidden z-50 origin-top-right"
+              >
                 {/* User Info */}
-                <div className="px-4 py-3 border-b border-border bg-gradient-to-br from-magenta/5 to-magenta-dark/5">
-                  <p className="text-sm font-semibold text-text-primary truncate">
+                <div className="px-4 py-3 border-b border-pink-100 bg-gradient-to-br from-pink-50 to-fuchsia-50">
+                  <p className="text-sm font-semibold text-gray-900 truncate">
                     {displayName}
                   </p>
-                  <p className="text-xs text-text-tertiary truncate">{user?.email}</p>
+                  <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                 </div>
 
                 {/* Menu Items */}
                 <div className="py-2">
-                  <button
+                  <motion.button
                     onClick={() => {
                       navigate('/profile');
                       setIsDropdownOpen(false);
                     }}
-                    className="w-full px-4 py-3 text-left hover:bg-background-secondary transition-colors flex items-center space-x-3 text-text-primary group"
+                    whileHover={{ x: 4 }}
+                    className="w-full px-4 py-3 text-left hover:bg-pink-50 transition-all flex items-center space-x-3 text-gray-900 group"
                     type="button"
                   >
-                    <FiUser size={18} className="group-hover:text-magenta transition-colors" />
+                    <FiUser size={18} className="group-hover:text-pink-600 transition-colors" />
                     <span className="text-sm font-medium">{t('nav.profile')}</span>
-                  </button>
+                  </motion.button>
                 </div>
 
                 {/* Logout */}
-                <div className="border-t border-border py-2">
-                  <button
+                <div className="border-t border-pink-100 py-2">
+                  <motion.button
                     onClick={handleLogout}
                     disabled={isLoggingOut}
-                    className="w-full px-4 py-3 text-left hover:bg-red-50 transition-colors flex items-center space-x-3 text-red-600 group disabled:opacity-50 disabled:cursor-not-allowed"
+                    whileHover={{ x: 4 }}
+                    className="w-full px-4 py-3 text-left hover:bg-red-50 transition-all flex items-center space-x-3 text-red-600 group disabled:opacity-50 disabled:cursor-not-allowed"
                     type="button"
                   >
                     {isLoggingOut ? (
@@ -177,9 +196,9 @@ export const Header: React.FC = () => {
                         <span className="text-sm font-medium">{t('common.logout')}</span>
                       </>
                     )}
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             )}
             </div>
           </div>

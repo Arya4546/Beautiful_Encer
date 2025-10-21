@@ -39,7 +39,10 @@
     "inactive": "Inactive",
     "page": "page",
     "influencer": "Influencer",
-    "salon": "Salon"
+    "salon": "Salon",
+    "comingSoon": "Coming Soon",
+    "manage": "Manage",
+    "justNow": "Just now"
   },
   "nav": {
     "discover": "Discover",
@@ -48,6 +51,7 @@
     "chat": "Chat",
     "requests": "Requests",
     "notifications": "Notifications",
+    "socialMedia": "Social Media",
     "settings": "Settings",
     "languageSwitch": "Language"
   },
@@ -516,5 +520,60 @@
   },
   "footer": {
     "copyright": "All rights reserved."
+  },
+  "instagram": {
+    "title": {
+      "connect": "Connect Instagram",
+      "connected": "Instagram Connected"
+    },
+    "subtitle": {
+      "enterUsername": "Enter your Instagram username to connect your account",
+      "manage": "View and manage your Instagram connection"
+    },
+    "form": {
+      "usernameLabel": "Instagram Username",
+      "usernamePlaceholder": "yourusername",
+      "usernameHint": "Enter your Instagram username without the @ symbol"
+    },
+    "buttons": {
+      "connect": "Connect Instagram",
+      "connecting": "Connecting...",
+      "sync": "Refresh Data",
+      "syncing": "Refreshing...",
+      "disconnect": "Disconnect"
+    },
+    "stats": {
+      "followers": "Followers",
+      "posts": "Posts",
+      "engagement": "Engagement",
+      "avgLikes": "Avg. Likes"
+    },
+    "recentPosts": "Recent Posts",
+    "info": {
+      "title": "How it works",
+      "point1": "We fetch your public Instagram profile data",
+      "point2": "No password or login required",
+      "point3": "Data updates automatically every 7 days"
+    },
+    "error": "Error",
+    "success": "Success! Instagram account connected",
+    "confirmDisconnect": "Are you sure you want to disconnect your Instagram account?",
+    "errors": {
+      "usernameRequired": "Please enter your Instagram username",
+      "connectionFailed": "Failed to connect Instagram account. Please check the username and try again.",
+      "syncFailed": "Failed to refresh Instagram data. Please try again later.",
+      "disconnectFailed": "Failed to disconnect Instagram account. Please try again."
+    }
+  },
+  "socialMedia": {
+    "subtitle": "Connect and manage your social media accounts",
+    "influencerOnly": "Social media connections are only available for influencer accounts",
+    "lastSynced": "Last Updated",
+    "instagram": {
+      "description": "Connect your Instagram to showcase your influence",
+      "notConnected": "Instagram Not Connected",
+      "notConnectedDesc": "Connect your Instagram account to display your follower count, engagement rate, and recent posts",
+      "connect": "Connect Instagram"
+    }
   }
 }

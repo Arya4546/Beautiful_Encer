@@ -3,13 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { FiUserPlus, FiCheck, FiClock, FiEye, FiMapPin, FiInstagram, FiActivity } from 'react-icons/fi';
 import { useAuthStore } from '../store/authStore';
 import discoveryService from '../services/discovery.service';
+import connectionService, { type ConnectionStatus } from '../services/connection.service';
 import { showToast } from '../utils/toast';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
 import { FilterPanel, type Filters } from '../components/FilterPanel';
 import { ProfileModal } from '../components/ProfileModal';
-import { useConnectionStatus } from '../hooks/useConnectionStatus';
 
 interface User {
   id: string;
@@ -39,6 +39,7 @@ export const DiscoveryPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [connectionStatuses, setConnectionStatuses] = useState<Record<string, ConnectionStatus>>({});
   const [filters, setFilters] = useState<Filters>({
     search: '',
     region: '',
@@ -90,7 +91,7 @@ export const DiscoveryPage: React.FC = () => {
       setPage(1);
       setHasMore(true);
       fetchUsers(1, filters);
-    }, filters.search ? 500 : 100); // 500ms for search, 100ms for filters to prevent rapid clicks
+    }, filters.search ? 800 : 500); // Increased delays to prevent rate limiting
 
     return () => {
       if (fetchTimeoutRef.current) {
@@ -203,6 +204,11 @@ export const DiscoveryPage: React.FC = () => {
       }
 
       setHasMore(response.pagination.hasMore);
+
+      // Fetch connection statuses in bulk for new users
+      if (transformedUsers.length > 0) {
+        fetchConnectionStatuses(transformedUsers.map(u => u.id));
+      }
     } catch (error: any) {
       console.error('❌ Discovery fetch error:', error);
       showToast.error(error.response?.data?.error || 'Failed to load users');
@@ -210,6 +216,20 @@ export const DiscoveryPage: React.FC = () => {
       setLoading(false);
       isFetchingRef.current = false;
     }
+  };
+
+  const fetchConnectionStatuses = async (userIds: string[]) => {
+    try {
+      const response = await connectionService.checkBulkConnectionStatus(userIds);
+      setConnectionStatuses(prev => ({ ...prev, ...response.data }));
+    } catch (error) {
+      console.error('Failed to fetch connection statuses:', error);
+      // Silent fail - connection buttons will show default state
+    }
+  };
+
+  const updateConnectionStatus = (userId: string, status: ConnectionStatus) => {
+    setConnectionStatuses(prev => ({ ...prev, [userId]: status }));
   };
 
   const handleFilterChange = (newFilters: Filters) => {
@@ -260,7 +280,13 @@ export const DiscoveryPage: React.FC = () => {
             <>
               <div className="space-y-4">
                 {users.map((user) => (
-                  <UserListItem key={user.id} user={user} onViewProfile={() => setSelectedUserId(user.id)} />
+                  <UserListItem 
+                    key={user.id} 
+                    user={user} 
+                    onViewProfile={() => setSelectedUserId(user.id)}
+                    connectionStatus={connectionStatuses[user.id] || { status: 'none', requestId: null }}
+                    onStatusChange={(status) => updateConnectionStatus(user.id, status)}
+                  />
                 ))}
               </div>
 
@@ -303,10 +329,12 @@ export const DiscoveryPage: React.FC = () => {
 interface UserListItemProps {
   user: User;
   onViewProfile: () => void;
+  connectionStatus: ConnectionStatus;
+  onStatusChange: (status: ConnectionStatus) => void;
 }
 
-const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile }) => {
-  const { connectionStatus, loading, sendRequest, withdrawRequest, acceptRequest } = useConnectionStatus(user.id);
+const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connectionStatus, onStatusChange }) => {
+  const [loading, setLoading] = useState(false);
 
   const profilePic = user.influencer?.profilePic || user.salon?.profilePic;
   const displayName = user.role === 'SALON' 
@@ -326,12 +354,27 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile }) => {
   };
 
   const handleConnectionAction = async () => {
-    if (connectionStatus.status === 'none') {
-      await sendRequest();
-    } else if (connectionStatus.status === 'sent') {
-      await withdrawRequest();
-    } else if (connectionStatus.status === 'received') {
-      await acceptRequest();
+    if (loading) return;
+    
+    setLoading(true);
+    try {
+      if (connectionStatus.status === 'none') {
+        await connectionService.sendRequest({ receiverId: user.id });
+        onStatusChange({ status: 'sent' });
+        showToast.success('Connection request sent!');
+      } else if (connectionStatus.status === 'sent' && connectionStatus.requestId) {
+        await connectionService.withdrawRequest(connectionStatus.requestId);
+        onStatusChange({ status: 'none' });
+        showToast.success('Request withdrawn');
+      } else if (connectionStatus.status === 'received' && connectionStatus.requestId) {
+        await connectionService.acceptRequest(connectionStatus.requestId);
+        onStatusChange({ status: 'connected', requestId: connectionStatus.requestId });
+        showToast.success('Request accepted!');
+      }
+    } catch (error: any) {
+      showToast.error(error.response?.data?.error || 'Action failed');
+    } finally {
+      setLoading(false);
     }
   };
 

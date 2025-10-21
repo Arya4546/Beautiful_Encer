@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FiHome, FiUsers, FiMessageCircle, FiBell, FiUser } from 'react-icons/fi';
+import { FaInstagram } from 'react-icons/fa';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useAuthStore } from '../../store/authStore';
 import { io, Socket } from 'socket.io-client';
@@ -61,6 +62,8 @@ export const Sidebar: React.FC = () => {
     { to: '/requests', icon: FiUsers, label: t('nav.requests'), badge: 0 },
     { to: '/chat', icon: FiMessageCircle, label: t('nav.chat'), badge: 0 },
     { to: '/notifications', icon: FiBell, label: t('nav.notifications'), badge: unreadCount },
+    // Only show Social Media for influencers
+    ...(user?.role === 'INFLUENCER' ? [{ to: '/social-media', icon: FaInstagram, label: t('nav.socialMedia'), badge: 0 }] : []),
     { to: '/profile', icon: FiUser, label: t('nav.profile'), badge: 0 },
   ];
 

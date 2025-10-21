@@ -23,7 +23,10 @@ export const API_ENDPOINTS = {
   },
   // Social Media endpoints
   SOCIAL_MEDIA: {
-    INSTAGRAM_AUTH: '/social-media/instagram/auth',
+    INSTAGRAM_CONNECT: '/social-media/instagram/connect',
+    INSTAGRAM_SYNC: '/social-media/instagram/sync',
+    INSTAGRAM_DATA: (accountId: string) => `/social-media/instagram/${accountId}`,
+    INSTAGRAM_DISCONNECT: (accountId: string) => `/social-media/instagram/${accountId}`,
     TIKTOK_AUTH: '/social-media/tiktok/auth',
     ACCOUNTS: '/social-media/accounts',
     SYNC: (platform: string) => `/social-media/${platform}/sync`,

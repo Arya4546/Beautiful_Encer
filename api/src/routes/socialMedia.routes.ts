@@ -6,28 +6,18 @@ import { socialMediaLimiter } from '../middlewares/rateLimiter.middleware.js';
 const router = express.Router();
 
 // ===========================
-// INSTAGRAM ROUTES
+// INSTAGRAM ROUTES (APIFY SCRAPING)
 // ===========================
 
 /**
- * @route   GET /api/v1/social-media/instagram/auth
- * @desc    Initiate Instagram OAuth flow
+ * @route   POST /api/v1/social-media/instagram/connect
+ * @desc    Connect Instagram account using username (Apify scraping)
  * @access  Protected (Influencer)
  */
-router.get(
-  '/instagram/auth',
+router.post(
+  '/instagram/connect',
   protect,
-  socialMediaController.initiateInstagramAuth.bind(socialMediaController)
-);
-
-/**
- * @route   GET /api/v1/social-media/instagram/callback
- * @desc    Instagram OAuth callback handler
- * @access  Public (but validates state parameter)
- */
-router.get(
-  '/instagram/callback',
-  socialMediaController.instagramCallback.bind(socialMediaController)
+  socialMediaController.connectInstagram.bind(socialMediaController)
 );
 
 /**
@@ -39,7 +29,29 @@ router.post(
   '/instagram/sync',
   protect,
   socialMediaLimiter,
-  socialMediaController.syncAccount.bind(socialMediaController)
+  socialMediaController.syncInstagram.bind(socialMediaController)
+);
+
+/**
+ * @route   GET /api/v1/social-media/instagram/:accountId
+ * @desc    Get Instagram account data
+ * @access  Protected (Influencer)
+ */
+router.get(
+  '/instagram/:accountId',
+  protect,
+  socialMediaController.getInstagramData.bind(socialMediaController)
+);
+
+/**
+ * @route   DELETE /api/v1/social-media/instagram/:accountId
+ * @desc    Disconnect Instagram account
+ * @access  Protected (Influencer)
+ */
+router.delete(
+  '/instagram/:accountId',
+  protect,
+  socialMediaController.disconnectInstagram.bind(socialMediaController)
 );
 
 // ===========================

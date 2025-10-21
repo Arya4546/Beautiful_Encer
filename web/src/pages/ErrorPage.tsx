@@ -21,19 +21,26 @@ export const ErrorPage: React.FC<ErrorPageProps> = ({
   showHomeButton = true,
 }) => {
   const navigate = useNavigate();
-  const error = useRouteError();
+  
+  // Try to get route error, but don't fail if not in data router context
+  let routerError: any = null;
+  try {
+    routerError = useRouteError();
+  } catch (e) {
+    // Not in a data router context, ignore
+  }
 
   // Determine error details from router error if available
   let errorCode = code || 500;
   let errorTitle = title || 'Something went wrong';
   let errorMessage = message || 'An unexpected error occurred. Please try again.';
 
-  if (isRouteErrorResponse(error)) {
-    errorCode = error.status;
-    errorTitle = error.statusText;
-    errorMessage = error.data?.message || error.data || errorMessage;
-  } else if (error instanceof Error) {
-    errorMessage = error.message;
+  if (routerError && isRouteErrorResponse(routerError)) {
+    errorCode = routerError.status;
+    errorTitle = routerError.statusText;
+    errorMessage = routerError.data?.message || routerError.data || errorMessage;
+  } else if (routerError instanceof Error) {
+    errorMessage = routerError.message;
   }
 
   // Specific error messages

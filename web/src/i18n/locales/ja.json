@@ -39,7 +39,10 @@
     "inactive": "停止中",
     "page": "ページ",
     "influencer": "インフルエンサー",
-    "salon": "サロン"
+    "salon": "サロン",
+    "comingSoon": "近日公開",
+    "manage": "管理",
+    "justNow": "たった今"
   },
   "nav": {
     "discover": "さがす",
@@ -48,6 +51,7 @@
     "chat": "チャット",
     "requests": "リクエスト",
     "notifications": "お知らせ",
+    "socialMedia": "ソーシャルメディア",
     "settings": "設定",
     "languageSwitch": "言語切替"
   },
@@ -516,5 +520,60 @@
   },
   "footer": {
     "copyright": "© 2025 ビューティフルエンサー All rights reserved."
+  },
+  "instagram": {
+    "title": {
+      "connect": "Instagram連携",
+      "connected": "Instagram連携済み"
+    },
+    "subtitle": {
+      "enterUsername": "Instagramのユーザー名を入力してアカウントを連携",
+      "manage": "Instagram連携の表示と管理"
+    },
+    "form": {
+      "usernameLabel": "Instagramユーザー名",
+      "usernamePlaceholder": "ユーザー名",
+      "usernameHint": "@なしでInstagramのユーザー名を入力してください"
+    },
+    "buttons": {
+      "connect": "Instagram連携",
+      "connecting": "連携中...",
+      "sync": "データ更新",
+      "syncing": "更新中...",
+      "disconnect": "連携解除"
+    },
+    "stats": {
+      "followers": "フォロワー",
+      "posts": "投稿",
+      "engagement": "エンゲージメント",
+      "avgLikes": "平均いいね"
+    },
+    "recentPosts": "最近の投稿",
+    "info": {
+      "title": "仕組み",
+      "point1": "公開されているInstagramプロフィールデータを取得します",
+      "point2": "パスワードやログインは不要です",
+      "point3": "データは7日ごとに自動更新されます"
+    },
+    "error": "エラー",
+    "success": "成功！Instagramアカウントが連携されました",
+    "confirmDisconnect": "Instagramアカウントの連携を解除してもよろしいですか？",
+    "errors": {
+      "usernameRequired": "Instagramのユーザー名を入力してください",
+      "connectionFailed": "Instagramアカウントの連携に失敗しました。ユーザー名を確認して、もう一度お試しください。",
+      "syncFailed": "Instagramデータの更新に失敗しました。後でもう一度お試しください。",
+      "disconnectFailed": "Instagramアカウントの連携解除に失敗しました。もう一度お試しください。"
+    }
+  },
+  "socialMedia": {
+    "subtitle": "ソーシャルメディアアカウントの連携と管理",
+    "influencerOnly": "ソーシャルメディアの連携はインフルエンサーアカウントのみご利用いただけます",
+    "lastSynced": "最終更新",
+    "instagram": {
+      "description": "Instagramを連携して影響力をアピール",
+      "notConnected": "Instagram未連携",
+      "notConnectedDesc": "Instagramアカウントを連携すると、フォロワー数、エンゲージメント率、最近の投稿が表示されます",
+      "connect": "Instagram連携"
+    }
   }
 }
