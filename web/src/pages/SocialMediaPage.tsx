@@ -123,7 +123,7 @@ export default function SocialMediaPage() {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden hover:shadow-xl transition-shadow"
+                  className="bg-white rounded-3xl shadow-soft border-2 border-gray-200 overflow-hidden hover:shadow-large transition-shadow"
                 >
                   <div className="bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 p-6">
                     <div className="flex items-center justify-between text-white">
@@ -265,15 +265,14 @@ export default function SocialMediaPage() {
                   </div>
                 </motion.div>
 
-                {/* Coming Soon Cards */}
+                {/* Coming Soon Card - TikTok */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="grid md:grid-cols-2 gap-6"
                 >
                   {/* TikTok - Coming Soon */}
-                  <div className="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden opacity-60">
+                  <div className="bg-white rounded-3xl shadow-soft border-2 border-gray-200 overflow-hidden opacity-70 max-w-2xl mx-auto">
                     <div className="bg-gradient-to-br from-black to-teal-500 p-6">
                       <div className="flex items-center gap-4 text-white">
                         <div className="bg-white/20 backdrop-blur-sm p-4 rounded-2xl">
@@ -288,22 +287,10 @@ export default function SocialMediaPage() {
                       </div>
                     </div>
                   </div>
-
-                  {/* YouTube - Coming Soon */}
-                  <div className="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden opacity-60">
-                    <div className="bg-gradient-to-br from-red-600 to-red-500 p-6">
-                      <div className="flex items-center gap-4 text-white">
-                        <div className="bg-white/20 backdrop-blur-sm p-4 rounded-2xl">
-                          <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                          </svg>
-                        </div>
-                        <div>
-                          <h2 className="text-2xl font-bold">YouTube</h2>
-                          <p className="text-white/80 text-sm">{t('common.comingSoon') || 'Coming Soon'}</p>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="p-6">
+                    <p className="text-gray-600 text-sm text-center">
+                      {t('socialMedia.tiktok.comingSoonDesc') || 'TikTok integration will be available soon. Stay tuned!'}
+                    </p>
                   </div>
                 </motion.div>
               </div>
