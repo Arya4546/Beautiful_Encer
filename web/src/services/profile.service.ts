@@ -20,6 +20,7 @@ export interface UserProfile {
       followingCount: number;
       postsCount: number;
       engagementRate: number;
+      metadata?: string; // JSON string containing recentPosts and analytics
     }[];
   };
   salon?: {

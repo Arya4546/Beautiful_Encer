@@ -4,6 +4,7 @@ import { FaInstagram, FaTimes, FaSpinner, FaCheck, FaExclamationTriangle, FaSync
 import axiosInstance from '../lib/axios';
 import { API_ENDPOINTS } from '../config/api.config';
 import { useTranslation } from 'react-i18next';
+import { getProxiedImageUrl } from '../utils/imageProxy';
 
 interface InstagramConnectProps {
   isOpen: boolean;
@@ -51,8 +52,22 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
   const [syncing, setSyncing] = useState(false);
 
   const handleConnect = async () => {
-    if (!username.trim()) {
-      setError(t('instagram.errors.usernameRequired'));
+    // Validation
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername) {
+      setError(t('instagram.errors.usernameRequired') || 'Instagram username is required');
+      return;
+    }
+
+    // Validate username format (alphanumeric, underscores, dots only)
+    const usernameRegex = /^[a-zA-Z0-9._]+$/;
+    if (!usernameRegex.test(trimmedUsername)) {
+      setError(t('instagram.errors.invalidUsername') || 'Username can only contain letters, numbers, underscores, and dots');
+      return;
+    }
+
+    if (trimmedUsername.length < 1 || trimmedUsername.length > 30) {
+      setError(t('instagram.errors.usernameLengthInvalid') || 'Username must be between 1 and 30 characters');
       return;
     }
 
@@ -61,8 +76,12 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
 
     try {
       const response = await axiosInstance.post(API_ENDPOINTS.SOCIAL_MEDIA.INSTAGRAM_CONNECT, {
-        username: username.trim(),
+        username: trimmedUsername,
       });
+
+      if (!response.data || !response.data.account) {
+        throw new Error('Invalid response from server');
+      }
 
       setSuccess(true);
       setAccountData(response.data.account);
@@ -74,17 +93,43 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
 
     } catch (err: any) {
       console.error('Error connecting Instagram:', err);
-      setError(
-        err.response?.data?.message || 
-        t('instagram.errors.connectionFailed')
-      );
+      
+      let errorMessage = t('instagram.errors.connectionFailed') || 'Failed to connect Instagram account';
+      
+      if (err.response) {
+        // Server responded with error
+        switch (err.response.status) {
+          case 400:
+            errorMessage = err.response.data?.message || t('instagram.errors.invalidRequest') || 'Invalid request. Please check the username';
+            break;
+          case 404:
+            errorMessage = t('instagram.errors.accountNotFound') || 'Instagram account not found. Please verify the username';
+            break;
+          case 429:
+            errorMessage = t('instagram.errors.rateLimitExceeded') || 'Too many requests. Please try again later';
+            break;
+          case 500:
+            errorMessage = t('instagram.errors.serverError') || 'Server error. Please try again later';
+            break;
+          default:
+            errorMessage = err.response.data?.message || errorMessage;
+        }
+      } else if (err.request) {
+        // Request made but no response
+        errorMessage = t('instagram.errors.networkError') || 'Network error. Please check your connection';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   const handleSync = async () => {
-    if (!accountData?.id) return;
+    if (!accountData?.id) {
+      setError(t('instagram.errors.noAccountToSync') || 'No account to sync');
+      return;
+    }
 
     setSyncing(true);
     setError(null);
@@ -94,8 +139,14 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
         accountId: accountData.id,
       });
 
+      if (!response.data || !response.data.account) {
+        throw new Error('Invalid response from server');
+      }
+
       setAccountData(response.data.account);
       setSuccess(true);
+      
+      if (onSuccess) onSuccess();
       
       setTimeout(() => {
         setSuccess(false);
@@ -103,19 +154,41 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
 
     } catch (err: any) {
       console.error('Error syncing Instagram:', err);
-      setError(
-        err.response?.data?.message || 
-        t('instagram.errors.syncFailed')
-      );
+      
+      let errorMessage = t('instagram.errors.syncFailed') || 'Failed to sync Instagram data';
+      
+      if (err.response) {
+        switch (err.response.status) {
+          case 404:
+            errorMessage = t('instagram.errors.accountNotFoundSync') || 'Account not found. Please reconnect';
+            break;
+          case 429:
+            errorMessage = t('instagram.errors.syncRateLimitExceeded') || 'Sync limit exceeded. Please try again in a few minutes';
+            break;
+          case 500:
+            errorMessage = t('instagram.errors.syncServerError') || 'Server error during sync. Please try again later';
+            break;
+          default:
+            errorMessage = err.response.data?.message || errorMessage;
+        }
+      } else if (err.request) {
+        errorMessage = t('instagram.errors.syncNetworkError') || 'Network error during sync. Please check your connection';
+      }
+      
+      setError(errorMessage);
     } finally {
       setSyncing(false);
     }
   };
 
   const handleDisconnect = async () => {
-    if (!accountData?.id) return;
+    if (!accountData?.id) {
+      setError(t('instagram.errors.noAccountToDisconnect') || 'No account to disconnect');
+      return;
+    }
 
-    if (!window.confirm(t('instagram.confirmDisconnect'))) {
+    const confirmMessage = t('instagram.confirmDisconnect') || 'Are you sure you want to disconnect your Instagram account? This will remove all synced data.';
+    if (!window.confirm(confirmMessage)) {
       return;
     }
 
@@ -126,6 +199,8 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
       await axiosInstance.delete(API_ENDPOINTS.SOCIAL_MEDIA.INSTAGRAM_DISCONNECT(accountData.id));
       
       setAccountData(null);
+      setUsername('');
+      
       setTimeout(() => {
         if (onSuccess) onSuccess();
         onClose();
@@ -133,10 +208,30 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
 
     } catch (err: any) {
       console.error('Error disconnecting Instagram:', err);
-      setError(
-        err.response?.data?.message || 
-        t('instagram.errors.disconnectFailed')
-      );
+      
+      let errorMessage = t('instagram.errors.disconnectFailed') || 'Failed to disconnect Instagram account';
+      
+      if (err.response) {
+        switch (err.response.status) {
+          case 404:
+            errorMessage = t('instagram.errors.accountNotFoundDisconnect') || 'Account not found';
+            // Still close modal since account doesn't exist
+            setTimeout(() => {
+              if (onSuccess) onSuccess();
+              onClose();
+            }, 1000);
+            break;
+          case 500:
+            errorMessage = t('instagram.errors.disconnectServerError') || 'Server error during disconnect. Please try again';
+            break;
+          default:
+            errorMessage = err.response.data?.message || errorMessage;
+        }
+      } else if (err.request) {
+        errorMessage = t('instagram.errors.disconnectNetworkError') || 'Network error. Please check your connection';
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -157,11 +252,11 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.9, opacity: 0 }}
-          className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          className="bg-white rounded-3xl shadow-large max-w-2xl w-full max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 text-white p-6 rounded-t-2xl">
+          <div className="sticky top-0 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 text-white p-6 rounded-t-3xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
@@ -286,9 +381,13 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
                 {/* Profile Header */}
                 <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200">
                   <img
-                    src={accountData.profilePicture || '/default-avatar.png'}
+                    src={getProxiedImageUrl(accountData.profilePicture)}
                     alt={accountData.displayName}
                     className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/default-avatar.png';
+                    }}
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">

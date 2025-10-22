@@ -112,6 +112,11 @@ model SocialMediaAccount {
   lastSyncedAt      DateTime?
   metadata          Json?               // Additional platform-specific data
   
+  // Account verification and lock
+  isVerified        Boolean             @default(false) // Whether account ownership is verified
+  verificationCode  String?             // Verification code for DM/bio verification
+  lastAccountChange DateTime?           // Last time account was changed (for 7-day lock)
+  
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
 

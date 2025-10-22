@@ -75,6 +75,7 @@ export interface SocialMediaAccount {
   postsCount?: number;
   engagementRate?: number;
   isActive: boolean;
+  metadata?: string; // JSON string containing recentPosts and other analytics
 }
 
 export interface InfluencerWithDetails extends Influencer {

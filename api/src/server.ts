@@ -10,6 +10,7 @@ import connectionRoutes from './routes/connection.routes.js';
 import profileRoutes from './routes/profile.routes.js';
 import chatRoutes from './routes/chat.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
+import proxyRoutes from './routes/proxy.routes.js';
 import chatController from './controllers/chat.controller.js';
 import notificationController from './controllers/notification.controller.js';
 import { generalLimiter } from './middlewares/rateLimiter.middleware.js';
@@ -113,7 +114,6 @@ io.on('connection', (socket) => {
     console.log(`[WebSocket] User disconnected: ${socket.data.userId}`);
   });
 });
-
 // Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/onboarding', onboardingRoutes);
@@ -122,6 +122,8 @@ app.use('/api/v1/discovery', discoveryRoutes);
 app.use('/api/v1/connections', connectionRoutes);
 app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/chat', chatRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/proxy', proxyRoutes); // Image proxy for CORS issues
 app.use('/api/v1/notifications', notificationRoutes);
 
 // Health check endpoint
