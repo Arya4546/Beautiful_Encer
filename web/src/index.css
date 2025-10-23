@@ -66,6 +66,16 @@ body {
   scrollbar-color: #d1d5db #f5f5f5;
 }
 
+/* Hide scrollbar utility for overflow-x-auto elements */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
 /* React Toastify Custom Styles */
 .Toastify__toast-container {
   padding: 16px;

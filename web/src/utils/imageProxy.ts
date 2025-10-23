@@ -17,8 +17,9 @@ export const getProxiedImageUrl = (originalUrl: string | null | undefined): stri
   const needsProxy = instagramCDNDomains.some(domain => originalUrl.includes(domain));
 
   if (needsProxy) {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
-    return `${apiBaseUrl}/api/v1/proxy/image?url=${encodeURIComponent(originalUrl)}`;
+    // VITE_API_BASE_URL already includes /api/v1, so just append the route
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/v1';
+    return `${apiBaseUrl}/proxy/image?url=${encodeURIComponent(originalUrl)}`;
   }
 
   return originalUrl;

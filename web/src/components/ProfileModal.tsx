@@ -133,8 +133,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
     }
   };
 
-  const parseMetadata = (metadataString?: string) => {
+  const parseMetadata = (metadataString?: string | any) => {
     if (!metadataString) return null;
+    // If it's already an object, return it
+    if (typeof metadataString === 'object') return metadataString;
+    // If it's a string, try to parse it
     try {
       return JSON.parse(metadataString);
     } catch (e) {
@@ -310,28 +313,28 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
                 <div className="space-y-8">
                   {/* Stats Cards */}
                   {instagramAccount && (
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                      <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl p-4 sm:p-6 border-2 border-pink-200">
-                        <p className="text-xs sm:text-sm text-pink-700 font-semibold mb-1">Followers</p>
-                        <p className="text-2xl sm:text-3xl font-bold text-pink-800">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                      <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-pink-200">
+                        <p className="text-[10px] sm:text-sm text-pink-700 font-semibold mb-1">Followers</p>
+                        <p className="text-xl sm:text-3xl font-bold text-pink-800">
                           {(instagramAccount.followersCount || 0).toLocaleString()}
                         </p>
                       </div>
-                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 sm:p-6 border-2 border-purple-200">
-                        <p className="text-xs sm:text-sm text-purple-700 font-semibold mb-1">Posts</p>
-                        <p className="text-2xl sm:text-3xl font-bold text-purple-800">
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-purple-200">
+                        <p className="text-[10px] sm:text-sm text-purple-700 font-semibold mb-1">Posts</p>
+                        <p className="text-xl sm:text-3xl font-bold text-purple-800">
                           {(instagramAccount.postsCount || 0).toLocaleString()}
                         </p>
                       </div>
-                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 sm:p-6 border-2 border-blue-200">
-                        <p className="text-xs sm:text-sm text-blue-700 font-semibold mb-1">Engagement</p>
-                        <p className="text-2xl sm:text-3xl font-bold text-blue-800">
-                          {(instagramAccount.engagementRate || 0).toFixed(1)}%
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-blue-200">
+                        <p className="text-[10px] sm:text-sm text-blue-700 font-semibold mb-1">Engagement</p>
+                        <p className="text-xl sm:text-3xl font-bold text-blue-800">
+                          {(instagramAccount.engagementRate || metadata?.engagementRate || 0).toFixed(2)}%
                         </p>
                       </div>
-                      <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 sm:p-6 border-2 border-green-200">
-                        <p className="text-xs sm:text-sm text-green-700 font-semibold mb-1">Avg Likes</p>
-                        <p className="text-2xl sm:text-3xl font-bold text-green-800">
+                      <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-green-200">
+                        <p className="text-[10px] sm:text-sm text-green-700 font-semibold mb-1">Avg Likes</p>
+                        <p className="text-xl sm:text-3xl font-bold text-green-800">
                           {(metadata?.averageLikes || 0).toLocaleString()}
                         </p>
                       </div>

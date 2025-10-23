@@ -96,7 +96,10 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
       
       let errorMessage = t('instagram.errors.connectionFailed') || 'Failed to connect Instagram account';
       
-      if (err.response) {
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        // Timeout error
+        errorMessage = 'Connection timeout. Instagram scraping takes time. Please try again or the account may be processing in the background.';
+      } else if (err.response) {
         // Server responded with error
         switch (err.response.status) {
           case 400:
@@ -356,6 +359,13 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
                     </div>
                   </div>
                 </div>
+
+                {loading && (
+                  <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm">
+                    <p className="font-semibold mb-1">⏱️ Please wait...</p>
+                    <p className="text-xs">Fetching Instagram data can take 30-90 seconds. Please don't close this window.</p>
+                  </div>
+                )}
 
                 <button
                   onClick={handleConnect}
