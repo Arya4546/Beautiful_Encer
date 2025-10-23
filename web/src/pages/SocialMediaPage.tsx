@@ -10,6 +10,7 @@ import { useAuthStore } from '../store/authStore';
 import axiosInstance from '../lib/axios';
 import { API_ENDPOINTS } from '../config/api.config';
 import { showToast } from '../utils/toast';
+import { getProxiedImageUrl } from '../utils/imageProxy';
 
 interface SocialMediaAccount {
   id: string;
@@ -17,7 +18,11 @@ interface SocialMediaAccount {
   username: string;
   displayName: string;
   profilePicture: string;
+  profileUrl?: string;
   followersCount: number;
+  followingCount?: number;
+  postsCount?: number;
+  engagementRate?: number;
   isActive: boolean;
   lastSynced: string;
   metadata?: {
@@ -25,7 +30,10 @@ interface SocialMediaAccount {
     postsCount?: number;
     engagementRate?: number;
     averageLikes?: number;
+    averageComments?: number;
     isVerified?: boolean;
+    recentPosts?: any[];
+    topHashtags?: string[];
   };
 }
 
@@ -126,7 +134,7 @@ export default function SocialMediaPage() {
                   className="bg-white rounded-3xl shadow-soft border-2 border-gray-200 overflow-hidden hover:shadow-large transition-shadow"
                 >
                   <div className="bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 p-6">
-                    <div className="flex items-center justify-between text-white">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-white">
                       <div className="flex items-center gap-4">
                         <div className="bg-white/20 backdrop-blur-sm p-4 rounded-2xl">
                           <FaInstagram className="text-4xl" />
@@ -139,7 +147,7 @@ export default function SocialMediaPage() {
                         </div>
                       </div>
                       {instagramAccount && (
-                        <div className="bg-green-400 text-green-900 px-4 py-2 rounded-full flex items-center gap-2 font-bold text-sm">
+                        <div className="bg-green-400 text-green-900 px-4 py-2 rounded-full flex items-center gap-2 font-bold text-sm whitespace-nowrap">
                           <FaCheck />
                           {t('common.connected')}
                         </div>
@@ -159,14 +167,18 @@ export default function SocialMediaPage() {
                         {/* Profile Header */}
                         <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200">
                           <img
-                            src={instagramAccount.profilePicture || '/default-avatar.png'}
-                            alt={instagramAccount.displayName}
+                            src={getProxiedImageUrl(instagramAccount.profilePicture)}
+                            alt={instagramAccount.displayName || instagramAccount.username}
                             className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/default-avatar.png';
+                            }}
                           />
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
                               <h3 className="text-xl font-bold text-gray-900">
-                                {instagramAccount.displayName}
+                                {instagramAccount.displayName || instagramAccount.username}
                               </h3>
                               {instagramAccount.metadata?.isVerified && (
                                 <FaCheck className="text-blue-500 bg-white rounded-full p-1 text-lg" />
@@ -185,34 +197,34 @@ export default function SocialMediaPage() {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                           <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-4 text-center">
                             <p className="text-2xl font-bold text-purple-600">
-                              {instagramAccount.followersCount.toLocaleString()}
+                              {(instagramAccount.followersCount || 0).toLocaleString()}
                             </p>
                             <p className="text-xs text-gray-600 font-semibold mt-1">
-                              {t('instagram.stats.followers')}
+                              {t('instagram.stats.followers') || 'Followers'}
                             </p>
                           </div>
                           <div className="bg-gradient-to-br from-pink-50 to-pink-100 border-2 border-pink-200 rounded-xl p-4 text-center">
                             <p className="text-2xl font-bold text-pink-600">
-                              {instagramAccount.metadata?.postsCount?.toLocaleString() || 0}
+                              {(instagramAccount.metadata?.postsCount || instagramAccount.postsCount || 0).toLocaleString()}
                             </p>
                             <p className="text-xs text-gray-600 font-semibold mt-1">
-                              {t('instagram.stats.posts')}
+                              {t('instagram.stats.posts') || 'Posts'}
                             </p>
                           </div>
                           <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-2 border-indigo-200 rounded-xl p-4 text-center">
                             <p className="text-2xl font-bold text-indigo-600">
-                              {instagramAccount.metadata?.engagementRate?.toFixed(2)}%
+                              {(instagramAccount.engagementRate || instagramAccount.metadata?.engagementRate || 0).toFixed(2)}%
                             </p>
                             <p className="text-xs text-gray-600 font-semibold mt-1">
-                              {t('instagram.stats.engagement')}
+                              {t('instagram.stats.engagement') || 'Engagement'}
                             </p>
                           </div>
                           <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-4 text-center">
                             <p className="text-2xl font-bold text-purple-600">
-                              {instagramAccount.metadata?.averageLikes?.toLocaleString() || 0}
+                              {(instagramAccount.metadata?.averageLikes || 0).toLocaleString()}
                             </p>
                             <p className="text-xs text-gray-600 font-semibold mt-1">
-                              {t('instagram.stats.avgLikes')}
+                              {t('instagram.stats.avgLikes') || 'Avg. Likes'}
                             </p>
                           </div>
                         </div>
@@ -226,7 +238,7 @@ export default function SocialMediaPage() {
                                 {t('socialMedia.lastSynced') || 'Last Updated'}
                               </p>
                               <p className="text-xs">
-                                {formatLastSynced(instagramAccount.lastSynced)}
+                                {instagramAccount.lastSynced ? formatLastSynced(instagramAccount.lastSynced) : 'Never'}
                               </p>
                             </div>
                           </div>

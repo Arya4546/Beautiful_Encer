@@ -6,6 +6,9 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '475px',  // Extra small devices
+      },
       colors: {
         // Japanese-inspired light pink and magenta palette
         'pink': {
