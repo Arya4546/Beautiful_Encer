@@ -17,6 +17,7 @@ import { FileUpload } from '../../components/ui/FileUpload';
 import { RegionSelector } from '../../components/common/RegionSelector';
 import { onboardingService } from '../../services/onboarding.service';
 import type { InfluencerOnboardingRequest, Gender } from '../../types';
+import { useAuthStore } from '../../store/authStore';
 
 const CATEGORIES = [
   'beauty',
@@ -44,6 +45,8 @@ const GENDER_OPTIONS = [
 export const InfluencerOnboarding: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
 
   const {
     register,
@@ -70,8 +73,22 @@ export const InfluencerOnboarding: React.FC = () => {
       
       showToast.success(response.message);
       
-      // Navigate to dashboard
-      navigate('/dashboard', { 
+      // Mark onboarding complete in auth store so protected routes allow access
+      if (user) {
+        setUser({
+          ...user,
+          hasCompletedOnboarding: true,
+          influencer: {
+            ...(user.influencer || {}),
+            profilePic: response.influencer.profilePic,
+            bio: response.influencer.bio,
+            categories: response.influencer.categories,
+          },
+        });
+      }
+
+      // Redirect to Discover (home after onboarding)
+      navigate('/discover', { 
         state: { 
           message: 'Welcome! Your profile has been created successfully.' 
         } 
