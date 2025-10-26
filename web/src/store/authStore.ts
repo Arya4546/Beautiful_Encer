@@ -63,8 +63,16 @@ export const useAuthStore = create<AuthState>((set) => ({
         if (!user || !user.id || !user.email) {
           throw new Error('Invalid user data');
         }
+
+        // Normalize: some deployments may not include hasCompletedOnboarding
+        // Infer completion if role-specific profile exists
+        const normalizedUser = {
+          ...user,
+          hasCompletedOnboarding:
+            user.hasCompletedOnboarding ?? Boolean(user.influencer || user.salon),
+        } as User;
         
-        set({ user, isAuthenticated: true });
+        set({ user: normalizedUser, isAuthenticated: true });
       } catch (parseError) {
         console.error('Failed to parse user from localStorage:', parseError);
         // Clear corrupted data

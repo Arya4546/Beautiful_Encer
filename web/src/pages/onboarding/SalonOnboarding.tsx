@@ -15,6 +15,7 @@ import { MultiSelect } from '../../components/ui/MultiSelect';
 import { FileUpload } from '../../components/ui/FileUpload';
 import { onboardingService } from '../../services/onboarding.service';
 import type { SalonOnboardingRequest } from '../../types';
+import { useAuthStore } from '../../store/authStore';
 
 const INFLUENCER_CATEGORIES = [
   'beauty',
@@ -32,6 +33,8 @@ const INFLUENCER_CATEGORIES = [
 export const SalonOnboarding: React.FC = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
 
   const {
     register,
@@ -53,8 +56,22 @@ export const SalonOnboarding: React.FC = () => {
       
       showToast.success(response.message);
       
-      // Navigate to dashboard
-      navigate('/dashboard', { 
+      // Mark onboarding complete in auth store
+      if (user) {
+        setUser({
+          ...user,
+          hasCompletedOnboarding: true,
+          salon: {
+            ...(user.salon || {}),
+            businessName: response.salon.businessName,
+            profilePic: response.salon.profilePic,
+            description: response.salon.description,
+          },
+        });
+      }
+
+      // Redirect to Discover after onboarding
+      navigate('/discover', { 
         state: { 
           message: 'Welcome! Your business profile has been created successfully.' 
         } 

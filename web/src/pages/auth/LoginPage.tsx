@@ -61,7 +61,8 @@ export const LoginPage: React.FC = () => {
         } else if (response.user.role === 'SALON') {
           navigate('/salon/onboarding');
         } else {
-          navigate('/dashboard');
+          // Fallback: send to discover instead of non-existent dashboard
+          navigate('/discover');
         }
       }
     } catch (error: any) {
