@@ -66,9 +66,17 @@ export const LoginPage: React.FC = () => {
         }
       }
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.error || t('toast.error.loginFailed');
-      showToast.error(errorMessage);
+      const code = error?.response?.data?.code;
+      if (code === 'EMAIL_NOT_VERIFIED') {
+        const email = error?.response?.data?.email || data.email;
+        showToast.error(t('auth.verifyOtp.title'));
+        navigate('/verify-otp', { state: { email } });
+      } else if (code === 'TERMS_NOT_ACCEPTED') {
+        showToast.error(error?.response?.data?.message || t('toast.error.loginFailed'));
+      } else {
+        const errorMessage = error?.response?.data?.error || t('toast.error.loginFailed');
+        showToast.error(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +120,7 @@ export const LoginPage: React.FC = () => {
               type="checkbox"
               className="mr-2 h-4 w-4 text-purple-600 rounded"
             />
-            <span className="text-gray-600">Remember me</span>
+            <span className="text-gray-600">{t('auth.login.rememberMe', 'Remember me')}</span>
           </label>
           <button
             type="button"

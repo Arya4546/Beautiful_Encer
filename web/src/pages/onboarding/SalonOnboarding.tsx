@@ -16,6 +16,7 @@ import { FileUpload } from '../../components/ui/FileUpload';
 import { onboardingService } from '../../services/onboarding.service';
 import type { SalonOnboardingRequest } from '../../types';
 import { useAuthStore } from '../../store/authStore';
+import { useTranslation } from 'react-i18next';
 
 const INFLUENCER_CATEGORIES = [
   'beauty',
@@ -35,6 +36,7 @@ export const SalonOnboarding: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
+  const { t } = useTranslation();
 
   const {
     register,
@@ -45,7 +47,7 @@ export const SalonOnboarding: React.FC = () => {
 
   const onSubmit = async (data: SalonOnboardingRequest) => {
     if (data.preferredCategories.length === 0) {
-      showToast.error('Please select at least one preferred category');
+      showToast.error(t('onboarding.salon.errors.categoryRequired'));
       return;
     }
 
@@ -73,12 +75,12 @@ export const SalonOnboarding: React.FC = () => {
       // Redirect to Discover after onboarding
       navigate('/discover', { 
         state: { 
-          message: 'Welcome! Your business profile has been created successfully.' 
+          message: t('onboarding.salon.success') 
         } 
       });
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.error || 'Onboarding failed. Please try again.';
+        error.response?.data?.error || t('onboarding.error');
       showToast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -87,8 +89,8 @@ export const SalonOnboarding: React.FC = () => {
 
   return (
     <AuthLayout
-      title="Complete Your Business Profile"
-      subtitle="Tell us about your salon to get started"
+      title={t('onboarding.salon.title')}
+      subtitle={t('onboarding.salon.subtitle')}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Profile Picture */}
@@ -97,7 +99,7 @@ export const SalonOnboarding: React.FC = () => {
           control={control}
           render={({ field }) => (
             <FileUpload
-              label="Business Logo (Optional)"
+              label={t('onboarding.salon.profilePictureOptional')}
               accept="image/*"
               onChange={field.onChange}
               value={field.value}
@@ -108,8 +110,8 @@ export const SalonOnboarding: React.FC = () => {
 
         {/* Business Name */}
         <Input
-          label="Business Name *"
-          placeholder="Enter your salon/business name"
+          label={t('onboarding.salon.businessName')}
+          placeholder={t('onboarding.salon.businessNamePlaceholder')}
           {...register('businessName', { required: 'Business name is required' })}
           error={errors.businessName?.message}
         />
@@ -117,12 +119,12 @@ export const SalonOnboarding: React.FC = () => {
         {/* Description */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Description *
+            {t('onboarding.salon.description')}
           </label>
           <textarea
-            {...register('description', { required: 'Description is required' })}
+            {...register('description', { required: t('onboarding.salon.errors.descriptionRequired') })}
             rows={4}
-            placeholder="Describe your business and what you're looking for..."
+            placeholder={t('onboarding.salon.descriptionPlaceholder')}
             className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 hover:border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all duration-300 resize-none text-gray-900 bg-white"
           />
           {errors.description && (
@@ -136,16 +138,16 @@ export const SalonOnboarding: React.FC = () => {
           control={control}
           defaultValue={[]}
           rules={{ 
-            required: 'Please select at least one category',
-            validate: (value) => value.length > 0 || 'Please select at least one category'
+            required: t('onboarding.salon.errors.categoryRequired') as string,
+            validate: (value) => value.length > 0 || (t('onboarding.salon.errors.categoryRequired') as string)
           }}
           render={({ field }) => (
             <MultiSelect
-              label="Preferred Influencer Categories *"
+              label={t('onboarding.salon.preferredCategories')}
               options={INFLUENCER_CATEGORIES}
               value={field.value}
               onChange={field.onChange}
-              placeholder="Select types of influencers you want to work with"
+              placeholder={t('onboarding.salon.preferredCategoriesPlaceholder')}
               error={errors.preferredCategories?.message}
             />
           )}
@@ -153,34 +155,34 @@ export const SalonOnboarding: React.FC = () => {
 
         {/* Website */}
         <Input
-          label="Website (Optional)"
+          label={t('onboarding.salon.websiteOptional')}
           type="url"
-          placeholder="https://yourwebsite.com"
+          placeholder={t('onboarding.salon.websitePlaceholder')}
           {...register('website')}
           error={errors.website?.message}
         />
 
         {/* Established Year */}
         <Input
-          label="Established Year (Optional)"
+          label={t('onboarding.salon.establishedYearOptional')}
           type="number"
-          placeholder="e.g., 2015"
+          placeholder={t('onboarding.salon.establishedYearPlaceholder')}
           {...register('establishedYear', {
             valueAsNumber: true,
-            min: { value: 1900, message: 'Please enter a valid year' },
-            max: { value: new Date().getFullYear(), message: 'Year cannot be in the future' },
+            min: { value: 1900, message: t('onboarding.salon.errors.yearInvalid') },
+            max: { value: new Date().getFullYear(), message: t('onboarding.salon.errors.yearFuture') },
           })}
           error={errors.establishedYear?.message}
         />
 
         {/* Team Size */}
         <Input
-          label="Team Size (Optional)"
+          label={t('onboarding.salon.teamSizeOptional')}
           type="number"
-          placeholder="Number of staff members"
+          placeholder={t('onboarding.salon.teamSizePlaceholder')}
           {...register('teamSize', {
             valueAsNumber: true,
-            min: { value: 1, message: 'Must be at least 1' },
+            min: { value: 1, message: t('onboarding.salon.errors.teamSizeMin') },
           })}
           error={errors.teamSize?.message}
         />
@@ -188,12 +190,12 @@ export const SalonOnboarding: React.FC = () => {
         {/* Operating Hours */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Operating Hours (Optional)
+            {t('onboarding.salon.operatingHoursOptional')}
           </label>
           <textarea
             {...register('operatingHours')}
             rows={3}
-            placeholder='e.g., {"monday": "9:00-18:00", "tuesday": "9:00-18:00"}'
+            placeholder={t('onboarding.salon.operatingHoursPlaceholder')}
             className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 hover:border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all duration-300 resize-none font-mono text-sm text-gray-900 bg-white"
           />
           {errors.operatingHours && (
@@ -203,26 +205,26 @@ export const SalonOnboarding: React.FC = () => {
 
         {/* Social Media Handles */}
         <div className="space-y-4 p-4 bg-gray-50 rounded-xl">
-          <h3 className="font-semibold text-gray-900">Social Media (Optional)</h3>
+          <h3 className="font-semibold text-gray-900">{t('onboarding.salon.socialOptional')}</h3>
           
           <Input
-            label="Instagram Handle"
-            placeholder="username (without @)"
+            label={t('onboarding.salon.instagramHandle')}
+            placeholder={t('onboarding.salon.handlePlaceholder')}
             {...register('instagramHandle')}
             error={errors.instagramHandle?.message}
           />
 
           <Input
-            label="TikTok Handle"
-            placeholder="username (without @)"
+            label={t('onboarding.salon.tiktokHandle')}
+            placeholder={t('onboarding.salon.handlePlaceholder')}
             {...register('tiktokHandle')}
             error={errors.tiktokHandle?.message}
           />
 
           <Input
-            label="Facebook Page"
+            label={t('onboarding.salon.facebookPage')}
             type="url"
-            placeholder="https://facebook.com/yourpage"
+            placeholder={t('onboarding.salon.facebookPlaceholder')}
             {...register('facebookPage')}
             error={errors.facebookPage?.message}
           />
@@ -235,12 +237,12 @@ export const SalonOnboarding: React.FC = () => {
           transition={{ delay: 0.2 }}
         >
           <Button type="submit" fullWidth isLoading={isLoading} className="mt-6">
-            Complete Onboarding
+            {t('onboarding.complete')}
           </Button>
         </motion.div>
 
         <p className="text-center text-gray-600 text-sm">
-          You can update your business profile anytime from settings
+          {t('onboarding.salon.footerNote')}
         </p>
       </form>
     </AuthLayout>

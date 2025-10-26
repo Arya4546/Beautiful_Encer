@@ -20,6 +20,7 @@ export const VerifyOtpPage: React.FC = () => {
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -146,7 +147,19 @@ export const VerifyOtpPage: React.FC = () => {
             <button
               type="button"
               className="text-purple-600 hover:text-purple-700 font-semibold"
-              onClick={() => showToast.error('Resend feature coming soon!')}
+              disabled={isResending}
+              onClick={async () => {
+                if (!email) return;
+                try {
+                  setIsResending(true);
+                  await authService.resendOtp(email);
+                  showToast.success(t('toast.success.otpSent'));
+                } catch (err: any) {
+                  showToast.error(err?.response?.data?.error || t('toast.error.somethingWrong'));
+                } finally {
+                  setIsResending(false);
+                }
+              }}
             >
               {t('auth.verifyOtp.resendLink')}
             </button>

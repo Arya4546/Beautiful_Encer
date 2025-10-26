@@ -50,6 +50,14 @@ export const authService = {
   },
 
   /**
+   * Resend OTP
+   */
+  resendOtp: async (email: string): Promise<{ message: string }> => {
+    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.RESEND_OTP, { email });
+    return response.data;
+  },
+
+  /**
    * Login
    */
   login: async (data: LoginRequest): Promise<LoginResponse> => {

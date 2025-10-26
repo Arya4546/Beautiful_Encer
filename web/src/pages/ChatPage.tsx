@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../store/authStore';
-import chatService, { type Conversation, type Message } from '../services/chat.service';
+import chatService, { type Conversation, type Message, type ContactItem } from '../services/chat.service';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
@@ -12,7 +12,11 @@ import { showToast } from '../utils/toast';
 export const ChatPage: React.FC = () => {
   const { t } = useTranslation();
   // State management
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [contacts, setContacts] = useState<ContactItem[]>([]);
+  const [contactCursor, setContactCursor] = useState<string | null>(null);
+  const [hasMoreContacts, setHasMoreContacts] = useState(true);
+  const [contactSearch, setContactSearch] = useState('');
+  const [contactRole, setContactRole] = useState<'INFLUENCER' | 'SALON' | ''>('');
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageInput, setMessageInput] = useState('');
@@ -20,6 +24,7 @@ export const ChatPage: React.FC = () => {
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
   const [isMobileListView, setIsMobileListView] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
   
   // Refs
@@ -30,24 +35,40 @@ export const ChatPage: React.FC = () => {
   // Auth
   const currentUser = useAuthStore((state) => state.user);
 
-  // Load conversations on mount
+  // Load contacts on mount and when filters/search change
+  const loadContacts = useCallback(async (reset = false) => {
+    try {
+      if (reset) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+      const params: any = {
+        search: contactSearch || undefined,
+        role: contactRole || undefined,
+        limit: 20,
+        cursor: reset ? undefined : contactCursor || undefined,
+      };
+      const resp = await chatService.getContacts(params);
+      setHasMoreContacts(resp.pageInfo.hasMore);
+      setContactCursor(resp.pageInfo.nextCursor);
+      setContacts((prev) => (reset ? resp.data : [...prev, ...resp.data]));
+    } catch (e) {
+      console.error('Failed to load contacts:', e);
+    } finally {
+      if (reset) setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [contactSearch, contactRole, contactCursor]);
+
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) return;
-    
-    const loadConversations = async () => {
-      try {
-        const data = await chatService.getConversations();
-        setConversations(data);
-      } catch (error) {
-        console.error('Failed to load conversations:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadConversations();
-  }, []);
+    // initial load
+    setContactCursor(null);
+    setHasMoreContacts(true);
+    loadContacts(true);
+  }, [contactSearch, contactRole, loadContacts]);
 
   // Setup WebSocket connection
   useEffect(() => {
@@ -59,20 +80,16 @@ export const ChatPage: React.FC = () => {
 
     if (!socket) return;
 
-    const loadConversations = async () => {
-      try {
-        const data = await chatService.getConversations();
-        setConversations(data);
-      } catch (error) {
-        console.error('Failed to load conversations:', error);
-      }
+    const reloadContacts = async () => {
+      setContactCursor(null);
+      await loadContacts(true);
     };
 
     // Listen for new messages
     socket.on('new_message', (message: Message) => {
       setMessages((prev) => [...prev, message]);
       // Update conversation list
-      loadConversations();
+      reloadContacts();
     });
 
     // Listen for edited messages
@@ -145,6 +162,21 @@ export const ChatPage: React.FC = () => {
   const handleSelectConversation = (conversation: Conversation) => {
     setSelectedConversation(conversation);
     setIsMobileListView(false);
+  };
+
+  const handleSelectContact = async (item: ContactItem) => {
+    try {
+      let conv: Conversation | null = null;
+      if (item.conversation) {
+        conv = { id: item.conversation.id, createdAt: '', updatedAt: '', lastMessageAt: item.conversation.lastMessageAt, lastMessage: item.conversation.lastMessage, participants: [], otherUser: { id: item.user.id, name: item.user.name, email: item.user.email, role: item.user.role, influencer: item.user.influencer, salon: item.user.salon } } as any;
+      } else {
+        const created = await chatService.getOrCreateConversation(item.user.id);
+        conv = created;
+      }
+      if (conv) handleSelectConversation(conv);
+    } catch (err) {
+      showToast.error(t('toast.error.failedToStartChat'));
+    }
   };
 
   // Handle typing
@@ -264,7 +296,7 @@ export const ChatPage: React.FC = () => {
         
         {/* Main Chat Container */}
         <div className="flex-1 flex overflow-hidden md:ml-64">
-          {/* Conversations List */}
+          {/* Contacts List */}
           <div
             className={`${
               isMobileListView ? 'flex' : 'hidden'
@@ -275,9 +307,34 @@ export const ChatPage: React.FC = () => {
               <h1 className="text-2xl font-bold text-text-primary">{t('chat.title')}</h1>
             </div>
 
-        {/* Conversations */}
-        <div className="flex-1 overflow-y-auto chat-scroll">
-          {conversations.length === 0 ? (
+            {/* Search & Filters */}
+            <div className="p-3 border-b border-border flex items-center gap-2">
+              <input
+                type="text"
+                value={contactSearch}
+                onChange={(e) => setContactSearch(e.target.value)}
+                placeholder={t('chat.searchConversations')}
+                className="flex-1 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-magenta/20"
+              />
+              <select
+                value={contactRole}
+                onChange={(e) => setContactRole(e.target.value as any)}
+                className="border border-border rounded-lg px-2 py-2 text-sm focus:outline-none"
+              >
+                <option value="">All</option>
+                <option value="INFLUENCER">Influencers</option>
+                <option value="SALON">Salons</option>
+              </select>
+            </div>
+
+        {/* Contacts */}
+        <div className="flex-1 overflow-y-auto chat-scroll" onScroll={(e) => {
+          const el = e.currentTarget;
+          if (!loadingMore && hasMoreContacts && el.scrollTop + el.clientHeight >= el.scrollHeight - 100) {
+            loadContacts(false);
+          }
+        }}>
+          {contacts.length === 0 ? (
             <div className="p-8 text-center text-text-secondary">
               <div className="text-5xl mb-4">💬</div>
               <p className="font-semibold text-text-primary text-lg mb-2">{t('chat.noConversations')}</p>
@@ -298,16 +355,17 @@ export const ChatPage: React.FC = () => {
               </ol>
             </div>
           ) : (
-            conversations.map((conversation) => {
-              const displayName = getDisplayName(conversation);
-              const profilePic = getProfilePic(conversation);
+            contacts.map((item) => {
+              const other = item.user;
+              const displayName = other.role === 'SALON' ? (other.salon?.businessName || other.name) : other.name;
+              const profilePic = other.role === 'INFLUENCER' ? other.influencer?.profilePic : other.salon?.profilePic;
 
               return (
                 <div
-                  key={conversation.id}
-                  onClick={() => handleSelectConversation(conversation)}
+                  key={other.id}
+                  onClick={() => handleSelectContact(item)}
                   className={`p-4 border-b border-border cursor-pointer hover:bg-gray-50 transition-colors ${
-                    selectedConversation?.id === conversation.id ? 'bg-magenta/5' : ''
+                    selectedConversation?.otherUser?.id === other.id ? 'bg-magenta/5' : ''
                   }`}
                 >
                   <div className="flex items-start space-x-3">
@@ -332,18 +390,18 @@ export const ChatPage: React.FC = () => {
                         <h3 className="font-semibold text-text-primary truncate">
                           {displayName}
                         </h3>
-                        {conversation.lastMessageAt && (
+                        {item.conversation?.lastMessageAt && (
                           <span className="text-xs text-text-secondary">
-                            {formatTime(conversation.lastMessageAt)}
+                            {formatTime(item.conversation.lastMessageAt)}
                           </span>
                         )}
                       </div>
                       <p className="text-sm text-text-secondary truncate">
-                        {conversation.lastMessage || 'No messages yet'}
+                        {item.conversation?.lastMessage || 'No messages yet'}
                       </p>
-                      {conversation.unreadCount !== undefined && conversation.unreadCount > 0 && (
+                      {item.conversation?.unreadCount !== undefined && item.conversation?.unreadCount > 0 && (
                         <span className="inline-block mt-1 px-2 py-0.5 text-xs font-semibold text-white bg-magenta rounded-full">
-                          {conversation.unreadCount}
+                          {item.conversation.unreadCount}
                         </span>
                       )}
                     </div>
@@ -351,6 +409,9 @@ export const ChatPage: React.FC = () => {
                 </div>
               );
             })
+          )}
+          {loadingMore && (
+            <div className="p-3 text-center text-sm text-text-secondary">{t('common.loading')}</div>
           )}
         </div>
       </div>

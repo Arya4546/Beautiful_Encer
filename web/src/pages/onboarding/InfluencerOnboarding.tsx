@@ -18,6 +18,7 @@ import { RegionSelector } from '../../components/common/RegionSelector';
 import { onboardingService } from '../../services/onboarding.service';
 import type { InfluencerOnboardingRequest, Gender } from '../../types';
 import { useAuthStore } from '../../store/authStore';
+import { useTranslation } from 'react-i18next';
 
 const CATEGORIES = [
   'beauty',
@@ -47,6 +48,7 @@ export const InfluencerOnboarding: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
+  const { t } = useTranslation();
 
   const {
     register,
@@ -57,12 +59,12 @@ export const InfluencerOnboarding: React.FC = () => {
 
   const onSubmit = async (data: InfluencerOnboardingRequest) => {
     if (!data.profilePic) {
-      showToast.error('Please upload a profile picture');
+      showToast.error(t('onboarding.influencer.errors.profilePicRequired'));
       return;
     }
 
     if (data.categories.length === 0) {
-      showToast.error('Please select at least one category');
+      showToast.error(t('onboarding.influencer.errors.categoryRequired'));
       return;
     }
 
@@ -90,12 +92,12 @@ export const InfluencerOnboarding: React.FC = () => {
       // Redirect to Discover (home after onboarding)
       navigate('/discover', { 
         state: { 
-          message: 'Welcome! Your profile has been created successfully.' 
+          message: t('onboarding.influencer.success') 
         } 
       });
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.error || 'Onboarding failed. Please try again.';
+        error.response?.data?.error || t('onboarding.error');
       showToast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -104,18 +106,18 @@ export const InfluencerOnboarding: React.FC = () => {
 
   return (
     <AuthLayout
-      title="Complete Your Profile"
-      subtitle="Tell us about yourself to get started"
+      title={t('onboarding.influencer.title')}
+      subtitle={t('onboarding.influencer.subtitle')}
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Profile Picture */}
         <Controller
           name="profilePic"
           control={control}
-          rules={{ required: 'Profile picture is required' }}
+          rules={{ required: t('onboarding.influencer.errors.profilePicRequired') as string }}
           render={({ field }) => (
             <FileUpload
-              label="Profile Picture *"
+              label={t('onboarding.influencer.profilePicture')}
               accept="image/*"
               onChange={field.onChange}
               value={field.value}
@@ -127,12 +129,12 @@ export const InfluencerOnboarding: React.FC = () => {
         {/* Bio */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Bio *
+            {t('onboarding.influencer.bio')}
           </label>
           <textarea
-            {...register('bio', { required: 'Bio is required' })}
+            {...register('bio', { required: t('onboarding.influencer.errors.bioRequired') })}
             rows={4}
-            placeholder="Tell us about yourself..."
+            placeholder={t('onboarding.influencer.bioPlaceholder')}
             className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 hover:border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all duration-300 resize-none text-gray-900 bg-white"
           />
           {errors.bio && (
@@ -146,16 +148,16 @@ export const InfluencerOnboarding: React.FC = () => {
           control={control}
           defaultValue={[]}
           rules={{ 
-            required: 'Please select at least one category',
-            validate: (value) => value.length > 0 || 'Please select at least one category'
+            required: t('onboarding.influencer.errors.categoryRequired') as string,
+            validate: (value) => value.length > 0 || (t('onboarding.influencer.errors.categoryRequired') as string)
           }}
           render={({ field }) => (
             <MultiSelect
-              label="Categories *"
+              label={t('onboarding.influencer.categories')}
               options={CATEGORIES}
               value={field.value}
               onChange={field.onChange}
-              placeholder="Select your content categories"
+              placeholder={t('onboarding.influencer.categoriesPlaceholder')}
               error={errors.categories?.message}
             />
           )}
@@ -164,17 +166,17 @@ export const InfluencerOnboarding: React.FC = () => {
         {/* Region */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Region *
+            {t('onboarding.influencer.region')}
           </label>
           <Controller
             name="region"
             control={control}
-            rules={{ required: 'Region is required' }}
+            rules={{ required: t('onboarding.influencer.errors.regionRequired') as string }}
             render={({ field }) => (
               <RegionSelector
                 value={field.value || ''}
                 onChange={field.onChange}
-                placeholder="Select your region"
+                placeholder={t('onboarding.influencer.regionPlaceholder')}
                 error={errors.region?.message}
               />
             )}
@@ -183,23 +185,26 @@ export const InfluencerOnboarding: React.FC = () => {
 
         {/* Age */}
         <Input
-          label="Age *"
+          label={t('onboarding.influencer.age')}
           type="number"
-          placeholder="Enter your age"
+          placeholder={t('onboarding.influencer.agePlaceholder')}
           {...register('age', {
-            required: 'Age is required',
+            required: t('onboarding.influencer.errors.ageRequired'),
             valueAsNumber: true,
-            min: { value: 13, message: 'Must be at least 13 years old' },
-            max: { value: 120, message: 'Please enter a valid age' },
+            min: { value: 13, message: t('onboarding.influencer.errors.ageMin') },
+            max: { value: 120, message: t('onboarding.influencer.errors.ageMax') },
           })}
           error={errors.age?.message}
         />
 
         {/* Gender */}
         <Select
-          label="Gender *"
-          options={GENDER_OPTIONS}
-          {...register('gender', { required: 'Gender is required' })}
+          label={t('onboarding.influencer.gender')}
+          options={GENDER_OPTIONS.map((g) => ({
+            ...g,
+            label: t(`onboarding.influencer.genderOptions.${g.value || 'select'}`)
+          }))}
+          {...register('gender', { required: t('onboarding.influencer.errors.genderRequired') })}
           error={errors.gender?.message}
         />
 
@@ -210,12 +215,12 @@ export const InfluencerOnboarding: React.FC = () => {
           transition={{ delay: 0.2 }}
         >
           <Button type="submit" fullWidth isLoading={isLoading} className="mt-6">
-            Complete Onboarding
+            {t('onboarding.complete')}
           </Button>
         </motion.div>
 
         <p className="text-center text-gray-600 text-sm">
-          You can update your profile anytime from settings
+          {t('onboarding.influencer.footerNote')}
         </p>
       </form>
     </AuthLayout>

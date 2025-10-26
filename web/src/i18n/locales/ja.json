@@ -236,6 +236,7 @@
       "emailPlaceholder": "メールアドレスを入力してください",
       "password": "パスワード",
       "passwordPlaceholder": "パスワードを入力してください",
+      "rememberMe": "ログイン状態を保持",
       "forgotPassword": "パスワードをお忘れですか？",
       "button": "ログインする",
       "noAccount": "アカウントをお持ちでない方は",
@@ -286,6 +287,8 @@
     }
   },
   "onboarding": {
+    "complete": "オンボーディングを完了する",
+    "error": "オンボーディングに失敗しました。もう一度お試しください。",
     "influencer": {
       "title": "プロフィールを完成させましょう",
       "subtitle": "プロフィールを充実させて、ブランドに見つけてもらいやすくしましょう",
@@ -317,6 +320,36 @@
     "salon": {
       "title": "サロンプロフィールを完成させましょう",
       "subtitle": "インフルエンサーにあなたのサロンについて知ってもらいましょう",
+      "success": "ようこそ！ビジネスプロフィールが正常に作成されました。",
+      "profilePictureOptional": "ビジネスロゴ（任意）",
+      "businessName": "ビジネス名（必須）",
+      "businessNamePlaceholder": "サロン名／事業名を入力してください",
+      "description": "説明（必須）",
+      "descriptionPlaceholder": "サロンの概要や求めている内容を入力してください...",
+      "preferredCategories": "希望するインフルエンサーカテゴリー（必須）",
+      "preferredCategoriesPlaceholder": "コラボしたいインフルエンサーのタイプを選択",
+      "websiteOptional": "ウェブサイト（任意）",
+      "websitePlaceholder": "https://yourwebsite.com",
+      "establishedYearOptional": "設立年（任意）",
+      "establishedYearPlaceholder": "例：2015",
+      "teamSizeOptional": "スタッフ人数（任意）",
+      "teamSizePlaceholder": "スタッフの人数",
+      "operatingHoursOptional": "営業時間（任意）",
+      "operatingHoursPlaceholder": "例：{\"monday\": \"9:00-18:00\", \"tuesday\": \"9:00-18:00\"}",
+      "socialOptional": "ソーシャルメディア（任意）",
+      "instagramHandle": "Instagramユーザー名",
+      "tiktokHandle": "TikTokユーザー名",
+      "handlePlaceholder": "ユーザー名（@なし）",
+      "facebookPage": "Facebookページ",
+      "facebookPlaceholder": "https://facebook.com/yourpage",
+      "footerNote": "設定からいつでもビジネスプロフィールを更新できます",
+      "errors": {
+        "categoryRequired": "少なくとも1つのカテゴリーを選択してください",
+        "descriptionRequired": "説明を入力してください",
+        "yearInvalid": "有効な年を入力してください",
+        "yearFuture": "未来の年は指定できません",
+        "teamSizeMin": "1以上を入力してください"
+      },
       "step1": {
         "title": "ビジネス情報",
         "salonName": "サロン名",

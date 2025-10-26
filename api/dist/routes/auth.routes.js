@@ -21,6 +21,12 @@ router.post('/signup/salon', authLimiter, authController.salonSignup.bind(authCo
  */
 router.post('/verify-otp', authLimiter, authController.verifyOtp.bind(authController));
 /**
+ * @route   POST /api/v1/auth/resend-otp
+ * @desc    Resend email verification OTP
+ * @access  Public + Rate Limited
+ */
+router.post('/resend-otp', authLimiter, authController.resendOtp.bind(authController));
+/**
  * @route   POST /api/v1/auth/login
  * @desc    Login (for both influencer and salon)
  * @access  Public + Rate Limited
