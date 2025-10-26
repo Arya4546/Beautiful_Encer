@@ -237,6 +237,7 @@
       "emailPlaceholder": "Enter your email",
       "password": "Password",
       "passwordPlaceholder": "Enter your password",
+      "rememberMe": "Remember me",
       "forgotPassword": "Forgot Password?",
       "button": "Sign In",
       "noAccount": "Don't have an account?",
@@ -287,6 +288,8 @@
     }
   },
   "onboarding": {
+    "complete": "Complete Onboarding",
+    "error": "Onboarding failed. Please try again.",
     "influencer": {
       "title": "Complete Your Profile",
       "subtitle": "Help brands discover you by completing your profile",
@@ -318,6 +321,36 @@
     "salon": {
       "title": "Complete Your Salon Profile",
       "subtitle": "Tell influencers about your business",
+      "success": "Welcome! Your business profile has been created successfully.",
+      "profilePictureOptional": "Business Logo (Optional)",
+      "businessName": "Business Name *",
+      "businessNamePlaceholder": "Enter your salon/business name",
+      "description": "Description *",
+      "descriptionPlaceholder": "Describe your business and what you're looking for...",
+      "preferredCategories": "Preferred Influencer Categories *",
+      "preferredCategoriesPlaceholder": "Select types of influencers you want to work with",
+      "websiteOptional": "Website (Optional)",
+      "websitePlaceholder": "https://yourwebsite.com",
+      "establishedYearOptional": "Established Year (Optional)",
+      "establishedYearPlaceholder": "e.g., 2015",
+      "teamSizeOptional": "Team Size (Optional)",
+      "teamSizePlaceholder": "Number of staff members",
+      "operatingHoursOptional": "Operating Hours (Optional)",
+      "operatingHoursPlaceholder": "e.g., {\"monday\": \"9:00-18:00\", \"tuesday\": \"9:00-18:00\"}",
+      "socialOptional": "Social Media (Optional)",
+      "instagramHandle": "Instagram Handle",
+      "tiktokHandle": "TikTok Handle",
+      "handlePlaceholder": "username (without @)",
+      "facebookPage": "Facebook Page",
+      "facebookPlaceholder": "https://facebook.com/yourpage",
+      "footerNote": "You can update your business profile anytime from settings",
+      "errors": {
+        "categoryRequired": "Please select at least one preferred category",
+        "descriptionRequired": "Description is required",
+        "yearInvalid": "Please enter a valid year",
+        "yearFuture": "Year cannot be in the future",
+        "teamSizeMin": "Must be at least 1"
+      },
       "step1": {
         "title": "Business Information",
         "salonName": "Salon Name",

@@ -239,7 +239,7 @@ class AuthController {
         return res.status(400).json({ error: 'Email and password are required' });
       }
 
-  const user = await prisma.user.findUnique({ where: { email } }) as any;
+  const user = await prisma.user.findUnique({ where: { email }, include: { influencer: true, salon: true } }) as any;
       if (!user) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
@@ -253,6 +253,30 @@ class AuthController {
           error: 'TermsNotAccepted',
           code: 'TERMS_NOT_ACCEPTED',
           message: 'Please accept the Terms of Service and Privacy Policy to access your account.'
+        });
+      }
+
+      // Enforce email verification before allowing login
+      const isEmailVerified = user.role === 'INFLUENCER' ? user.influencer?.emailVerified : user.role === 'SALON' ? user.salon?.emailVerified : true;
+      if (!isEmailVerified) {
+        // Optionally auto re-issue OTP if none exists or expired
+        try {
+          const existingOtp = await prisma.otp.findFirst({ where: { email }, orderBy: { createdAt: 'desc' } });
+          const shouldIssueNew = !existingOtp || existingOtp.expiresAt < new Date();
+          if (shouldIssueNew) {
+            const otp = crypto.randomInt(100000, 999999).toString();
+            const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+            await prisma.otp.create({ data: { email, otp, expiresAt } });
+            await sendOtpEmail(email, otp);
+          }
+        } catch (e) {
+          console.warn('[AuthController.login] Failed to auto-issue OTP:', e);
+        }
+        return res.status(403).json({
+          error: 'EmailNotVerified',
+          code: 'EMAIL_NOT_VERIFIED',
+          message: 'Your email is not verified. Please verify using the OTP sent to your email.',
+          email,
         });
       }
 
@@ -294,6 +318,43 @@ class AuthController {
     } catch (error: any) {
       console.error('[AuthController.login] Error:', error);
       return res.status(500).json({ error: 'Login failed' });
+    }
+  }
+
+  // ===========================
+  // RESEND OTP
+  // ===========================
+  async resendOtp(req: Request, res: Response) {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: 'Email is required' });
+      }
+
+      const user = await prisma.user.findUnique({ where: { email }, include: { influencer: true, salon: true } });
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const isVerified = user.role === 'INFLUENCER' ? user.influencer?.emailVerified : user.role === 'SALON' ? user.salon?.emailVerified : true;
+      if (isVerified) {
+        return res.status(400).json({ error: 'Email already verified' });
+      }
+
+      // Invalidate existing OTPs for this email (optional cleanup)
+      await prisma.otp.deleteMany({ where: { email } });
+
+      // Create new OTP
+      const otp = crypto.randomInt(100000, 999999).toString();
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+      await prisma.otp.create({ data: { email, otp, expiresAt } });
+
+      await sendOtpEmail(email, otp);
+
+      return res.status(200).json({ message: 'OTP resent successfully' });
+    } catch (error: any) {
+      console.error('[AuthController.resendOtp] Error:', error);
+      return res.status(500).json({ error: 'Failed to resend OTP' });
     }
   }
 

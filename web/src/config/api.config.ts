@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
     INFLUENCER_SIGNUP: '/auth/signup/influencer',
     SALON_SIGNUP: '/auth/signup/salon',
     VERIFY_OTP: '/auth/verify-otp',
+    RESEND_OTP: '/auth/resend-otp',
     LOGIN: '/auth/login',
   },
   // Onboarding endpoints

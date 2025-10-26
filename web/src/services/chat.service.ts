@@ -69,6 +69,23 @@ export interface Conversation {
   messages?: Message[];
 }
 
+export interface ContactItem {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: 'INFLUENCER' | 'SALON';
+    influencer?: { profilePic: string | null };
+    salon?: { profilePic: string | null; businessName?: string };
+  };
+  conversation: {
+    id: string;
+    lastMessageAt?: string;
+    lastMessage?: string;
+    unreadCount?: number;
+  } | null;
+}
+
 class ChatService {
   private socket: Socket | null = null;
 
@@ -166,6 +183,14 @@ class ChatService {
   async getConversations(): Promise<Conversation[]> {
     const response = await axios.get('/chat/conversations');
     return response.data.data;
+  }
+
+  /**
+   * Get contacts (accepted connections) with search and pagination
+   */
+  async getContacts(params: { search?: string; role?: 'INFLUENCER' | 'SALON'; cursor?: string; limit?: number } = {}): Promise<{ data: ContactItem[]; pageInfo: { nextCursor: string | null; hasMore: boolean } }> {
+    const response = await axios.get('/chat/contacts', { params });
+    return response.data;
   }
 
   /**
