@@ -42,6 +42,7 @@
     "salon": "Salon",
     "comingSoon": "Coming Soon",
     "manage": "Manage",
+    "and": "and",
     "justNow": "Just now"
   },
   "nav": {
@@ -55,6 +56,71 @@
     "settings": "Settings",
     "languageSwitch": "Language"
   },
+  "legal": {
+    "lastUpdated": "Last updated:",
+    "lastUpdatedDate": "Oct 26, 2025",
+    "terms": {
+      "short": "Terms of Service",
+      "title": "Terms of Service",
+      "sections": {
+        "acceptance": {
+          "title": "Acceptance of Terms",
+          "body": "By creating an account or using Beautiful Encer, you agree to these Terms of Service and our Privacy Policy. If you do not agree, please do not use the Service."
+        },
+        "accounts": {
+          "title": "Accounts & Responsibilities",
+          "body": "You are responsible for maintaining the confidentiality of your account and for all activities that occur under your account. You must provide accurate information and comply with all applicable laws."
+        },
+        "usage": {
+          "title": "Acceptable Use",
+          "items": [
+            "Do not misuse, abuse, or interfere with the platform.",
+            "Do not attempt to access data you are not authorized to access.",
+            "Do not upload content that is unlawful, infringing, or harmful."
+          ]
+        },
+        "liability": {
+          "title": "Limitation of Liability",
+          "body": "To the maximum extent permitted by law, Beautiful Encer shall not be liable for indirect, incidental, or consequential damages arising from your use of the Service."
+        },
+        "changes": {
+          "title": "Changes to Terms",
+          "body": "We may update these Terms from time to time. Continued use of the Service after changes constitutes acceptance of the new Terms."
+        }
+      }
+    },
+    "privacy": {
+      "short": "Privacy Policy",
+      "title": "Privacy Policy",
+      "sections": {
+        "dataWeCollect": {
+          "title": "Information We Collect",
+          "items": [
+            "Account information (name, email, role, and profile details).",
+            "Usage data and device information for security and analytics.",
+            "Social media public data when you connect your accounts."
+          ]
+        },
+        "useOfData": {
+          "title": "How We Use Your Data",
+          "items": [
+            "To provide and improve our services and features.",
+            "To ensure platform security, fraud prevention, and compliance.",
+            "To communicate with you regarding important updates."
+          ]
+        },
+        "rights": {
+          "title": "Your Rights",
+          "body": "You may request access, correction, or deletion of your personal data as permitted by law. Contact support if you wish to exercise these rights."
+        },
+        "changes": {
+          "title": "Changes to this Policy",
+          "body": "We may update this Privacy Policy periodically. We will notify you of significant changes as required."
+        }
+      }
+    }
+  },
+  
   "landing": {
     "tagline": "Connecting Beauty Salons with Authentic Influencers",
     "nav": {
@@ -194,6 +260,8 @@
       "confirmPassword": "Confirm Password",
       "confirmPasswordPlaceholder": "Re-enter your password",
       "button": "Create Account",
+      "agreePrefix": "I agree to the",
+      "mustAccept": "You must accept the Terms of Service and Privacy Policy to continue.",
       "haveAccount": "Already have an account?",
       "loginLink": "Sign in here",
       "back": "Back to role selection"
@@ -549,6 +617,29 @@
       "avgLikes": "Avg. Likes"
     },
     "recentPosts": "Recent Posts",
+    "details": "Instagram Details",
+    "topHashtags": "Top Hashtags",
+    "alt": {
+      "post": "Instagram post"
+    },
+    "analytics": {
+      "averageLikes": "Average Likes",
+      "perPost": "per post",
+      "avgComments": "Avg Comments",
+      "overall": "overall",
+      "totalPosts": "Total Posts",
+      "published": "published",
+      "following": "Following",
+      "accounts": "accounts",
+      "byUser": "by user",
+      "hidden": "Hidden"
+    },
+    "gallery": "Gallery",
+    "hashtags": {
+      "description": "These are the most frequently used hashtags extracted from this influencer's recent posts. Hashtags help understand content themes and reach specific audiences on Instagram.",
+      "none": "No Hashtags Found",
+      "noneDesc": "This influencer hasn't used hashtags in their recent posts"
+    },
     "info": {
       "title": "How it works",
       "point1": "We fetch your public Instagram profile data",

@@ -114,7 +114,7 @@ export const VerifyOtpPage: React.FC = () => {
       subtitle={`${t('auth.verifyOtp.subtitle')} ${email}`}
     >
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="flex justify-center space-x-3">
+        <div className="flex justify-center gap-2 sm:gap-3 flex-wrap max-w-full px-2">
           {otp.map((digit, index) => (
             <motion.input
               key={index}
@@ -131,7 +131,7 @@ export const VerifyOtpPage: React.FC = () => {
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: index * 0.05 }}
-              className="w-14 h-14 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all duration-300"
+              className="w-10 h-12 sm:w-12 sm:h-12 md:w-14 md:h-14 text-center text-xl sm:text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500 focus:outline-none transition-all duration-300"
             />
           ))}
         </div>

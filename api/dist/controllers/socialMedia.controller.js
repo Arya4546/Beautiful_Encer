@@ -318,12 +318,16 @@ class SocialMediaController {
                                     id: true,
                                     platform: true,
                                     platformUsername: true,
+                                    displayName: true,
+                                    profilePicture: true,
+                                    profileUrl: true,
                                     followersCount: true,
                                     followingCount: true,
                                     postsCount: true,
                                     engagementRate: true,
                                     isActive: true,
                                     lastSyncedAt: true,
+                                    metadata: true,
                                     createdAt: true,
                                 },
                             },
@@ -334,8 +338,24 @@ class SocialMediaController {
             if (!user || !user.influencer) {
                 return res.status(404).json({ error: 'Influencer not found' });
             }
+            // Format accounts for frontend
+            const formattedAccounts = user.influencer.socialMediaAccounts.map(account => ({
+                id: account.id,
+                platform: account.platform,
+                username: account.platformUsername,
+                displayName: account.displayName || account.platformUsername,
+                profilePicture: account.profilePicture || '',
+                profileUrl: account.profileUrl || '',
+                followersCount: account.followersCount || 0,
+                followingCount: account.followingCount || 0,
+                postsCount: account.postsCount || 0,
+                engagementRate: account.engagementRate || 0,
+                isActive: account.isActive,
+                lastSynced: account.lastSyncedAt?.toISOString() || new Date().toISOString(),
+                metadata: account.metadata,
+            }));
             return res.status(200).json({
-                accounts: user.influencer.socialMediaAccounts,
+                accounts: formattedAccounts,
             });
         }
         catch (error) {

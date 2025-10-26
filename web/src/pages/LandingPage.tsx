@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { FaUserCheck, FaChartPie, FaUsers, FaChartLine, FaRocket, FaComments, FaSearch, FaStar, FaArrowRight, FaCheckCircle } from "react-icons/fa";
@@ -446,8 +446,8 @@ const LandingPage = () => {
               <h4 className="text-gray-800 font-bold text-base sm:text-lg mb-3 sm:mb-4">{t('landing.footer.support')}</h4>
               <ul className="space-y-2">
                 <li><a href="#" className="text-sm sm:text-base hover:text-pink-600 transition-colors duration-150">{t('landing.footer.helpCenter')}</a></li>
-                <li><a href="#" className="text-sm sm:text-base hover:text-pink-600 transition-colors duration-150">{t('landing.footer.privacyPolicy')}</a></li>
-                <li><a href="#" className="text-sm sm:text-base hover:text-pink-600 transition-colors duration-150">Terms of Service</a></li>
+                <li><Link to="/legal/privacy" className="text-sm sm:text-base hover:text-pink-600 transition-colors duration-150">{t('landing.footer.privacyPolicy')}</Link></li>
+                <li><Link to="/legal/terms" className="text-sm sm:text-base hover:text-pink-600 transition-colors duration-150">{t('legal.terms.short')}</Link></li>
               </ul>
             </div>
           </div>

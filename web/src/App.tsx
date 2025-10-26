@@ -17,6 +17,8 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { UserProfilePage } from "./pages/UserProfilePage";
 import SocialMediaPage from "./pages/SocialMediaPage";
 import { NotFoundPage } from "./pages/ErrorPage";
+import TermsPage from "./pages/legal/TermsPage";
+import PrivacyPolicyPage from "./pages/legal/PrivacyPolicyPage";
 
 // Route Protection
 import { ProtectedRoute, PublicRoute, OnboardingRoute } from "./components/RouteProtection";
@@ -75,6 +77,8 @@ const App: React.FC = () => {
       <Routes>
         {/* Public Routes - Only accessible when NOT logged in */}
         <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+  <Route path="/legal/terms" element={<PublicRoute><TermsPage /></PublicRoute>} />
+  <Route path="/legal/privacy" element={<PublicRoute><PrivacyPolicyPage /></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/verify-otp" element={<PublicRoute><VerifyOtpPage /></PublicRoute>} />

@@ -452,10 +452,14 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
                           rel="noopener noreferrer"
                           className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity group relative"
                         >
+                          {/* Use proxy + fallback to ensure thumbnails render reliably */}
                           <img
-                            src={post.displayUrl}
-                            alt="Instagram post"
+                            src={getProxiedImageUrl(post.displayUrl)}
+                            alt={t('instagram.alt.post', 'Instagram post')}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = '/cute-placeholder.svg';
+                            }}
                           />
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs">
                             <span>❤️ {post.likesCount.toLocaleString()}</span>

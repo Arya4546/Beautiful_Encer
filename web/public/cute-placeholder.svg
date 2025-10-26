@@ -1,0 +1,37 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbcfe8"/>
+      <stop offset="50%" stop-color="#f9a8d4"/>
+      <stop offset="100%" stop-color="#e879f9"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" rx="24" fill="url(#g1)"/>
+  <g opacity="0.35">
+    <circle cx="120" cy="100" r="80" fill="#ffffff"/>
+    <circle cx="700" cy="140" r="120" fill="#ffffff"/>
+    <circle cx="640" cy="500" r="90" fill="#ffffff"/>
+  </g>
+  <g transform="translate(250,170)">
+    <rect x="0" y="0" width="300" height="220" rx="20" fill="#ffffff" opacity="0.9"/>
+    <rect x="18" y="18" width="264" height="150" rx="14" fill="#fdf2f8"/>
+    <circle cx="90" cy="220" r="10" fill="#f9a8d4"/>
+    <circle cx="120" cy="220" r="10" fill="#f472b6"/>
+    <circle cx="150" cy="220" r="10" fill="#e879f9"/>
+    <g transform="translate(110,50)">
+      <circle cx="40" cy="30" r="28" fill="#fce7f3" stroke="#f472b6" stroke-width="3"/>
+      <rect x="10" y="70" width="60" height="12" rx="6" fill="#fbcfe8"/>
+      <rect x="0" y="90" width="80" height="12" rx="6" fill="#fbcfe8" opacity="0.7"/>
+    </g>
+    <g transform="translate(28,28)" opacity="0.25">
+      <path d="M0 90 L40 50 L80 80 L130 30 L180 90 L220 60 L264 100 L264 130 L0 130 Z" fill="#f9a8d4"/>
+    </g>
+    <g transform="translate(100,10)" opacity="0.15">
+      <rect x="0" y="0" width="100" height="20" rx="10" fill="#e879f9"/>
+    </g>
+  </g>
+  <g transform="translate(220,420)" opacity="0.9">
+    <rect x="0" y="0" width="360" height="36" rx="18" fill="#ffffff"/>
+    <text x="180" y="24" text-anchor="middle" font-family="Segoe UI, system-ui, -apple-system, sans-serif" font-size="16" fill="#9f1239">Lovely preview coming soon</text>
+  </g>
+</svg>

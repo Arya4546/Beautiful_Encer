@@ -14,10 +14,15 @@ class AuthController {
   // ===========================
   async influencerSignup(req: Request, res: Response) {
     try {
-      const { name, email, password, phoneNo } = req.body;
+      const { name, email, password, phoneNo, acceptTerms } = req.body;
 
       if (!name || !email || !password) {
         return res.status(400).json({ error: 'Missing required fields: name, email, and password are required' });
+      }
+
+      // Require acceptance of legal terms
+      if (acceptTerms !== true) {
+        return res.status(400).json({ error: 'You must accept the Terms of Service and Privacy Policy to sign up.' });
       }
 
       // Validate email format
@@ -34,17 +39,19 @@ class AuthController {
       const hashedPassword = await bcrypt.hash(password, 12);
 
       const newUser = await prisma.user.create({
-        data: {
+        data: ({
           name,
           email,
           password: hashedPassword,
           role: Role.INFLUENCER,
+          termsAccepted: true,
+          termsAcceptedAt: new Date(),
           influencer: {
             create: {
               phoneNo,
             },
           },
-        },
+        } as any),
         include: {
           influencer: true,
         },
@@ -148,10 +155,15 @@ class AuthController {
   // ===========================
   async salonSignup(req: Request, res: Response) {
     try {
-      const { name, email, password, phoneNo } = req.body;
+      const { name, email, password, phoneNo, acceptTerms } = req.body;
 
       if (!name || !email || !password) {
         return res.status(400).json({ error: 'Missing required fields: name, email, and password are required' });
+      }
+
+      // Require acceptance of legal terms
+      if (acceptTerms !== true) {
+        return res.status(400).json({ error: 'You must accept the Terms of Service and Privacy Policy to sign up.' });
       }
 
       // Validate email format
@@ -168,17 +180,19 @@ class AuthController {
       const hashedPassword = await bcrypt.hash(password, 12);
 
       const newUser = await prisma.user.create({
-        data: {
+        data: ({
           name,
           email,
           password: hashedPassword,
           role: Role.SALON,
+          termsAccepted: true,
+          termsAcceptedAt: new Date(),
           salon: {
             create: {
               phoneNo,
             },
           },
-        },
+        } as any),
         include: {
           salon: true,
         },
@@ -225,13 +239,22 @@ class AuthController {
         return res.status(400).json({ error: 'Email and password are required' });
       }
 
-      const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { email } }) as any;
       if (!user) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) return res.status(401).json({ error: 'Invalid credentials' });
+
+      // Block login if terms not accepted
+      if (!user.termsAccepted) {
+        return res.status(403).json({ 
+          error: 'TermsNotAccepted',
+          code: 'TERMS_NOT_ACCEPTED',
+          message: 'Please accept the Terms of Service and Privacy Policy to access your account.'
+        });
+      }
 
       const { accessToken, refreshToken } = generateTokens({
         userId: user.id,

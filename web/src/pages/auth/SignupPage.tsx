@@ -20,6 +20,7 @@ type UserRole = 'influencer' | 'salon';
 
 interface SignupFormData extends SignupRequest {
   confirmPassword: string;
+  acceptTerms?: boolean;
 }
 
 export const SignupPage: React.FC = () => {
@@ -36,6 +37,7 @@ export const SignupPage: React.FC = () => {
   } = useForm<SignupFormData>();
 
   const password = watch('password');
+  const acceptTerms = watch('acceptTerms');
 
   const onSubmit = async (data: SignupFormData) => {
     if (!selectedRole) {
@@ -43,15 +45,20 @@ export const SignupPage: React.FC = () => {
       return;
     }
 
+    if (!acceptTerms) {
+      showToast.error(t('auth.signup.mustAccept'));
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const { confirmPassword, ...signupData } = data;
+      const { confirmPassword, acceptTerms: agree, ...signupData } = data;
 
       const response =
         selectedRole === 'influencer'
-          ? await authService.influencerSignup(signupData)
-          : await authService.salonSignup(signupData);
+          ? await authService.influencerSignup({ ...signupData, acceptTerms: true })
+          : await authService.salonSignup({ ...signupData, acceptTerms: true });
 
       showToast.success(response.message);
       
@@ -230,7 +237,26 @@ export const SignupPage: React.FC = () => {
           error={errors.confirmPassword?.message}
         />
 
-        <Button type="submit" fullWidth isLoading={isLoading} className="mt-6">
+        {/* Terms acceptance */}
+        <label className="flex items-start gap-3 text-sm text-gray-700 mt-2">
+          <input
+            type="checkbox"
+            className="mt-1 h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+            {...register('acceptTerms')}
+          />
+          <span>
+            {t('auth.signup.agreePrefix')}{' '}
+            <Link to="/legal/terms" className="text-purple-600 hover:underline">
+              {t('legal.terms.short')}
+            </Link>{' '}
+            {t('common.and')}{' '}
+            <Link to="/legal/privacy" className="text-purple-600 hover:underline">
+              {t('legal.privacy.short')}
+            </Link>
+          </span>
+        </label>
+
+        <Button type="submit" fullWidth isLoading={isLoading} className="mt-4">
           {t('auth.signup.button')}
         </Button>
 
