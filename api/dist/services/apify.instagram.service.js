@@ -37,6 +37,30 @@ class ApifyInstagramService {
         return (avgEngagement / followersCount) * 100;
     }
     /**
+     * Extract top hashtags from posts
+     */
+    extractTopHashtags(posts) {
+        const hashtagMap = new Map();
+        posts.forEach(post => {
+            if (post.caption) {
+                // Extract hashtags using regex
+                const hashtags = post.caption.match(/#[\w\u0590-\u05ff]+/g);
+                if (hashtags) {
+                    hashtags.forEach(tag => {
+                        // Remove # and convert to lowercase
+                        const cleanTag = tag.substring(1).toLowerCase();
+                        hashtagMap.set(cleanTag, (hashtagMap.get(cleanTag) || 0) + 1);
+                    });
+                }
+            }
+        });
+        // Sort by frequency and return top 10
+        return Array.from(hashtagMap.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 10)
+            .map(([tag]) => tag);
+    }
+    /**
      * Scrape Instagram profile data using Apify
      * @param username - Instagram username to scrape
      * @returns Scraped Instagram profile data
@@ -44,7 +68,7 @@ class ApifyInstagramService {
     async scrapeInstagramProfile(username) {
         try {
             console.log(`[ApifyInstagramService] Starting scrape for @${username}`);
-            // Run the Apify actor
+            // Run the Apify actor (will wait for completion by default)
             const run = await this.client.actor(this.actorId).call({
                 usernames: [username],
                 resultsLimit: 12, // Get last 12 posts
@@ -57,6 +81,23 @@ class ApifyInstagramService {
                 throw new Error(`No data found for username: ${username}`);
             }
             const profileData = items[0];
+            // Debug: Log raw profile data from Apify
+            console.log(`[ApifyInstagramService] Raw Apify data for @${username}:`, {
+                username: profileData.username,
+                followersCount: profileData.followersCount,
+                followingCount: profileData.followingCount,
+                postsCount: profileData.postsCount,
+                isPrivate: profileData.isPrivate,
+                latestPostsCount: profileData.latestPosts?.length || 0,
+            });
+            // Check if account is private
+            if (profileData.isPrivate) {
+                throw new Error(`Instagram account @${username} is private. Only public accounts can be connected.`);
+            }
+            // Validate that we got actual data (not all zeros)
+            if (!profileData.followersCount && !profileData.postsCount) {
+                throw new Error(`Unable to fetch data for @${username}. The account may not exist, be private, or be temporarily unavailable.`);
+            }
             // Extract posts data
             const recentPosts = (profileData.latestPosts || []).map((post) => ({
                 id: post.id || post.shortCode,
@@ -75,6 +116,8 @@ class ApifyInstagramService {
             const totalComments = recentPosts.reduce((sum, post) => sum + post.commentsCount, 0);
             const averageLikes = recentPosts.length > 0 ? totalLikes / recentPosts.length : 0;
             const averageComments = recentPosts.length > 0 ? totalComments / recentPosts.length : 0;
+            // Extract top hashtags
+            const topHashtags = this.extractTopHashtags(recentPosts);
             const scrapedData = {
                 username: profileData.username,
                 fullName: profileData.fullName || profileData.username,
@@ -94,6 +137,7 @@ class ApifyInstagramService {
             };
             console.log(`[ApifyInstagramService] Successfully scraped @${username}:`, {
                 followers: scrapedData.followersCount,
+                following: scrapedData.followingCount,
                 posts: scrapedData.postsCount,
                 engagementRate: scrapedData.engagementRate,
             });
@@ -119,6 +163,8 @@ class ApifyInstagramService {
             console.log(`[ApifyInstagramService] Connecting Instagram @${cleanUsername} for user ${userId}`);
             // Scrape Instagram profile
             const profileData = await this.scrapeInstagramProfile(cleanUsername);
+            // Extract top hashtags from posts
+            const topHashtags = this.extractTopHashtags(profileData.recentPosts);
             // Find user and their influencer profile
             const user = await prisma.user.findUnique({
                 where: { id: userId },
@@ -162,6 +208,7 @@ class ApifyInstagramService {
                             averageLikes: profileData.averageLikes,
                             averageComments: profileData.averageComments,
                             recentPosts: JSON.parse(JSON.stringify(profileData.recentPosts)),
+                            topHashtags: topHashtags,
                             scrapingMethod: 'apify',
                         },
                     },
@@ -193,6 +240,7 @@ class ApifyInstagramService {
                             averageLikes: profileData.averageLikes,
                             averageComments: profileData.averageComments,
                             recentPosts: JSON.parse(JSON.stringify(profileData.recentPosts)),
+                            topHashtags: topHashtags,
                             scrapingMethod: 'apify',
                         },
                     },
@@ -243,6 +291,8 @@ class ApifyInstagramService {
             console.log(`[ApifyInstagramService] Syncing data for @${account.platformUsername}`);
             // Scrape fresh data
             const profileData = await this.scrapeInstagramProfile(account.platformUsername);
+            // Extract top hashtags
+            const topHashtags = this.extractTopHashtags(profileData.recentPosts);
             // Update account
             const updatedAccount = await prisma.socialMediaAccount.update({
                 where: { id: accountId },
@@ -262,6 +312,7 @@ class ApifyInstagramService {
                         averageLikes: profileData.averageLikes,
                         averageComments: profileData.averageComments,
                         recentPosts: JSON.parse(JSON.stringify(profileData.recentPosts)),
+                        topHashtags: topHashtags,
                         scrapingMethod: 'apify',
                     },
                 },

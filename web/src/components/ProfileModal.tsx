@@ -303,7 +303,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
                     }`}
                   >
                     <FiInstagram size={20} />
-                    Instagram Details
+                    {t('instagram.details', 'Instagram Details')}
                   </button>
                 </div>
               )}

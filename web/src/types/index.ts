@@ -109,6 +109,7 @@ export interface SignupRequest {
   email: string;
   password: string;
   phoneNo?: string;
+  acceptTerms?: boolean;
 }
 
 export interface SignupResponse {
