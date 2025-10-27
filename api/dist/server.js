@@ -37,6 +37,8 @@ const io = new SocketServer(httpServer, {
 const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
+// Behind a proxy (Render/NGINX) to trust X-Forwarded-* headers for rate limit & IP detection
+app.set('trust proxy', 1);
 // Apply general rate limiting to all requests
 app.use(generalLimiter);
 // Set Socket.IO instance in controllers
