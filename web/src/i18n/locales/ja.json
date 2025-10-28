@@ -5,6 +5,7 @@
   },
   "common": {
     "loading": "読み込み中...",
+    "never": "未設定",
     "save": "保存する",
     "cancel": "キャンセル",
     "delete": "削除する",
@@ -43,7 +44,15 @@
     "comingSoon": "近日公開",
     "manage": "管理",
     "and": "と",
-    "justNow": "たった今"
+    "justNow": "たった今",
+    "video": "動画",
+    "all": "すべて",
+    "influencersPlural": "インフルエンサー",
+    "salonsPlural": "サロン"
+  },
+  "platform": {
+    "instagram": "Instagram",
+    "tiktok": "TikTok"
   },
   "nav": {
     "discover": "さがす",
@@ -292,6 +301,35 @@
     "influencer": {
       "title": "プロフィールを完成させましょう",
       "subtitle": "プロフィールを充実させて、ブランドに見つけてもらいやすくしましょう",
+      "profilePicture": "プロフィール写真",
+      "bio": "自己紹介",
+      "bioPlaceholder": "あなたについて教えてください...",
+      "categories": "カテゴリー",
+      "categoriesPlaceholder": "カテゴリーを選択",
+      "region": "地域",
+      "regionPlaceholder": "地域を選択",
+      "age": "年齢",
+      "agePlaceholder": "年齢を入力",
+      "gender": "性別",
+      "genderOptions": {
+        "select": "性別を選択",
+        "MALE": "男性",
+        "FEMALE": "女性",
+        "NON_BINARY": "ノンバイナリー",
+        "PREFER_NOT_TO_SAY": "回答しない"
+      },
+      "errors": {
+        "profilePicRequired": "プロフィール写真は必須です",
+        "bioRequired": "自己紹介は必須です",
+        "categoryRequired": "少なくとも1つのカテゴリーを選択してください",
+        "regionRequired": "地域は必須です",
+        "ageRequired": "年齢は必須です",
+        "ageMin": "13歳以上である必要があります",
+        "ageMax": "正しい年齢を入力してください",
+        "genderRequired": "性別を選択してください"
+      },
+      "success": "ようこそ！プロフィールが正常に作成されました。",
+      "footerNote": "設定からいつでもプロフィールを更新できます",
       "step1": {
         "title": "基本情報",
         "bio": "自己紹介",
@@ -376,6 +414,31 @@
       "complete": "セットアップを完了する"
     }
   },
+  "tiktok": {
+    "publicSubtitle": "Apifyを使った公開プロフィールのプレビュー（ログイン不要）",
+    "preview": "プレビュー",
+    "likes": "いいね",
+    "recentVideos": "最近の動画",
+    "noVideos": "最近の動画は見つかりません",
+    "saveToAccounts": "マイアカウントに保存",
+    "saved": "TikTokアカウントを連携しました",
+    "errorFetch": "TikTokデータの取得に失敗しました",
+    "videoEngagement": "動画のエンゲージメント",
+    "viewVideos": "動画を見る",
+    "notFoundTitle": "プロフィールが見つからない、または利用できません",
+    "notFoundSubtitle": "このTikTokプロフィールは非公開、地域的な制限、または一時的に利用できない可能性があります。"
+  },
+  "analytics": {
+    "socialMedia": "ソーシャルメディア分析",
+    "performanceOverview": "パフォーマンス概要",
+    "avgLikes": "平均いいね",
+    "avgComments": "平均コメント",
+    "engagementRate": "エンゲージメント率",
+    "totalPosts": "総投稿数",
+    "engagementTrend": "エンゲージメントの推移",
+    "viewPosts": "投稿を見る",
+    "visitProfile": "プロフィールを見る"
+  },
   "dashboard": {
     "title": "ホーム",
     "welcome": "おかえりなさい",
@@ -433,6 +496,9 @@
   "profile": {
     "title": "設定",
     "subtitle": "アカウント設定を管理する",
+    "userNotFound": "ユーザーが見つかりません",
+    "joined": "登録日",
+    "categories": "カテゴリー",
     "sections": {
       "profile": "プロフィール",
       "security": "セキュリティ",
@@ -447,6 +513,8 @@
       "subtitle": "プロフィール写真を変更する",
       "changeImage": "写真を変更",
       "uploadNew": "新しい写真をアップロード",
+      "current": "現在のプロフィール写真",
+      "preview": "新しいプロフィール写真のプレビュー",
       "chooseDevice": "デバイスから選択",
       "maxSize": "最大サイズ：5MB｜対応形式：JPG、PNG、GIF",
       "updateButton": "プロフィール写真を更新",
@@ -489,12 +557,19 @@
     "select": "選択してください",
     "saveChanges": "変更を保存する"
   },
+  "fileUpload": {
+    "dropHere": "ここに画像をドロップ、または",
+    "browse": "ファイルを選択",
+    "supports": "対応形式：JPG、PNG、GIF"
+  },
   "chat": {
     "title": "メッセージ",
     "selectChat": "メッセージを開始する会話を選んでください",
     "selectConversation": "会話を選択",
     "chooseConversation": "リストから会話を選んでチャットを始めましょう",
     "typing": "入力中...",
+    "backToConversations": "会話一覧に戻る",
+    "editingMessage": "メッセージを編集しています",
     "online": "オンライン",
     "offline": "オフライン",
     "messagePlaceholder": "メッセージを入力...",
@@ -607,6 +682,11 @@
       "message": "お探しのページは存在しないか、移動した可能性があります。",
       "button": "ホームに戻る"
     },
+    "403": {
+      "title": "アクセスが拒否されました",
+      "message": "このページにアクセスする権限がありません。",
+      "button": "ホームに戻る"
+    },
     "500": {
       "title": "サーバーエラー",
       "message": "サーバー側で問題が発生しました。しばらくしてからもう一度お試しください。",
@@ -617,6 +697,13 @@
       "message": "予期しないエラーが発生しました。",
       "button": "戻る"
     }
+  },
+  "errorActions": {
+    "goHome": "ホームへ",
+    "goBack": "戻る",
+    "refresh": "再読み込み",
+    "contactSupport": "サポートに連絡",
+    "helpPrefix": "問題が解決しない場合は"
   },
   "footer": {
     "copyright": "© 2025 ビューティフルエンサー All rights reserved."

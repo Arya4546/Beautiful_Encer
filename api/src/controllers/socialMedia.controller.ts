@@ -3,6 +3,7 @@ import { prisma } from '../lib/prisma.js';
 import { SocialMediaPlatform, MediaType } from '@prisma/client';
 import apifyInstagramService from '../services/apify.instagram.service.js';
 import tiktokService from '../services/tiktok.service.js';
+import apifyTikTokService from '../services/apify.tiktok.service.js';
 
 /**
  * Social Media Account Linking Controller
@@ -10,6 +11,110 @@ import tiktokService from '../services/tiktok.service.js';
  */
 
 class SocialMediaController {
+  // ===========================
+  // TIKTOK - PUBLIC (APIFY) CONNECT/SYNC (DB)
+  // ===========================
+  async connectPublicTikTok(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      const { username } = req.body;
+      if (!username || typeof username !== 'string' || username.trim() === '') {
+        return res.status(400).json({ error: 'Invalid username', message: 'Please provide a valid TikTok username' });
+      }
+
+      const result = await apifyTikTokService.connectPublicAccount(userId, username);
+      return res.status(200).json(result);
+    } catch (error: any) {
+      console.error('[SocialMediaController.connectPublicTikTok] Error:', error);
+      const msg = error?.message || 'Failed to connect TikTok (public)';
+      return res.status(500).json({ error: msg });
+    }
+  }
+
+  async syncPublicTikTok(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      const { accountId } = req.body;
+      if (!accountId) {
+        return res.status(400).json({ error: 'Missing account ID', message: 'Please provide the TikTok account ID to sync' });
+      }
+
+      const result = await apifyTikTokService.syncPublicAccount(accountId);
+      return res.status(200).json(result);
+    } catch (error: any) {
+      console.error('[SocialMediaController.syncPublicTikTok] Error:', error);
+      const msg = error?.message || 'Failed to sync TikTok (public)';
+      return res.status(500).json({ error: msg });
+    }
+  }
+  // ===========================
+  // TIKTOK - PUBLIC (APIFY) ENDPOINTS
+  // ===========================
+  async getPublicTikTokProfile(req: Request, res: Response) {
+    try {
+      const { username } = req.params;
+      if (!username) {
+        return res.status(400).json({ error: 'Username is required' });
+      }
+
+      const data = await apifyTikTokService.scrape(username);
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          profile: data.profile,
+          engagementRate: data.engagementRate,
+          topHashtags: data.topHashtags,
+          lastScraped: data.lastScraped,
+          videosCount: data.videos.length,
+        },
+      });
+    } catch (error: any) {
+      console.error('[SocialMediaController.getPublicTikTokProfile] Error:', error);
+      const notFound = error?.message?.includes('No TikTok data') || error?.message?.toLowerCase?.().includes('not found');
+      const msg = notFound
+        ? 'TikTok profile not found or unavailable'
+        : (error.message || 'Failed to fetch TikTok profile');
+      return res.status(notFound ? 404 : 500).json({ error: msg });
+    }
+  }
+
+  async getPublicTikTokVideos(req: Request, res: Response) {
+    try {
+      const { username } = req.params;
+      if (!username) {
+        return res.status(400).json({ error: 'Username is required' });
+      }
+
+      const data = await apifyTikTokService.scrape(username);
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          videos: data.videos,
+          profile: {
+            username: data.profile.username,
+            follower_count: data.profile.follower_count,
+          },
+          engagementRate: data.engagementRate,
+          topHashtags: data.topHashtags,
+        },
+      });
+    } catch (error: any) {
+      console.error('[SocialMediaController.getPublicTikTokVideos] Error:', error);
+      const notFound = error?.message?.includes('No TikTok data') || error?.message?.toLowerCase?.().includes('not found');
+      const msg = notFound
+        ? 'TikTok videos not found or unavailable'
+        : (error.message || 'Failed to fetch TikTok videos');
+      return res.status(notFound ? 404 : 500).json({ error: msg });
+    }
+  }
   // ===========================
   // INSTAGRAM - CONNECT VIA USERNAME (APIFY SCRAPING)
   // ===========================
