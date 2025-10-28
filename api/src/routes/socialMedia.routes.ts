@@ -58,6 +58,50 @@ router.delete(
 // TIKTOK ROUTES
 // ===========================
 
+// Public TikTok scraping via Apify
+/**
+ * @route   POST /api/v1/social-media/tiktok/connect-public
+ * @desc    Connect TikTok account via public Apify scraping (no OAuth)
+ * @access  Protected (Influencer)
+ */
+router.post(
+  '/tiktok/connect-public',
+  protect,
+  socialMediaController.connectPublicTikTok.bind(socialMediaController)
+);
+
+/**
+ * @route   POST /api/v1/social-media/tiktok/public/sync
+ * @desc    Manually trigger TikTok public data sync
+ * @access  Protected (Influencer)
+ */
+router.post(
+  '/tiktok/public/sync',
+  protect,
+  socialMediaLimiter,
+  socialMediaController.syncPublicTikTok.bind(socialMediaController)
+);
+
+/**
+ * @route   GET /api/v1/social-media/tiktok/profile/:username
+ * @desc    Get public TikTok profile via Apify (no OAuth)
+ * @access  Public (Rate-limited by general limiter)
+ */
+router.get(
+  '/tiktok/profile/:username',
+  socialMediaController.getPublicTikTokProfile.bind(socialMediaController)
+);
+
+/**
+ * @route   GET /api/v1/social-media/tiktok/videos/:username
+ * @desc    Get public TikTok recent videos via Apify (no OAuth)
+ * @access  Public (Rate-limited by general limiter)
+ */
+router.get(
+  '/tiktok/videos/:username',
+  socialMediaController.getPublicTikTokVideos.bind(socialMediaController)
+);
+
 /**
  * @route   GET /api/v1/social-media/tiktok/auth
  * @desc    Initiate TikTok OAuth flow

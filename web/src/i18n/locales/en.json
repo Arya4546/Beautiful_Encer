@@ -5,6 +5,7 @@
   },
   "common": {
     "loading": "Loading...",
+    "never": "Never",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -43,7 +44,15 @@
     "comingSoon": "Coming Soon",
     "manage": "Manage",
     "and": "and",
-    "justNow": "Just now"
+    "justNow": "Just now",
+    "video": "Video",
+    "all": "All",
+    "influencersPlural": "Influencers",
+    "salonsPlural": "Salons"
+  },
+  "platform": {
+    "instagram": "Instagram",
+    "tiktok": "TikTok"
   },
   "nav": {
     "discover": "Discover",
@@ -293,6 +302,35 @@
     "influencer": {
       "title": "Complete Your Profile",
       "subtitle": "Help brands discover you by completing your profile",
+      "profilePicture": "Profile Picture",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell us about yourself...",
+      "categories": "Categories",
+      "categoriesPlaceholder": "Select categories",
+      "region": "Region",
+      "regionPlaceholder": "Select your region",
+      "age": "Age",
+      "agePlaceholder": "Enter your age",
+      "gender": "Gender",
+      "genderOptions": {
+        "select": "Select gender",
+        "MALE": "Male",
+        "FEMALE": "Female",
+        "NON_BINARY": "Non-Binary",
+        "PREFER_NOT_TO_SAY": "Prefer not to say"
+      },
+      "errors": {
+        "profilePicRequired": "Profile picture is required",
+        "bioRequired": "Bio is required",
+        "categoryRequired": "Please select at least one category",
+        "regionRequired": "Region is required",
+        "ageRequired": "Age is required",
+        "ageMin": "You must be at least 13 years old",
+        "ageMax": "Please enter a valid age",
+        "genderRequired": "Please select your gender"
+      },
+      "success": "Welcome! Your profile has been created successfully.",
+      "footerNote": "You can update your profile anytime from settings",
       "step1": {
         "title": "Basic Information",
         "bio": "Bio",
@@ -377,6 +415,31 @@
       "complete": "Complete Setup"
     }
   },
+  "tiktok": {
+    "publicSubtitle": "Public profile preview via Apify (no login required)",
+    "preview": "Preview",
+    "likes": "Likes",
+    "recentVideos": "Recent Videos",
+    "noVideos": "No recent videos found",
+    "saveToAccounts": "Save to My Accounts",
+    "saved": "TikTok account connected",
+    "errorFetch": "Failed to fetch TikTok data",
+    "videoEngagement": "Video Engagement",
+    "viewVideos": "View Videos",
+    "notFoundTitle": "Profile not found or unavailable",
+    "notFoundSubtitle": "This TikTok profile may be private, blocked in your region, or temporarily unavailable."
+  },
+  "analytics": {
+    "socialMedia": "Social Media Analytics",
+    "performanceOverview": "Performance Overview",
+    "avgLikes": "Avg Likes",
+    "avgComments": "Avg Comments",
+    "engagementRate": "Engagement Rate",
+    "totalPosts": "Total Posts",
+    "engagementTrend": "Engagement Trend",
+    "viewPosts": "View Posts",
+    "visitProfile": "Visit Profile"
+  },
   "dashboard": {
     "title": "Dashboard",
     "welcome": "Welcome back",
@@ -434,6 +497,9 @@
   "profile": {
     "title": "Settings",
     "subtitle": "Manage your account settings and preferences",
+    "userNotFound": "User not found",
+    "joined": "Joined",
+    "categories": "Categories",
     "sections": {
       "profile": "PROFILE",
       "security": "SECURITY",
@@ -448,6 +514,8 @@
       "subtitle": "Change your profile photo",
       "changeImage": "Change Image",
       "uploadNew": "Upload New Picture",
+      "current": "Current Profile Picture",
+      "preview": "New Profile Picture Preview",
       "chooseDevice": "Choose from device",
       "maxSize": "Max size: 5MB • JPG, PNG, GIF",
       "updateButton": "Update Profile Picture",
@@ -490,12 +558,19 @@
     "select": "Select",
     "saveChanges": "Save Changes"
   },
+  "fileUpload": {
+    "dropHere": "Drop your image here, or",
+    "browse": "browse",
+    "supports": "Supports: JPG, PNG, GIF"
+  },
   "chat": {
     "title": "Messages",
     "selectChat": "Select a conversation to start messaging",
     "selectConversation": "Select a conversation",
     "chooseConversation": "Choose a conversation from the list to start chatting",
     "typing": "typing...",
+    "backToConversations": "Back to conversations",
+    "editingMessage": "Editing message",
     "online": "online",
     "offline": "offline",
     "messagePlaceholder": "Type a message...",
@@ -608,6 +683,11 @@
       "message": "The page you're looking for doesn't exist.",
       "button": "Go Home"
     },
+    "403": {
+      "title": "Access Denied",
+      "message": "You do not have permission to access this page.",
+      "button": "Go Home"
+    },
     "500": {
       "title": "Server Error",
       "message": "Something went wrong on our end.",
@@ -618,6 +698,13 @@
       "message": "An unexpected error occurred.",
       "button": "Go Back"
     }
+  },
+  "errorActions": {
+    "goHome": "Go to Home",
+    "goBack": "Go Back",
+    "refresh": "Refresh",
+    "contactSupport": "contact support",
+    "helpPrefix": "If the problem persists, please"
   },
   "footer": {
     "copyright": "All rights reserved."
