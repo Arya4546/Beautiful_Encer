@@ -653,6 +653,28 @@ class ChatController {
                     content: 'This message has been deleted',
                 },
             });
+            // Check if this was the last message in the conversation
+            const conversation = await prisma.conversation.findUnique({
+                where: { id: message.conversationId },
+                include: {
+                    messages: {
+                        orderBy: { createdAt: 'desc' },
+                        take: 1,
+                    },
+                },
+            });
+            // If the deleted message was the last message, update conversation's lastMessage
+            if (conversation && conversation.messages.length > 0) {
+                const lastMsg = conversation.messages[0];
+                if (lastMsg.id === messageId) {
+                    await prisma.conversation.update({
+                        where: { id: message.conversationId },
+                        data: {
+                            lastMessage: 'This message has been deleted',
+                        },
+                    });
+                }
+            }
             // Emit via socket
             if (socketIOInstance) {
                 socketIOInstance.to(message.conversationId).emit('message_deleted', { messageId });

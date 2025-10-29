@@ -3,6 +3,8 @@ import { prisma } from '../lib/prisma.js';
 import { SocialMediaPlatform } from '@prisma/client';
 // Instagram now uses Apify scraping service
 import apifyInstagramService from '../services/apify.instagram.service.js';
+// TikTok now uses Apify scraping service for public accounts
+import apifyTikTokService from '../services/apify.tiktok.service.js';
 import tiktokService from '../services/tiktok.service.js';
 
 /**
@@ -14,7 +16,8 @@ import tiktokService from '../services/tiktok.service.js';
  * Features:
  * - Syncs all active accounts
  * - Instagram: Uses Apify scraping (7-day cache)
- * - TikTok: Uses OAuth API
+ * - TikTok Public: Uses Apify scraping (7-day cache)
+ * - TikTok OAuth: Uses OAuth API for connected accounts
  * - Updates follower counts and engagement metrics
  * - Fetches latest posts/videos
  * - Rate-limited to avoid API throttling
@@ -79,7 +82,14 @@ class DataSyncSchedulerJob {
             await this.syncInstagramData(account.influencerId, account);
             successCount++;
           } else if (account.platform === SocialMediaPlatform.TIKTOK) {
-            await this.syncTikTokData(account.influencerId, account);
+            // Check if this is a public account (Apify) or OAuth account
+            const isPublicAccount = !account.accessToken || account.accessToken === '';
+            
+            if (isPublicAccount) {
+              await this.syncTikTokDataApify(account.influencerId, account);
+            } else {
+              await this.syncTikTokDataOAuth(account.influencerId, account);
+            }
             successCount++;
           }
 
@@ -136,10 +146,26 @@ class DataSyncSchedulerJob {
   }
 
   /**
-   * Sync TikTok account data
+   * Sync TikTok account data using Apify (public accounts)
    */
-  private async syncTikTokData(influencerId: string, account: any) {
-    console.log(`[DataSyncScheduler] Syncing TikTok data for account ${account.id}...`);
+  private async syncTikTokDataApify(influencerId: string, account: any) {
+    console.log(`[DataSyncScheduler] Syncing TikTok data (Apify) for account ${account.id}...`);
+
+    try {
+      // Use Apify service to sync data (respects 7-day cache)
+      await apifyTikTokService.syncTikTokData(account.id);
+      console.log(`[DataSyncScheduler] TikTok (Apify) sync completed for account ${account.id}`);
+    } catch (error: any) {
+      console.error(`[DataSyncScheduler] TikTok (Apify) sync failed for account ${account.id}:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Sync TikTok account data using OAuth (connected accounts)
+   */
+  private async syncTikTokDataOAuth(influencerId: string, account: any) {
+    console.log(`[DataSyncScheduler] Syncing TikTok data (OAuth) for account ${account.id}...`);
 
     const accessToken = tiktokService.decryptToken(account.accessToken);
 
