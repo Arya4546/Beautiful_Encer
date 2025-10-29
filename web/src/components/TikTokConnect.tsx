@@ -1,19 +1,21 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaInstagram, FaTimes, FaSpinner, FaCheck, FaExclamationTriangle, FaSync } from 'react-icons/fa';
+import { FaTimes, FaSpinner, FaCheck, FaExclamationTriangle, FaSync } from 'react-icons/fa';
 import axiosInstance from '../lib/axios';
 import { API_ENDPOINTS } from '../config/api.config';
 import { useTranslation } from 'react-i18next';
 import { getProxiedImageUrl } from '../utils/imageProxy';
+import { ImageWithFallback } from './ui/ImageWithFallback';
+import { TikTokDataDisplay } from './TikTokDataDisplay.tsx';
 
-interface InstagramConnectProps {
+interface TikTokConnectProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  existingAccount?: InstagramAccount | null;
+  existingAccount?: TikTokAccount | null;
 }
 
-interface InstagramAccount {
+interface TikTokAccount {
   id: string;
   username: string;
   displayName: string;
@@ -24,50 +26,55 @@ interface InstagramAccount {
   metadata?: {
     bio?: string;
     followingCount?: number;
-    postsCount?: number;
+    videosCount?: number;
+    likesCount?: number;
     averageLikes?: number;
     averageComments?: number;
-    recentPosts?: InstagramPost[];
+    averageShares?: number;
+    averageViews?: number;
+    recentVideos?: TikTokVideo[];
+    topHashtags?: string[];
   };
 }
 
-interface InstagramPost {
+interface TikTokVideo {
   id: string;
-  type: string;
-  caption: string;
-  likesCount: number;
-  commentsCount: number;
+  videoUrl: string;
+  coverUrl: string;
+  description: string;
+  viewCount: number;
+  likeCount: number;
+  commentCount: number;
+  shareCount: number;
   timestamp: string;
-  url: string;
-  displayUrl: string;
 }
 
-export default function InstagramConnect({ isOpen, onClose, onSuccess, existingAccount }: InstagramConnectProps) {
+export default function TikTokConnect({ isOpen, onClose, onSuccess, existingAccount }: TikTokConnectProps) {
   const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [accountData, setAccountData] = useState<InstagramAccount | null>(existingAccount || null);
+  const [accountData, setAccountData] = useState<TikTokAccount | null>(existingAccount || null);
   const [syncing, setSyncing] = useState(false);
 
   const handleConnect = async () => {
     // Validation
-    const trimmedUsername = username.trim();
+    const trimmedUsername = username.trim().replace('@', '');
     if (!trimmedUsername) {
-      setError(t('instagram.errors.usernameRequired') || 'Instagram username is required');
+      setError(t('tiktok.errors.usernameRequired') || 'TikTok username is required');
       return;
     }
 
     // Validate username format (alphanumeric, underscores, dots only)
     const usernameRegex = /^[a-zA-Z0-9._]+$/;
     if (!usernameRegex.test(trimmedUsername)) {
-      setError(t('instagram.errors.invalidUsername') || 'Username can only contain letters, numbers, underscores, and dots');
+      setError(t('tiktok.errors.invalidUsername') || 'Username can only contain letters, numbers, underscores, and dots');
       return;
     }
 
-    if (trimmedUsername.length < 1 || trimmedUsername.length > 30) {
-      setError(t('instagram.errors.usernameLengthInvalid') || 'Username must be between 1 and 30 characters');
+    if (trimmedUsername.length < 2 || trimmedUsername.length > 24) {
+      setError(t('tiktok.errors.usernameLengthInvalid') || 'Username must be between 2 and 24 characters');
       return;
     }
 
@@ -75,7 +82,7 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
     setError(null);
 
     try {
-      const response = await axiosInstance.post(API_ENDPOINTS.SOCIAL_MEDIA.INSTAGRAM_CONNECT, {
+      const response = await axiosInstance.post(API_ENDPOINTS.SOCIAL_MEDIA.TIKTOK_CONNECT, {
         username: trimmedUsername,
       });
 
@@ -92,34 +99,34 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
       }, 1500);
 
     } catch (err: any) {
-      console.error('Error connecting Instagram:', err);
+      console.error('Error connecting TikTok:', err);
       
-      let errorMessage = t('instagram.errors.connectionFailed') || 'Failed to connect Instagram account';
+      let errorMessage = t('tiktok.errors.connectionFailed') || 'Failed to connect TikTok account';
       
       if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
         // Timeout error
-        errorMessage = 'Connection timeout. Instagram scraping takes time. Please try again or the account may be processing in the background.';
+        errorMessage = 'Connection timeout. TikTok scraping takes time. Please try again or the account may be processing in the background.';
       } else if (err.response) {
         // Server responded with error
         switch (err.response.status) {
           case 400:
-            errorMessage = err.response.data?.message || t('instagram.errors.invalidRequest') || 'Invalid request. Please check the username';
+            errorMessage = err.response.data?.message || t('tiktok.errors.invalidRequest') || 'Invalid request. Please check the username';
             break;
           case 404:
-            errorMessage = t('instagram.errors.accountNotFound') || 'Instagram account not found. Please verify the username';
+            errorMessage = t('tiktok.errors.accountNotFound') || 'TikTok account not found. Please verify the username';
             break;
           case 429:
-            errorMessage = t('instagram.errors.rateLimitExceeded') || 'Too many requests. Please try again later';
+            errorMessage = t('tiktok.errors.rateLimitExceeded') || 'Too many requests. Please try again later';
             break;
           case 500:
-            errorMessage = t('instagram.errors.serverError') || 'Server error. Please try again later';
+            errorMessage = t('tiktok.errors.serverError') || 'Server error. Please try again later';
             break;
           default:
             errorMessage = err.response.data?.message || errorMessage;
         }
       } else if (err.request) {
         // Request made but no response
-        errorMessage = t('instagram.errors.networkError') || 'Network error. Please check your connection';
+        errorMessage = t('tiktok.errors.networkError') || 'Network error. Please check your connection';
       }
       
       setError(errorMessage);
@@ -130,7 +137,7 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
 
   const handleSync = async () => {
     if (!accountData?.id) {
-      setError(t('instagram.errors.noAccountToSync') || 'No account to sync');
+      setError(t('tiktok.errors.noAccountToSync') || 'No account to sync');
       return;
     }
 
@@ -138,7 +145,7 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
     setError(null);
 
     try {
-      const response = await axiosInstance.post(API_ENDPOINTS.SOCIAL_MEDIA.INSTAGRAM_SYNC, {
+      const response = await axiosInstance.post(API_ENDPOINTS.SOCIAL_MEDIA.TIKTOK_SYNC, {
         accountId: accountData.id,
       });
 
@@ -156,26 +163,26 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
       }, 2000);
 
     } catch (err: any) {
-      console.error('Error syncing Instagram:', err);
+      console.error('Error syncing TikTok:', err);
       
-      let errorMessage = t('instagram.errors.syncFailed') || 'Failed to sync Instagram data';
+      let errorMessage = t('tiktok.errors.syncFailed') || 'Failed to sync TikTok data';
       
       if (err.response) {
         switch (err.response.status) {
           case 404:
-            errorMessage = t('instagram.errors.accountNotFoundSync') || 'Account not found. Please reconnect';
+            errorMessage = t('tiktok.errors.accountNotFoundSync') || 'Account not found. Please reconnect';
             break;
           case 429:
-            errorMessage = t('instagram.errors.syncRateLimitExceeded') || 'Sync limit exceeded. Please try again in a few minutes';
+            errorMessage = t('tiktok.errors.syncRateLimitExceeded') || 'Sync limit exceeded. Please try again in a few minutes';
             break;
           case 500:
-            errorMessage = t('instagram.errors.syncServerError') || 'Server error during sync. Please try again later';
+            errorMessage = t('tiktok.errors.syncServerError') || 'Server error during sync. Please try again later';
             break;
           default:
             errorMessage = err.response.data?.message || errorMessage;
         }
       } else if (err.request) {
-        errorMessage = t('instagram.errors.syncNetworkError') || 'Network error during sync. Please check your connection';
+        errorMessage = t('tiktok.errors.syncNetworkError') || 'Network error during sync. Please check your connection';
       }
       
       setError(errorMessage);
@@ -186,11 +193,11 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
 
   const handleDisconnect = async () => {
     if (!accountData?.id) {
-      setError(t('instagram.errors.noAccountToDisconnect') || 'No account to disconnect');
+      setError(t('tiktok.errors.noAccountToDisconnect') || 'No account to disconnect');
       return;
     }
 
-    const confirmMessage = t('instagram.confirmDisconnect') || 'Are you sure you want to disconnect your Instagram account? This will remove all synced data.';
+    const confirmMessage = t('tiktok.confirmDisconnect') || 'Are you sure you want to disconnect your TikTok account? This will remove all synced data.';
     if (!window.confirm(confirmMessage)) {
       return;
     }
@@ -199,7 +206,7 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
     setError(null);
 
     try {
-      await axiosInstance.delete(API_ENDPOINTS.SOCIAL_MEDIA.INSTAGRAM_DISCONNECT(accountData.id));
+      await axiosInstance.delete(API_ENDPOINTS.SOCIAL_MEDIA.TIKTOK_DISCONNECT(accountData.id));
       
       setAccountData(null);
       setUsername('');
@@ -210,14 +217,14 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
       }, 500);
 
     } catch (err: any) {
-      console.error('Error disconnecting Instagram:', err);
+      console.error('Error disconnecting TikTok:', err);
       
-      let errorMessage = t('instagram.errors.disconnectFailed') || 'Failed to disconnect Instagram account';
+      let errorMessage = t('tiktok.errors.disconnectFailed') || 'Failed to disconnect TikTok account';
       
       if (err.response) {
         switch (err.response.status) {
           case 404:
-            errorMessage = t('instagram.errors.accountNotFoundDisconnect') || 'Account not found';
+            errorMessage = t('tiktok.errors.accountNotFoundDisconnect') || 'Account not found';
             // Still close modal since account doesn't exist
             setTimeout(() => {
               if (onSuccess) onSuccess();
@@ -225,13 +232,13 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
             }, 1000);
             break;
           case 500:
-            errorMessage = t('instagram.errors.disconnectServerError') || 'Server error during disconnect. Please try again';
+            errorMessage = t('tiktok.errors.disconnectServerError') || 'Server error during disconnect. Please try again';
             break;
           default:
             errorMessage = err.response.data?.message || errorMessage;
         }
       } else if (err.request) {
-        errorMessage = t('instagram.errors.disconnectNetworkError') || 'Network error. Please check your connection';
+        errorMessage = t('tiktok.errors.disconnectNetworkError') || 'Network error. Please check your connection';
       }
       
       setError(errorMessage);
@@ -241,6 +248,13 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
   };
 
   if (!isOpen) return null;
+
+  // TikTok icon SVG
+  const TikTokIcon = () => (
+    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+    </svg>
+  );
 
   return (
     <AnimatePresence>
@@ -259,18 +273,18 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 text-white p-6 rounded-t-3xl">
+          <div className="sticky top-0 bg-gradient-to-br from-black via-gray-900 to-teal-500 text-white p-6 rounded-t-3xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
-                  <FaInstagram className="text-3xl" />
+                  <TikTokIcon />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold">
-                    {accountData ? t('instagram.title.connected') : t('instagram.title.connect')}
+                    {accountData ? t('tiktok.title.connected') : t('tiktok.title.connect')}
                   </h2>
                   <p className="text-white/80 text-sm">
-                    {accountData ? t('instagram.subtitle.manage') : t('instagram.subtitle.enterUsername')}
+                    {accountData ? t('tiktok.subtitle.manage') : t('tiktok.subtitle.enterUsername')}
                   </p>
                 </div>
               </div>
@@ -296,7 +310,7 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
                 >
                   <FaExclamationTriangle className="text-xl mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-semibold">{t('instagram.error')}</p>
+                    <p className="font-semibold">{t('tiktok.error')}</p>
                     <p className="text-sm">{error}</p>
                   </div>
                 </motion.div>
@@ -313,7 +327,7 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
                   className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-3"
                 >
                   <FaCheck className="text-xl" />
-                  <p className="font-semibold">{t('instagram.success')}</p>
+                  <p className="font-semibold">{t('tiktok.success')}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -323,7 +337,7 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    {t('instagram.form.usernameLabel')}
+                    {t('tiktok.form.usernameLabel')}
                   </label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">@</span>
@@ -331,8 +345,8 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value.replace('@', ''))}
-                      placeholder={t('instagram.form.usernamePlaceholder')}
-                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+                      placeholder={t('tiktok.form.usernamePlaceholder')}
+                      className="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
                       disabled={loading}
                       onKeyPress={(e) => {
                         if (e.key === 'Enter') {
@@ -342,19 +356,19 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
-                    {t('instagram.form.usernameHint')}
+                    {t('tiktok.form.usernameHint')}
                   </p>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <div className="bg-teal-50 border border-teal-200 rounded-xl p-4">
                   <div className="flex items-start gap-3">
-                    <FaInstagram className="text-blue-500 text-xl mt-0.5 flex-shrink-0" />
-                    <div className="text-sm text-blue-800">
-                      <p className="font-semibold mb-1">{t('instagram.info.title')}</p>
+                    <TikTokIcon />
+                    <div className="text-sm text-teal-800">
+                      <p className="font-semibold mb-1">{t('tiktok.info.title')}</p>
                       <ul className="space-y-1 text-xs">
-                        <li>• {t('instagram.info.point1')}</li>
-                        <li>• {t('instagram.info.point2')}</li>
-                        <li>• {t('instagram.info.point3')}</li>
+                        <li>• {t('tiktok.info.point1')}</li>
+                        <li>• {t('tiktok.info.point2')}</li>
+                        <li>• {t('tiktok.info.point3')}</li>
                       </ul>
                     </div>
                   </div>
@@ -363,24 +377,24 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
                 {loading && (
                   <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm">
                     <p className="font-semibold mb-1">⏱️ Please wait...</p>
-                    <p className="text-xs">Fetching Instagram data can take 30-90 seconds. Please don't close this window.</p>
+                    <p className="text-xs">Fetching TikTok data can take 30-90 seconds. Please don't close this window.</p>
                   </div>
                 )}
 
                 <button
                   onClick={handleConnect}
                   disabled={loading || !username.trim()}
-                  className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+                  className="w-full bg-gradient-to-r from-black via-gray-900 to-teal-500 text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
                       <FaSpinner className="animate-spin text-xl" />
-                      {t('instagram.buttons.connecting')}
+                      {t('tiktok.buttons.connecting')}
                     </>
                   ) : (
                     <>
-                      <FaInstagram className="text-xl" />
-                      {t('instagram.buttons.connect')}
+                      <TikTokIcon />
+                      {t('tiktok.buttons.connect')}
                     </>
                   )}
                 </button>
@@ -389,112 +403,95 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
               /* Connected Account Display */
               <div className="space-y-6">
                 {/* Profile Header */}
-                <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200">
-                  <img
+                <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-teal-50 to-gray-50 rounded-xl border-2 border-teal-200">
+                  <ImageWithFallback
                     src={getProxiedImageUrl(accountData.profilePicture)}
                     alt={accountData.displayName}
                     className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/default-avatar.svg';
-                    }}
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-xl font-bold text-gray-900">{accountData.displayName}</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        {accountData.displayName || accountData.username}
+                      </h3>
                       {accountData.isVerified && (
                         <FaCheck className="text-blue-500 bg-white rounded-full p-1 text-lg" />
                       )}
                     </div>
-                    <p className="text-purple-600 font-semibold">@{accountData.username}</p>
-                    <p className="text-sm text-gray-600 mt-1">{accountData.metadata?.bio}</p>
+                    <p className="text-teal-600 font-semibold">@{accountData.username}</p>
+                    {accountData.metadata?.bio && (
+                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                        {accountData.metadata.bio}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-purple-600">
-                      {accountData.followersCount.toLocaleString()}
+                  <div className="bg-gradient-to-br from-teal-50 to-teal-100 border-2 border-teal-200 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-teal-600">
+                      {(accountData.followersCount || 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-gray-600 font-semibold mt-1">{t('instagram.stats.followers')}</p>
+                    <p className="text-xs text-gray-600 font-semibold mt-1">
+                      {t('tiktok.stats.followers') || 'Followers'}
+                    </p>
                   </div>
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
+                  <div className="bg-gradient-to-br from-pink-50 to-pink-100 border-2 border-pink-200 rounded-xl p-4 text-center">
                     <p className="text-2xl font-bold text-pink-600">
-                      {accountData.metadata?.postsCount?.toLocaleString() || 0}
+                      {(accountData.metadata?.videosCount || 0).toLocaleString()}
                     </p>
-                    <p className="text-xs text-gray-600 font-semibold mt-1">{t('instagram.stats.posts')}</p>
-                  </div>
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-indigo-600">
-                      {accountData.engagementRate.toFixed(2)}%
+                    <p className="text-xs text-gray-600 font-semibold mt-1">
+                      {t('tiktok.stats.videos') || 'Videos'}
                     </p>
-                    <p className="text-xs text-gray-600 font-semibold mt-1">{t('instagram.stats.engagement')}</p>
                   </div>
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-4 text-center">
                     <p className="text-2xl font-bold text-purple-600">
-                      {accountData.metadata?.averageLikes?.toLocaleString() || 0}
+                      {(accountData.engagementRate || 0).toFixed(2)}%
                     </p>
-                    <p className="text-xs text-gray-600 font-semibold mt-1">{t('instagram.stats.avgLikes')}</p>
+                    <p className="text-xs text-gray-600 font-semibold mt-1">
+                      {t('tiktok.stats.engagement') || 'Engagement'}
+                    </p>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-blue-600">
+                      {(accountData.metadata?.likesCount || 0).toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-600 font-semibold mt-1">
+                      {t('tiktok.stats.totalLikes') || 'Total Likes'}
+                    </p>
                   </div>
                 </div>
 
-                {/* Recent Posts */}
-                {accountData.metadata?.recentPosts && accountData.metadata.recentPosts.length > 0 && (
-                  <div>
-                    <h4 className="text-lg font-bold text-gray-900 mb-3">{t('instagram.recentPosts')}</h4>
-                    <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-                      {accountData.metadata.recentPosts.slice(0, 8).map((post) => (
-                        <a
-                          key={post.id}
-                          href={post.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity group relative"
-                        >
-                          {/* Use proxy + fallback to ensure thumbnails render reliably */}
-                          <img
-                            src={getProxiedImageUrl(post.displayUrl)}
-                            alt={t('instagram.alt.post', 'Instagram post')}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.currentTarget as HTMLImageElement).src = '/cute-placeholder.svg';
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs">
-                            <span>❤️ {post.likesCount.toLocaleString()}</span>
-                          </div>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/* Data Display with Tabs */}
+                <TikTokDataDisplay account={accountData} metadata={accountData.metadata} />
 
                 {/* Action Buttons */}
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleSync}
                     disabled={syncing}
-                    className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3 rounded-xl font-bold hover:shadow-lg transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+                    className="flex-1 bg-gradient-to-r from-teal-500 to-teal-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
                   >
                     {syncing ? (
                       <>
                         <FaSpinner className="animate-spin" />
-                        {t('instagram.buttons.syncing')}
+                        {t('tiktok.buttons.syncing')}
                       </>
                     ) : (
                       <>
                         <FaSync />
-                        {t('instagram.buttons.sync')}
+                        {t('tiktok.buttons.sync')}
                       </>
                     )}
                   </button>
                   <button
                     onClick={handleDisconnect}
                     disabled={loading}
-                    className="px-6 bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
                   >
-                    {t('instagram.buttons.disconnect')}
+                    <FaTimes />
+                    {t('tiktok.buttons.disconnect')}
                   </button>
                 </div>
               </div>

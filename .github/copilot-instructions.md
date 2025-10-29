@@ -49,12 +49,15 @@ if (user.role === 'INFLUENCER') { /* influencer features */ }
 - Free tier: ~$5/month (~500-1000 profiles)
 - Extracts hashtags from post captions and stores top 10 in metadata
 - Returns complete profile data: followers, posts, engagement, profile picture, recent posts
+- Stores recent posts in `SocialMediaPost` table
 
-**TikTok (public):** Uses **Apify scraping** (NOT OAuth) — create `api/src/services/apify.tiktok.service.ts`
-- No tokens needed — scrape by username (or share URL) using `APIFY_API_TOKEN`
+**TikTok (public):** Uses **Apify scraping** (NOT OAuth) — see `api/src/services/apify.tiktok.service.ts`
+- No tokens needed — scrape by username using `APIFY_API_TOKEN`
 - Cache results in DB for 7 days (same policy as Instagram) to control costs
 - Extract hashtags from video captions; store top 10 in metadata
 - Returns profile summary (followers, likes), recent videos, engagement metrics, avatar, and safe display fields
+- Stores recent videos in `SocialMediaPost` table with MediaType.VIDEO
+- Mirrors Instagram service architecture for consistency
 
 **TikTok (connected accounts):** Traditional OAuth 2.0 flow with token refresh
 - Tokens stored encrypted using AES-256-GCM (see `api/src/utils/encryption.util.ts`)
@@ -66,6 +69,7 @@ if (user.role === 'INFLUENCER') { /* influencer features */ }
 - TikTok (connected): Use OAuth service with token encryption for user-linked capabilities
 - Check `APIFY_API_TOKEN` (shared for Instagram and TikTok public scraping), not `INSTAGRAM_APP_ID`
 - API returns formatted data with `displayName`, `profilePicture`, and complete metadata
+- Both services follow identical patterns: `scrapeTikTokProfile`/`scrapeInstagramProfile`, `connectTikTokAccount`/`connectInstagramAccount`, `syncTikTokData`/`syncInstagramData`
 
 ### 4. Authentication & Authorization
 **JWT-based with two tokens:**
@@ -145,10 +149,12 @@ Uses **Multer + Cloudinary**:
 
 ### 9. Automated Jobs (node-cron)
 Three cron jobs initialized in `server.ts`:
-- **Token Refresh** (2:00 AM daily): Refreshes TikTok tokens expiring in 7 days
+- **Token Refresh** (2:00 AM daily): Refreshes TikTok OAuth tokens expiring within 7 days
 - **Data Sync** (3:00 AM daily): Syncs Instagram and TikTok data for active accounts
-  - Public (Apify): refresh cached Instagram posts and TikTok videos within the 7-day cache window
-  - Connected (OAuth): pull updated insights where applicable
+  - Instagram (Apify): refresh cached posts within the 7-day cache window
+  - TikTok Public (Apify): refresh cached videos within the 7-day cache window
+  - TikTok Connected (OAuth): pull updated insights where applicable
+  - Automatically detects account type (public vs OAuth) based on `accessToken` field
 - **Instagram Reminder** (10:00 AM daily): Reminds users to verify Instagram accounts
 
 **When adding jobs:** Create in `api/src/jobs/`, export `.init()` method, call in `server.ts`
@@ -341,8 +347,16 @@ Build note:
 - Social Media
   - Public (Apify):
     - `GET /social-media/instagram/profile/:username`
+    - `POST /social-media/instagram/connect` - Connect by username
+    - `POST /social-media/instagram/sync` - Manual sync with rate limit
+    - `GET /social-media/instagram/:accountId` - Get account data
+    - `DELETE /social-media/instagram/:accountId` - Disconnect
     - `GET /social-media/tiktok/profile/:username`
     - `GET /social-media/tiktok/videos/:username`
+    - `POST /social-media/tiktok/connect-public` - Connect by username
+    - `POST /social-media/tiktok/public/sync` - Manual sync with rate limit
+    - `GET /social-media/tiktok/public/:accountId` - Get account data
+    - `DELETE /social-media/tiktok/public/:accountId` - Disconnect
   - Connected (OAuth):
     - `GET /social-media/tiktok/oauth/callback` (and related auth endpoints)
 
@@ -354,16 +368,26 @@ Build note:
 - Keep i18n keys in sync across `web/src/i18n/locales/en.json` and `ja.json`.
 
 ### I. TikTok public scraping via Apify
-- Purpose: Enable public TikTok profile and recent video discovery without OAuth, mirroring Instagram’s Apify approach.
+- Purpose: Enable public TikTok profile and recent video discovery without OAuth, mirroring Instagram's Apify approach.
 - Backend:
-  - Service: create `api/src/services/apify.tiktok.service.ts`
+  - Service: `api/src/services/apify.tiktok.service.ts` (production-ready, mirrors Instagram)
   - Uses `APIFY_API_TOKEN`; cache results for 7 days; extract top hashtags from captions
-  - Endpoints (public): `GET /api/v1/social-media/tiktok/profile/:username`, `GET /api/v1/social-media/tiktok/videos/:username`
+  - Methods: `scrapeTikTokProfile()`, `connectTikTokAccount()`, `syncTikTokData()`, `getTikTokData()`, `disconnectTikTokAccount()`
+  - Stores videos in `SocialMediaPost` table with proper metrics
+  - Endpoints (public): 
+    - `POST /api/v1/social-media/tiktok/connect-public` - Connect account
+    - `GET /api/v1/social-media/tiktok/profile/:username` - Public profile lookup
+    - `GET /api/v1/social-media/tiktok/videos/:username` - Public videos
+    - `POST /api/v1/social-media/tiktok/public/sync` - Manual sync
+    - `GET /api/v1/social-media/tiktok/public/:accountId` - Get account data
+    - `DELETE /api/v1/social-media/tiktok/public/:accountId` - Disconnect
 - Frontend:
   - Access via `web/src/services/socialMedia.service.ts` and display with `ImageWithFallback`; localize user-facing text (EN/JA)
 - Jobs:
-  - Included in the 3:00 AM Data Sync to refresh within the cache window
+  - Data Sync (3:00 AM) auto-detects public vs OAuth accounts and syncs appropriately
 - Notes:
   - Use TikTok OAuth only when a user links their account for private capabilities; prefer Apify for public lookups
+  - Service mirrors Instagram implementation 1:1 for consistency and maintainability
+  - All TypeScript types are properly defined with camelCase naming (e.g., `followersCount` not `follower_count`)
 
 This addendum is maintained to help future sessions pick up seamlessly. If you add new endpoints or behavior, append similar notes here.

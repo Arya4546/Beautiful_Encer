@@ -83,6 +83,28 @@ router.post(
 );
 
 /**
+ * @route   GET /api/v1/social-media/tiktok/public/:accountId
+ * @desc    Get TikTok public account data
+ * @access  Protected (Influencer)
+ */
+router.get(
+  '/tiktok/public/:accountId',
+  protect,
+  socialMediaController.getPublicTikTokData.bind(socialMediaController)
+);
+
+/**
+ * @route   DELETE /api/v1/social-media/tiktok/public/:accountId
+ * @desc    Disconnect TikTok public account
+ * @access  Protected (Influencer)
+ */
+router.delete(
+  '/tiktok/public/:accountId',
+  protect,
+  socialMediaController.disconnectPublicTikTok.bind(socialMediaController)
+);
+
+/**
  * @route   GET /api/v1/social-media/tiktok/profile/:username
  * @desc    Get public TikTok profile via Apify (no OAuth)
  * @access  Public (Rate-limited by general limiter)

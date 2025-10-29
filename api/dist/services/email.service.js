@@ -16,7 +16,7 @@ export const sendOtpEmail = async (to, otp) => {
   `;
     try {
         await tranEmailApi.sendTransacEmail({
-            sender: { email: "9a28c3001@smtp-brevo.com", name: "Beautiful Encer" },
+            sender: { email: "singharya9693@gmail.com", name: "Beautiful Encer" },
             to: [{ email: to }],
             subject: "Your OTP for Email Verification",
             htmlContent: html,

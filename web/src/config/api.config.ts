@@ -24,11 +24,24 @@ export const API_ENDPOINTS = {
   },
   // Social Media endpoints
   SOCIAL_MEDIA: {
+    // Instagram endpoints
     INSTAGRAM_CONNECT: '/social-media/instagram/connect',
     INSTAGRAM_SYNC: '/social-media/instagram/sync',
     INSTAGRAM_DATA: (accountId: string) => `/social-media/instagram/${accountId}`,
     INSTAGRAM_DISCONNECT: (accountId: string) => `/social-media/instagram/${accountId}`,
+    
+    // TikTok endpoints (Apify public scraping)
+    TIKTOK_CONNECT: '/social-media/tiktok/connect-public',
+    TIKTOK_SYNC: '/social-media/tiktok/public/sync',
+    TIKTOK_DATA: (accountId: string) => `/social-media/tiktok/public/${accountId}`,
+    TIKTOK_DISCONNECT: (accountId: string) => `/social-media/tiktok/public/${accountId}`,
+    TIKTOK_PROFILE: (username: string) => `/social-media/tiktok/profile/${username}`,
+    TIKTOK_VIDEOS: (username: string) => `/social-media/tiktok/videos/${username}`,
+    
+    // TikTok OAuth (for future connected accounts)
     TIKTOK_AUTH: '/social-media/tiktok/auth',
+    
+    // General endpoints
     ACCOUNTS: '/social-media/accounts',
     SYNC: (platform: string) => `/social-media/${platform}/sync`,
     DISCONNECT: (platform: string) => `/social-media/${platform}`,

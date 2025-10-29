@@ -2,11 +2,262 @@ import { prisma } from '../lib/prisma.js';
 import { SocialMediaPlatform, MediaType } from '@prisma/client';
 import apifyInstagramService from '../services/apify.instagram.service.js';
 import tiktokService from '../services/tiktok.service.js';
+import apifyTikTokService from '../services/apify.tiktok.service.js';
 /**
  * Social Media Account Linking Controller
  * Handles Instagram (via Apify scraping) and TikTok account connections for influencers
  */
 class SocialMediaController {
+    // ===========================
+    // TIKTOK - PUBLIC (APIFY) CONNECT/SYNC (DB)
+    // ===========================
+    async connectPublicTikTok(req, res) {
+        try {
+            const userId = req.user?.userId;
+            if (!userId) {
+                return res.status(401).json({
+                    error: 'Unauthorized',
+                    message: 'You must be logged in to connect a TikTok account'
+                });
+            }
+            const { username } = req.body;
+            if (!username || typeof username !== 'string' || username.trim() === '') {
+                return res.status(400).json({
+                    error: 'Invalid username',
+                    message: 'Please provide a valid TikTok username'
+                });
+            }
+            // Connect TikTok account using Apify scraping
+            const result = await apifyTikTokService.connectTikTokAccount(userId, username);
+            return res.status(200).json(result);
+        }
+        catch (error) {
+            console.error('[SocialMediaController.connectPublicTikTok] Error:', error);
+            // Handle specific error cases
+            if (error.message.includes('not found')) {
+                return res.status(404).json({
+                    error: 'TikTok account not found',
+                    message: 'The TikTok username you provided does not exist or is private'
+                });
+            }
+            if (error.message.includes('influencer')) {
+                return res.status(403).json({
+                    error: 'Not an influencer',
+                    message: 'Only influencer accounts can connect TikTok'
+                });
+            }
+            return res.status(500).json({
+                error: 'Failed to connect TikTok',
+                message: error.message || 'An unexpected error occurred while connecting your TikTok account'
+            });
+        }
+    }
+    async syncPublicTikTok(req, res) {
+        try {
+            const userId = req.user?.userId;
+            if (!userId) {
+                return res.status(401).json({
+                    error: 'Unauthorized',
+                    message: 'You must be logged in to sync TikTok data'
+                });
+            }
+            const { accountId } = req.body;
+            if (!accountId) {
+                return res.status(400).json({
+                    error: 'Missing account ID',
+                    message: 'Please provide the TikTok account ID to sync'
+                });
+            }
+            // Verify account belongs to this user
+            const account = await prisma.socialMediaAccount.findUnique({
+                where: { id: accountId },
+                include: { influencer: { include: { user: true } } },
+            });
+            if (!account) {
+                return res.status(404).json({
+                    error: 'Account not found',
+                    message: 'The TikTok account you are trying to sync does not exist'
+                });
+            }
+            if (account.influencer.user.id !== userId) {
+                return res.status(403).json({
+                    error: 'Forbidden',
+                    message: 'You do not have permission to sync this TikTok account'
+                });
+            }
+            // Sync TikTok data
+            const result = await apifyTikTokService.syncTikTokData(accountId);
+            return res.status(200).json(result);
+        }
+        catch (error) {
+            console.error('[SocialMediaController.syncPublicTikTok] Error:', error);
+            return res.status(500).json({
+                error: 'Failed to sync TikTok data',
+                message: error.message || 'An unexpected error occurred while syncing your TikTok data'
+            });
+        }
+    }
+    async getPublicTikTokData(req, res) {
+        try {
+            const userId = req.user?.userId;
+            if (!userId) {
+                return res.status(401).json({
+                    error: 'Unauthorized',
+                    message: 'You must be logged in to view TikTok data'
+                });
+            }
+            const { accountId } = req.params;
+            // Verify account belongs to this user
+            const account = await prisma.socialMediaAccount.findUnique({
+                where: { id: accountId },
+                include: { influencer: { include: { user: true } } },
+            });
+            if (!account) {
+                return res.status(404).json({
+                    error: 'Account not found',
+                    message: 'The TikTok account does not exist'
+                });
+            }
+            if (account.influencer.user.id !== userId) {
+                return res.status(403).json({
+                    error: 'Forbidden',
+                    message: 'You do not have permission to view this TikTok account'
+                });
+            }
+            // Get TikTok data (from cache or fresh scrape)
+            const result = await apifyTikTokService.getTikTokData(accountId);
+            return res.status(200).json(result);
+        }
+        catch (error) {
+            console.error('[SocialMediaController.getPublicTikTokData] Error:', error);
+            return res.status(500).json({
+                error: 'Failed to get TikTok data',
+                message: error.message || 'An unexpected error occurred while fetching TikTok data'
+            });
+        }
+    }
+    async disconnectPublicTikTok(req, res) {
+        try {
+            const userId = req.user?.userId;
+            if (!userId) {
+                return res.status(401).json({
+                    error: 'Unauthorized',
+                    message: 'You must be logged in to disconnect TikTok'
+                });
+            }
+            const { accountId } = req.params;
+            // Verify account belongs to this user
+            const account = await prisma.socialMediaAccount.findUnique({
+                where: { id: accountId },
+                include: { influencer: { include: { user: true } } },
+            });
+            if (!account) {
+                return res.status(404).json({
+                    error: 'Account not found',
+                    message: 'The TikTok account does not exist'
+                });
+            }
+            if (account.influencer.user.id !== userId) {
+                return res.status(403).json({
+                    error: 'Forbidden',
+                    message: 'You do not have permission to disconnect this TikTok account'
+                });
+            }
+            // Disconnect TikTok account
+            await apifyTikTokService.disconnectTikTokAccount(accountId);
+            return res.status(200).json({
+                success: true,
+                message: 'TikTok account disconnected successfully'
+            });
+        }
+        catch (error) {
+            console.error('[SocialMediaController.disconnectPublicTikTok] Error:', error);
+            return res.status(500).json({
+                error: 'Failed to disconnect TikTok',
+                message: error.message || 'An unexpected error occurred while disconnecting TikTok'
+            });
+        }
+    }
+    // ===========================
+    // TIKTOK - PUBLIC (APIFY) ENDPOINTS
+    // ===========================
+    async getPublicTikTokProfile(req, res) {
+        try {
+            const { username } = req.params;
+            if (!username) {
+                return res.status(400).json({ error: 'Username is required' });
+            }
+            const data = await apifyTikTokService.scrape(username);
+            return res.status(200).json({
+                success: true,
+                data: {
+                    profile: {
+                        username: data.profile.username,
+                        displayName: data.profile.displayName,
+                        avatarUrl: data.profile.avatarUrl,
+                        followersCount: data.profile.followersCount,
+                        followingCount: data.profile.followingCount,
+                        likesCount: data.profile.likesCount,
+                        videoCount: data.profile.videoCount,
+                        isVerified: data.profile.isVerified,
+                        bioDescription: data.profile.bioDescription,
+                    },
+                    engagementRate: data.engagementRate,
+                    topHashtags: data.topHashtags,
+                    lastScraped: data.lastScraped,
+                    videosCount: data.videos.length,
+                },
+            });
+        }
+        catch (error) {
+            console.error('[SocialMediaController.getPublicTikTokProfile] Error:', error);
+            const notFound = error?.message?.includes('No TikTok data') || error?.message?.toLowerCase?.().includes('not found');
+            const msg = notFound
+                ? 'TikTok profile not found or unavailable'
+                : (error.message || 'Failed to fetch TikTok profile');
+            return res.status(notFound ? 404 : 500).json({ error: msg });
+        }
+    }
+    async getPublicTikTokVideos(req, res) {
+        try {
+            const { username } = req.params;
+            if (!username) {
+                return res.status(400).json({ error: 'Username is required' });
+            }
+            const data = await apifyTikTokService.scrape(username);
+            return res.status(200).json({
+                success: true,
+                data: {
+                    videos: data.videos.map(v => ({
+                        id: v.id,
+                        createTime: v.createTime,
+                        coverImageUrl: v.coverImageUrl,
+                        shareUrl: v.shareUrl,
+                        videoDescription: v.videoDescription,
+                        duration: v.duration,
+                        likesCount: v.likesCount,
+                        commentsCount: v.commentsCount,
+                        sharesCount: v.sharesCount,
+                        viewsCount: v.viewsCount,
+                    })),
+                    profile: {
+                        username: data.profile.username,
+                        followersCount: data.profile.followersCount,
+                    },
+                    engagementRate: data.engagementRate,
+                    topHashtags: data.topHashtags,
+                },
+            });
+        }
+        catch (error) {
+            console.error('[SocialMediaController.getPublicTikTokVideos] Error:', error);
+            const notFound = error?.message?.includes('No TikTok data') || error?.message?.toLowerCase?.().includes('not found');
+            const msg = notFound
+                ? 'TikTok videos not found or unavailable'
+                : (error.message || 'Failed to fetch TikTok videos');
+            return res.status(notFound ? 404 : 500).json({ error: msg });
+        }
+    }
     // ===========================
     // INSTAGRAM - CONNECT VIA USERNAME (APIFY SCRAPING)
     // ===========================

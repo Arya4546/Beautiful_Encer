@@ -415,20 +415,6 @@
       "complete": "Complete Setup"
     }
   },
-  "tiktok": {
-    "publicSubtitle": "Public profile preview via Apify (no login required)",
-    "preview": "Preview",
-    "likes": "Likes",
-    "recentVideos": "Recent Videos",
-    "noVideos": "No recent videos found",
-    "saveToAccounts": "Save to My Accounts",
-    "saved": "TikTok account connected",
-    "errorFetch": "Failed to fetch TikTok data",
-    "videoEngagement": "Video Engagement",
-    "viewVideos": "View Videos",
-    "notFoundTitle": "Profile not found or unavailable",
-    "notFoundSubtitle": "This TikTok profile may be private, blocked in your region, or temporarily unavailable."
-  },
   "analytics": {
     "socialMedia": "Social Media Analytics",
     "performanceOverview": "Performance Overview",
@@ -785,6 +771,99 @@
       "notConnected": "Instagram Not Connected",
       "notConnectedDesc": "Connect your Instagram account to display your follower count, engagement rate, and recent posts",
       "connect": "Connect Instagram"
+    },
+    "tiktok": {
+      "description": "Connect your TikTok to showcase your creativity",
+      "notConnected": "TikTok Not Connected",
+      "notConnectedDesc": "Connect your TikTok account to display your follower count, engagement rate, and recent videos",
+      "connect": "Connect TikTok",
+      "comingSoonDesc": "TikTok integration will be available soon. Stay tuned!"
+    }
+  },
+  "tiktok": {
+    "title": {
+      "connect": "Connect TikTok",
+      "connected": "TikTok Connected"
+    },
+    "subtitle": {
+      "enterUsername": "Enter your TikTok username to connect your account",
+      "manage": "View and manage your TikTok connection"
+    },
+    "form": {
+      "usernameLabel": "TikTok Username",
+      "usernamePlaceholder": "yourusername",
+      "usernameHint": "Enter your TikTok username without the @ symbol"
+    },
+    "buttons": {
+      "connect": "Connect TikTok",
+      "connecting": "Connecting...",
+      "sync": "Refresh Data",
+      "syncing": "Refreshing...",
+      "disconnect": "Disconnect"
+    },
+    "stats": {
+      "followers": "Followers",
+      "videos": "Videos",
+      "engagement": "Engagement",
+      "totalLikes": "Total Likes"
+    },
+    "recentVideos": "Recent Videos",
+    "details": "TikTok Details",
+    "topHashtags": "Top Hashtags",
+    "alt": {
+      "video": "TikTok video"
+    },
+    "analytics": {
+      "averageViews": "Average Views",
+      "averageLikes": "Average Likes",
+      "avgComments": "Avg Comments",
+      "avgShares": "Avg Shares",
+      "totalVideos": "Total Videos",
+      "totalLikes": "Total Likes",
+      "perVideo": "per video",
+      "overall": "overall",
+      "published": "published",
+      "following": "Following",
+      "accounts": "accounts",
+      "byUser": "by user",
+      "hidden": "Hidden"
+    },
+    "noVideos": "No videos available",
+    "hashtags": {
+      "description": "These are the most frequently used hashtags extracted from this influencer's recent videos. Hashtags help understand content themes and reach specific audiences on TikTok.",
+      "none": "No Hashtags Found",
+      "noneDesc": "This influencer hasn't used hashtags in their recent videos"
+    },
+    "info": {
+      "title": "How it works",
+      "point1": "We fetch your public TikTok profile data",
+      "point2": "No password or login required",
+      "point3": "Data updates automatically every 7 days"
+    },
+    "error": "Error",
+    "success": "Success! TikTok account connected",
+    "confirmDisconnect": "Are you sure you want to disconnect your TikTok account? This will remove all synced data.",
+    "errors": {
+      "usernameRequired": "Please enter your TikTok username",
+      "invalidUsername": "Username can only contain letters, numbers, underscores, and dots",
+      "usernameLengthInvalid": "Username must be between 2 and 24 characters",
+      "connectionFailed": "Failed to connect TikTok account. Please check the username and try again.",
+      "invalidRequest": "Invalid request. Please check the username",
+      "accountNotFound": "TikTok account not found. Please verify the username",
+      "rateLimitExceeded": "Too many requests. Please try again later",
+      "serverError": "Server error. Please try again later",
+      "networkError": "Network error. Please check your connection",
+      "syncFailed": "Failed to refresh TikTok data. Please try again later.",
+      "noAccountToSync": "No account to sync",
+      "accountNotFoundSync": "Account not found. Please reconnect",
+      "syncRateLimitExceeded": "Sync limit exceeded. Please try again in a few minutes",
+      "syncServerError": "Server error during sync. Please try again later",
+      "syncNetworkError": "Network error during sync. Please check your connection",
+      "disconnectFailed": "Failed to disconnect TikTok account. Please try again.",
+      "noAccountToDisconnect": "No account to disconnect",
+      "accountNotFoundDisconnect": "Account not found",
+      "disconnectServerError": "Server error during disconnect. Please try again",
+      "disconnectNetworkError": "Network error. Please check your connection"
     }
   }
 }

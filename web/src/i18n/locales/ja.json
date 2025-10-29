@@ -414,20 +414,6 @@
       "complete": "セットアップを完了する"
     }
   },
-  "tiktok": {
-    "publicSubtitle": "Apifyを使った公開プロフィールのプレビュー（ログイン不要）",
-    "preview": "プレビュー",
-    "likes": "いいね",
-    "recentVideos": "最近の動画",
-    "noVideos": "最近の動画は見つかりません",
-    "saveToAccounts": "マイアカウントに保存",
-    "saved": "TikTokアカウントを連携しました",
-    "errorFetch": "TikTokデータの取得に失敗しました",
-    "videoEngagement": "動画のエンゲージメント",
-    "viewVideos": "動画を見る",
-    "notFoundTitle": "プロフィールが見つからない、または利用できません",
-    "notFoundSubtitle": "このTikTokプロフィールは非公開、地域的な制限、または一時的に利用できない可能性があります。"
-  },
   "analytics": {
     "socialMedia": "ソーシャルメディア分析",
     "performanceOverview": "パフォーマンス概要",
@@ -784,6 +770,99 @@
       "notConnected": "Instagram未連携",
       "notConnectedDesc": "Instagramアカウントを連携すると、フォロワー数、エンゲージメント率、最近の投稿が表示されます",
       "connect": "Instagram連携"
+    },
+    "tiktok": {
+      "description": "TikTokを連携してクリエイティビティをアピール",
+      "notConnected": "TikTok未連携",
+      "notConnectedDesc": "TikTokアカウントを連携すると、フォロワー数、エンゲージメント率、最近の動画が表示されます",
+      "connect": "TikTok連携",
+      "comingSoonDesc": "TikTok連携は近日公開予定です。お楽しみに！"
+    }
+  },
+  "tiktok": {
+    "title": {
+      "connect": "TikTok連携",
+      "connected": "TikTok連携済み"
+    },
+    "subtitle": {
+      "enterUsername": "TikTokのユーザー名を入力してアカウントを連携",
+      "manage": "TikTok連携の表示と管理"
+    },
+    "form": {
+      "usernameLabel": "TikTokユーザー名",
+      "usernamePlaceholder": "ユーザー名",
+      "usernameHint": "@なしでTikTokのユーザー名を入力してください"
+    },
+    "buttons": {
+      "connect": "TikTok連携",
+      "connecting": "連携中...",
+      "sync": "データ更新",
+      "syncing": "更新中...",
+      "disconnect": "連携解除"
+    },
+    "stats": {
+      "followers": "フォロワー",
+      "videos": "動画",
+      "engagement": "エンゲージメント",
+      "totalLikes": "総いいね数"
+    },
+    "recentVideos": "最近の動画",
+    "details": "TikTok詳細",
+    "topHashtags": "トップハッシュタグ",
+    "alt": {
+      "video": "TikTok動画"
+    },
+    "analytics": {
+      "averageViews": "平均再生回数",
+      "averageLikes": "平均いいね数",
+      "avgComments": "平均コメント数",
+      "avgShares": "平均シェア数",
+      "totalVideos": "総動画数",
+      "totalLikes": "総いいね数",
+      "perVideo": "動画あたり",
+      "overall": "全体",
+      "published": "公開済み",
+      "following": "フォロー中",
+      "accounts": "アカウント",
+      "byUser": "ユーザーによる",
+      "hidden": "非表示"
+    },
+    "noVideos": "動画がありません",
+    "hashtags": {
+      "description": "これは、このインフルエンサーの最近の動画から抽出された最も頻繁に使用されるハッシュタグです。ハッシュタグは、TikTokでコンテンツのテーマを理解し、特定のオーディエンスにリーチするのに役立ちます。",
+      "none": "ハッシュタグが見つかりません",
+      "noneDesc": "このインフルエンサーは最近の動画でハッシュタグを使用していません"
+    },
+    "info": {
+      "title": "仕組み",
+      "point1": "公開されているTikTokプロフィールデータを取得します",
+      "point2": "パスワードやログインは不要です",
+      "point3": "データは7日ごとに自動更新されます"
+    },
+    "error": "エラー",
+    "success": "成功！TikTokアカウントが連携されました",
+    "confirmDisconnect": "TikTokアカウントの連携を解除してもよろしいですか？すべての同期データが削除されます。",
+    "errors": {
+      "usernameRequired": "TikTokのユーザー名を入力してください",
+      "invalidUsername": "ユーザー名には英数字、アンダースコア、ドットのみ使用できます",
+      "usernameLengthInvalid": "ユーザー名は2文字以上24文字以内である必要があります",
+      "connectionFailed": "TikTokアカウントの連携に失敗しました。ユーザー名を確認して、もう一度お試しください。",
+      "invalidRequest": "無効なリクエストです。ユーザー名を確認してください",
+      "accountNotFound": "TikTokアカウントが見つかりません。ユーザー名を確認してください",
+      "rateLimitExceeded": "リクエストが多すぎます。後でもう一度お試しください",
+      "serverError": "サーバーエラーです。後でもう一度お試しください",
+      "networkError": "ネットワークエラーです。接続を確認してください",
+      "syncFailed": "TikTokデータの更新に失敗しました。後でもう一度お試しください。",
+      "noAccountToSync": "同期するアカウントがありません",
+      "accountNotFoundSync": "アカウントが見つかりません。もう一度連携してください",
+      "syncRateLimitExceeded": "同期の制限を超えました。数分後にもう一度お試しください",
+      "syncServerError": "同期中にサーバーエラーが発生しました。後でもう一度お試しください",
+      "syncNetworkError": "同期中にネットワークエラーが発生しました。接続を確認してください",
+      "disconnectFailed": "TikTokアカウントの連携解除に失敗しました。もう一度お試しください。",
+      "noAccountToDisconnect": "連携解除するアカウントがありません",
+      "accountNotFoundDisconnect": "アカウントが見つかりません",
+      "disconnectServerError": "連携解除中にサーバーエラーが発生しました。もう一度お試しください",
+      "disconnectNetworkError": "ネットワークエラーです。接続を確認してください"
     }
   }
 }
