@@ -45,7 +45,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'Noto Sans JP', 'sans-serif'],
       },
       boxShadow: {
         'soft': '0 2px 8px rgba(233, 30, 99, 0.08)',
