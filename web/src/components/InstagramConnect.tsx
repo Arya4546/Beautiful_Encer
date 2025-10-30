@@ -5,6 +5,7 @@ import axiosInstance from '../lib/axios';
 import { API_ENDPOINTS } from '../config/api.config';
 import { useTranslation } from 'react-i18next';
 import { getProxiedImageUrl } from '../utils/imageProxy';
+import { showToast } from '../utils/toast';
 
 interface InstagramConnectProps {
   isOpen: boolean;
@@ -85,6 +86,7 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
 
       setSuccess(true);
       setAccountData(response.data.account);
+      showToast.success(t('instagram.connected', 'Instagram account connected successfully!'));
       
       setTimeout(() => {
         if (onSuccess) onSuccess();
@@ -148,6 +150,7 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
 
       setAccountData(response.data.account);
       setSuccess(true);
+      showToast.success(t('instagram.synced', 'Instagram data synced successfully!'));
       
       if (onSuccess) onSuccess();
       
@@ -203,6 +206,7 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
       
       setAccountData(null);
       setUsername('');
+      showToast.success(t('instagram.disconnected', 'Instagram account disconnected successfully'));
       
       setTimeout(() => {
         if (onSuccess) onSuccess();
@@ -259,7 +263,7 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 text-white p-6 rounded-t-3xl">
+          <div className="sticky top-0 z-10 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 text-white p-6 rounded-t-3xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
@@ -303,24 +307,8 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
               )}
             </AnimatePresence>
 
-            {/* Success Message */}
-            <AnimatePresence>
-              {success && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-3"
-                >
-                  <FaCheck className="text-xl" />
-                  <p className="font-semibold">{t('instagram.success')}</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {!accountData ? (
-              /* Connect Form */
-              <div className="space-y-6">
+            {/* Connect Form */}
+            <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     {t('instagram.form.usernameLabel')}
@@ -385,120 +373,6 @@ export default function InstagramConnect({ isOpen, onClose, onSuccess, existingA
                   )}
                 </button>
               </div>
-            ) : (
-              /* Connected Account Display */
-              <div className="space-y-6">
-                {/* Profile Header */}
-                <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200">
-                  <img
-                    src={getProxiedImageUrl(accountData.profilePicture)}
-                    alt={accountData.displayName}
-                    className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/default-avatar.svg';
-                    }}
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-xl font-bold text-gray-900">{accountData.displayName}</h3>
-                      {accountData.isVerified && (
-                        <FaCheck className="text-blue-500 bg-white rounded-full p-1 text-lg" />
-                      )}
-                    </div>
-                    <p className="text-purple-600 font-semibold">@{accountData.username}</p>
-                    <p className="text-sm text-gray-600 mt-1">{accountData.metadata?.bio}</p>
-                  </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-purple-600">
-                      {accountData.followersCount.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-600 font-semibold mt-1">{t('instagram.stats.followers')}</p>
-                  </div>
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-pink-600">
-                      {accountData.metadata?.postsCount?.toLocaleString() || 0}
-                    </p>
-                    <p className="text-xs text-gray-600 font-semibold mt-1">{t('instagram.stats.posts')}</p>
-                  </div>
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-indigo-600">
-                      {accountData.engagementRate.toFixed(2)}%
-                    </p>
-                    <p className="text-xs text-gray-600 font-semibold mt-1">{t('instagram.stats.engagement')}</p>
-                  </div>
-                  <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-purple-600">
-                      {accountData.metadata?.averageLikes?.toLocaleString() || 0}
-                    </p>
-                    <p className="text-xs text-gray-600 font-semibold mt-1">{t('instagram.stats.avgLikes')}</p>
-                  </div>
-                </div>
-
-                {/* Recent Posts */}
-                {accountData.metadata?.recentPosts && accountData.metadata.recentPosts.length > 0 && (
-                  <div>
-                    <h4 className="text-lg font-bold text-gray-900 mb-3">{t('instagram.recentPosts')}</h4>
-                    <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-                      {accountData.metadata.recentPosts.slice(0, 8).map((post) => (
-                        <a
-                          key={post.id}
-                          href={post.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity group relative"
-                        >
-                          {/* Use proxy + fallback to ensure thumbnails render reliably */}
-                          <img
-                            src={getProxiedImageUrl(post.displayUrl)}
-                            alt={t('instagram.alt.post', 'Instagram post')}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.currentTarget as HTMLImageElement).src = '/cute-placeholder.svg';
-                            }}
-                          />
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs">
-                            <span>❤️ {post.likesCount.toLocaleString()}</span>
-                          </div>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleSync}
-                    disabled={syncing}
-                    className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3 rounded-xl font-bold hover:shadow-lg transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
-                  >
-                    {syncing ? (
-                      <>
-                        <FaSpinner className="animate-spin" />
-                        {t('instagram.buttons.syncing')}
-                      </>
-                    ) : (
-                      <>
-                        <FaSync />
-                        {t('instagram.buttons.sync')}
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={handleDisconnect}
-                    disabled={loading}
-                    className="px-6 bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {t('instagram.buttons.disconnect')}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </motion.div>
       </motion.div>

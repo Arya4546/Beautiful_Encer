@@ -5,6 +5,7 @@ import axiosInstance from '../lib/axios';
 import { API_ENDPOINTS } from '../config/api.config';
 import { useTranslation } from 'react-i18next';
 import { getProxiedImageUrl } from '../utils/imageProxy';
+import { showToast } from '../utils/toast';
 import { ImageWithFallback } from './ui/ImageWithFallback';
 import { TikTokDataDisplay } from './TikTokDataDisplay.tsx';
 
@@ -92,6 +93,7 @@ export default function TikTokConnect({ isOpen, onClose, onSuccess, existingAcco
 
       setSuccess(true);
       setAccountData(response.data.account);
+      showToast.success(t('tiktok.connected', 'TikTok account connected successfully!'));
       
       setTimeout(() => {
         if (onSuccess) onSuccess();
@@ -155,6 +157,7 @@ export default function TikTokConnect({ isOpen, onClose, onSuccess, existingAcco
 
       setAccountData(response.data.account);
       setSuccess(true);
+      showToast.success(t('tiktok.synced', 'TikTok data synced successfully!'));
       
       if (onSuccess) onSuccess();
       
@@ -210,6 +213,7 @@ export default function TikTokConnect({ isOpen, onClose, onSuccess, existingAcco
       
       setAccountData(null);
       setUsername('');
+      showToast.success(t('tiktok.disconnected', 'TikTok account disconnected successfully'));
       
       setTimeout(() => {
         if (onSuccess) onSuccess();
@@ -273,7 +277,7 @@ export default function TikTokConnect({ isOpen, onClose, onSuccess, existingAcco
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 bg-gradient-to-br from-black via-gray-900 to-teal-500 text-white p-6 rounded-t-3xl">
+          <div className="sticky top-0 z-10 bg-gradient-to-br from-black via-gray-900 to-teal-500 text-white p-6 rounded-t-3xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
@@ -317,24 +321,8 @@ export default function TikTokConnect({ isOpen, onClose, onSuccess, existingAcco
               )}
             </AnimatePresence>
 
-            {/* Success Message */}
-            <AnimatePresence>
-              {success && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-3"
-                >
-                  <FaCheck className="text-xl" />
-                  <p className="font-semibold">{t('tiktok.success')}</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {!accountData ? (
-              /* Connect Form */
-              <div className="space-y-6">
+            {/* Connect Form */}
+            <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     {t('tiktok.form.usernameLabel')}
@@ -399,103 +387,6 @@ export default function TikTokConnect({ isOpen, onClose, onSuccess, existingAcco
                   )}
                 </button>
               </div>
-            ) : (
-              /* Connected Account Display */
-              <div className="space-y-6">
-                {/* Profile Header */}
-                <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-teal-50 to-gray-50 rounded-xl border-2 border-teal-200">
-                  <ImageWithFallback
-                    src={getProxiedImageUrl(accountData.profilePicture)}
-                    alt={accountData.displayName}
-                    className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-xl font-bold text-gray-900">
-                        {accountData.displayName || accountData.username}
-                      </h3>
-                      {accountData.isVerified && (
-                        <FaCheck className="text-blue-500 bg-white rounded-full p-1 text-lg" />
-                      )}
-                    </div>
-                    <p className="text-teal-600 font-semibold">@{accountData.username}</p>
-                    {accountData.metadata?.bio && (
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                        {accountData.metadata.bio}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-gradient-to-br from-teal-50 to-teal-100 border-2 border-teal-200 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-teal-600">
-                      {(accountData.followersCount || 0).toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-600 font-semibold mt-1">
-                      {t('tiktok.stats.followers') || 'Followers'}
-                    </p>
-                  </div>
-                  <div className="bg-gradient-to-br from-pink-50 to-pink-100 border-2 border-pink-200 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-pink-600">
-                      {(accountData.metadata?.videosCount || 0).toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-600 font-semibold mt-1">
-                      {t('tiktok.stats.videos') || 'Videos'}
-                    </p>
-                  </div>
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-purple-600">
-                      {(accountData.engagementRate || 0).toFixed(2)}%
-                    </p>
-                    <p className="text-xs text-gray-600 font-semibold mt-1">
-                      {t('tiktok.stats.engagement') || 'Engagement'}
-                    </p>
-                  </div>
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-blue-600">
-                      {(accountData.metadata?.likesCount || 0).toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-600 font-semibold mt-1">
-                      {t('tiktok.stats.totalLikes') || 'Total Likes'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Data Display with Tabs */}
-                <TikTokDataDisplay account={accountData} metadata={accountData.metadata} />
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={handleSync}
-                    disabled={syncing}
-                    className="flex-1 bg-gradient-to-r from-teal-500 to-teal-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
-                  >
-                    {syncing ? (
-                      <>
-                        <FaSpinner className="animate-spin" />
-                        {t('tiktok.buttons.syncing')}
-                      </>
-                    ) : (
-                      <>
-                        <FaSync />
-                        {t('tiktok.buttons.sync')}
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={handleDisconnect}
-                    disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
-                  >
-                    <FaTimes />
-                    {t('tiktok.buttons.disconnect')}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </motion.div>
       </motion.div>
