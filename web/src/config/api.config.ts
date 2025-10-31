@@ -53,4 +53,16 @@ export const API_ENDPOINTS = {
     REGIONS: '/discovery/regions',
     CATEGORIES: '/discovery/categories',
   },
+  // Admin endpoints
+  ADMIN: {
+    DASHBOARD: '/admin/dashboard',
+    USERS: '/admin/users',
+    USER_DETAILS: (userId: string) => `/admin/users/${userId}`,
+    SUSPEND_USER: (userId: string) => `/admin/users/${userId}/suspend`,
+    ACTIVATE_USER: (userId: string) => `/admin/users/${userId}/activate`,
+    DELETE_USER: (userId: string) => `/admin/users/${userId}`,
+    CONNECTIONS: '/admin/connections',
+    DELETE_CONNECTION: (connectionId: string) => `/admin/connections/${connectionId}`,
+    ACTIVITY_LOGS: '/admin/activity-logs',
+  },
 } as const;

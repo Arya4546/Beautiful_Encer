@@ -20,6 +20,13 @@ import { NotFoundPage } from "./pages/ErrorPage";
 import TermsPage from "./pages/legal/TermsPage";
 import PrivacyPolicyPage from "./pages/legal/PrivacyPolicyPage";
 
+// Admin Pages
+import { AdminDashboard } from "./pages/admin/AdminDashboard";
+import { AdminUsers } from "./pages/admin/AdminUsers";
+import { AdminConnections } from "./pages/admin/AdminConnections";
+import { AdminActivityLogs } from "./pages/admin/AdminActivityLogs";
+import { AdminProfilePage } from "./pages/admin/AdminProfilePage";
+
 // Route Protection
 import { ProtectedRoute, PublicRoute, OnboardingRoute } from "./components/RouteProtection";
 
@@ -121,6 +128,28 @@ const App: React.FC = () => {
         <Route 
           path="/social-media" 
           element={<ProtectedRoute><SocialMediaPage /></ProtectedRoute>} 
+        />
+
+        {/* Admin Routes - Only accessible for ADMIN role */}
+        <Route 
+          path="/admin/dashboard" 
+          element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/admin/users" 
+          element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/admin/connections" 
+          element={<ProtectedRoute><AdminConnections /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/admin/activity-logs" 
+          element={<ProtectedRoute><AdminActivityLogs /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/admin/profile" 
+          element={<ProtectedRoute><AdminProfilePage /></ProtectedRoute>} 
         />
 
         {/* 404 - Not Found */}

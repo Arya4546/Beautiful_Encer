@@ -48,7 +48,7 @@ model Influencer {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  user              User                @relation(fields: [userId], references: [id])
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId            String              @unique
   socialMediaAccounts SocialMediaAccount[]
 }
@@ -80,7 +80,7 @@ model Salon {
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique
 }
 
@@ -264,6 +264,36 @@ model Notification {
   @@index([createdAt])
 }
 
+model ActivityLog {
+  id          String           @id @default(uuid())
+  action      ActivityAction
+  description String           @db.Text
+  
+  // Admin who performed the action
+  adminId     String
+  adminName   String
+  adminEmail  String
+  
+  // Target user (if applicable)
+  targetUserId String?
+  targetUserName String?
+  targetUserEmail String?
+  
+  // IP address and user agent
+  ipAddress   String?
+  userAgent   String?
+  
+  // Metadata as JSON
+  metadata    String?          @db.Text
+  
+  createdAt   DateTime         @default(now())
+  
+  @@index([adminId])
+  @@index([targetUserId])
+  @@index([action])
+  @@index([createdAt])
+}
+
 enum NotificationType {
   CONNECTION_REQUEST
   CONNECTION_ACCEPTED
@@ -272,6 +302,18 @@ enum NotificationType {
   MESSAGE_REPLY
   PROFILE_VIEW
   SYSTEM
+}
+
+enum ActivityAction {
+  USER_SUSPENDED
+  USER_ACTIVATED
+  USER_DELETED
+  PASSWORD_RESET
+  CONNECTION_DELETED
+  MESSAGE_DELETED
+  USER_VIEWED
+  NOTIFICATION_SENT
+  SYSTEM_SETTINGS_UPDATED
 }
 
 enum ConnectionStatus {

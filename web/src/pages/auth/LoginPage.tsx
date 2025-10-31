@@ -51,6 +51,12 @@ export const LoginPage: React.FC = () => {
       setUser(response.user);
       showToast.success(t('toast.success.loginSuccess'));
 
+      // Redirect ADMIN to admin dashboard
+      if (response.user.role === 'ADMIN') {
+        navigate('/admin/dashboard');
+        return;
+      }
+
       // Navigate based on onboarding status
       if (response.user.hasCompletedOnboarding) {
         navigate('/discover');
