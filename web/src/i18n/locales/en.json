@@ -7,11 +7,15 @@
     "loading": "Loading...",
     "never": "Never",
     "save": "Save",
+    "saving": "Saving...",
+    "updating": "Updating...",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
     "submit": "Submit",
     "close": "Close",
+    "menu": "Menu",
+    "admin": "Admin",
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
@@ -285,11 +289,15 @@
       "resendLink": "Resend OTP"
     },
     "validation": {
+      "required": "This field is required",
       "emailRequired": "Email is required",
       "emailInvalid": "Invalid email format",
+      "invalidEmail": "Invalid email format",
       "passwordRequired": "Password is required",
       "passwordMin": "Password must be at least 8 characters",
+      "passwordMinLength": "Password must be at least 8 characters",
       "passwordMismatch": "Passwords do not match",
+      "passwordsDoNotMatch": "Passwords do not match",
       "nameRequired": "Name is required",
       "phoneRequired": "Phone number is required",
       "otpRequired": "OTP is required",
@@ -864,6 +872,253 @@
       "accountNotFoundDisconnect": "Account not found",
       "disconnectServerError": "Server error during disconnect. Please try again",
       "disconnectNetworkError": "Network error. Please check your connection"
+    }
+  },
+  "admin": {
+    "title": "Admin Panel",
+    "dashboard": {
+      "title": "Dashboard",
+      "overview": "Platform Overview",
+      "stats": {
+        "totalUsers": "Total Users",
+        "influencers": "Influencers",
+        "salons": "Salons",
+        "connections": "Connections",
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "messages": "Messages",
+        "socialMedia": "Social Media Accounts",
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "verified": "Verified",
+        "unverified": "Unverified",
+        "recentSignups": "Recent Signups",
+        "last30Days": "Last 30 Days"
+      },
+      "charts": {
+        "userGrowth": "User Growth",
+        "connectionStatus": "Connection Status",
+        "users": "Users",
+        "status": "Status",
+        "count": "Count"
+      }
+    },
+    "users": {
+      "title": "User Management",
+      "subtitle": "Manage all users and their accounts",
+      "allUsers": "All Users",
+      "createUser": "Create User",
+      "editUser": "Edit User",
+      "createUserDescription": "Add a new user to the platform",
+      "editUserDescription": "Update user information",
+      "search": "Search by name or email",
+      "searchPlaceholder": "Search by name or email...",
+      "noUsers": "No users found",
+      "noUsersDescription": "Try adjusting your search or filters",
+      "selectRole": "Select User Type",
+      "name": "Full Name",
+      "namePlaceholder": "Enter full name",
+      "email": "Email Address",
+      "emailPlaceholder": "Enter email address",
+      "password": "Password",
+      "passwordPlaceholder": "Enter password (min 8 characters)",
+      "phoneNumber": "Phone Number",
+      "phonePlaceholder": "+1 (555) 000-0000",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell us about yourself...",
+      "region": "Region/Location",
+      "regionPlaceholder": "e.g., Tokyo, Osaka",
+      "businessName": "Business Name",
+      "businessNamePlaceholder": "Enter salon/business name",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe your business...",
+      "note": "Note",
+      "createUserNote": "User will be created with email verified and terms accepted automatically.",
+      "saveChanges": "Save Changes",
+      "filters": {
+        "all": "All Users",
+        "role": "Role",
+        "allRoles": "All Roles",
+        "verified": "Verification Status",
+        "allVerified": "All",
+        "allStatus": "All Status",
+        "verifiedOnly": "Verified Only",
+        "unverifiedOnly": "Unverified Only",
+        "activeOnly": "Active Only",
+        "suspendedOnly": "Suspended Only"
+      },
+      "table": {
+        "user": "User",
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "joined": "Joined",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "suspended": "Suspended"
+      },
+      "actions": {
+        "view": "View Details",
+        "suspend": "Suspend",
+        "activate": "Activate",
+        "delete": "Delete"
+      },
+      "confirmDelete": "Are you sure you want to delete this user? This action cannot be undone.",
+      "confirmSuspend": "Are you sure you want to suspend this user?",
+      "confirmActivate": "Are you sure you want to activate this user?",
+      "confirmDeleteTitle": "Delete User",
+      "confirmSuspendTitle": "Suspend User",
+      "confirmActivateTitle": "Activate User",
+      "details": {
+        "title": "User Details",
+        "basicInfo": "Basic Information",
+        "phone": "Phone",
+        "region": "Region",
+        "categories": "Categories",
+        "bio": "Bio",
+        "businessName": "Business Name",
+        "description": "Description",
+        "teamSize": "Team Size",
+        "website": "Website",
+        "socialMedia": "Social Media Accounts",
+        "followers": "Followers",
+        "engagement": "Engagement",
+        "connections": "Connections",
+        "sent": "Sent",
+        "received": "Received",
+        "accepted": "Accepted",
+        "recentActivity": "Recent Activity"
+      },
+      "success": {
+        "created": "User created successfully",
+        "updated": "User updated successfully",
+        "suspended": "User suspended successfully",
+        "activated": "User activated successfully",
+        "deleted": "User deleted successfully"
+      },
+      "error": {
+        "loadFailed": "Failed to load users",
+        "actionFailed": "Action failed. Please try again.",
+        "suspendFailed": "Failed to suspend user",
+        "activateFailed": "Failed to activate user",
+        "deleteFailed": "Failed to delete user"
+      }
+    },
+    "connections": {
+      "title": "Connection Management",
+      "allConnections": "All Connections",
+      "search": "Search connections",
+      "filters": {
+        "all": "All Status",
+        "status": "Status"
+      },
+      "table": {
+        "sender": "Sender",
+        "receiver": "Receiver",
+        "status": "Status",
+        "message": "Message",
+        "date": "Date",
+        "actions": "Actions"
+      },
+      "actions": {
+        "delete": "Delete"
+      },
+      "confirmDelete": "Are you sure you want to delete this connection?",
+      "success": {
+        "deleted": "Connection deleted successfully"
+      },
+      "error": {
+        "loadFailed": "Failed to load connections",
+        "deleteFailed": "Failed to delete connection"
+      }
+    },
+    "activityLogs": {
+      "title": "Activity Logs",
+      "allLogs": "All Activity Logs",
+      "search": "Search logs",
+      "filters": {
+        "all": "All Actions",
+        "action": "Action Type"
+      },
+      "table": {
+        "action": "Action",
+        "admin": "Admin",
+        "target": "Target User",
+        "description": "Description",
+        "date": "Date",
+        "ip": "IP Address"
+      },
+      "actions": {
+        "userSuspended": "User Suspended",
+        "userActivated": "User Activated",
+        "userDeleted": "User Deleted",
+        "passwordReset": "Password Reset",
+        "connectionDeleted": "Connection Deleted",
+        "messageDeleted": "Message Deleted",
+        "userViewed": "User Viewed",
+        "notificationSent": "Notification Sent",
+        "systemSettingsUpdated": "System Settings Updated"
+      },
+      "error": {
+        "loadFailed": "Failed to load activity logs"
+      }
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "connections": "Connections",
+      "activityLogs": "Activity Logs",
+      "profile": "Profile",
+      "backToApp": "Back to App"
+    },
+    "common": {
+      "loading": "Loading...",
+      "noData": "No data available",
+      "error": "Error",
+      "success": "Success",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "showing": "Showing",
+      "to": "to",
+      "of": "of",
+      "results": "results",
+      "page": "Page",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "profile": {
+      "title": "My Profile",
+      "subtitle": "Manage your admin account settings",
+      "profileTab": "Profile Information",
+      "passwordTab": "Change Password",
+      "name": "Full Name",
+      "namePlaceholder": "Enter your full name",
+      "email": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "role": "Role",
+      "currentPassword": "Current Password",
+      "currentPasswordPlaceholder": "Enter your current password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter your new password",
+      "confirmPassword": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Re-enter your new password",
+      "saveChanges": "Save Changes",
+      "updatePassword": "Update Password",
+      "updateSuccess": "Profile updated successfully",
+      "updateError": "Failed to update profile",
+      "passwordUpdateSuccess": "Password updated successfully",
+      "passwordUpdateError": "Failed to update password",
+      "securityNote": "Security Note",
+      "passwordRequirements": "Password must be at least 8 characters long and contain a mix of letters and numbers for better security."
+    },
+    "pagination": {
+      "goTo": "Go to page",
+      "go": "Go",
+      "first": "First page",
+      "last": "Last page"
     }
   }
 }

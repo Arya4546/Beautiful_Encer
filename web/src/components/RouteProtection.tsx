@@ -46,6 +46,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
+  // ADMIN users - skip onboarding checks, allow all admin routes
+  if (user.role === 'ADMIN') {
+    return <>{children}</>;
+  }
+
   // Authenticated but onboarding not completed
   if (requireOnboarding && !user.hasCompletedOnboarding) {
     // Allow access to onboarding routes
@@ -97,8 +102,13 @@ export const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
     return <PageLoader message="Loading..." />;
   }
 
-  // Already authenticated - redirect to discover
+  // Already authenticated - redirect based on role
   if (isAuthenticated && user) {
+    // ADMIN users go to admin dashboard
+    if (user.role === 'ADMIN') {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+
     // If onboarding not completed, redirect to onboarding
     if (!user.hasCompletedOnboarding) {
       const onboardingPath = user.role === 'INFLUENCER' 
@@ -139,6 +149,11 @@ export const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({ child
     return <Navigate to="/signup" replace />;
   }
 
+  // ADMIN users don't need onboarding - redirect to admin dashboard
+  if (user.role === 'ADMIN') {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
   // Already completed onboarding - redirect to discover
   if (user.hasCompletedOnboarding) {
     return <Navigate to="/discover" replace />;
@@ -151,6 +166,43 @@ export const OnboardingRoute: React.FC<{ children: React.ReactNode }> = ({ child
 
   if (location.pathname !== correctOnboardingPath) {
     return <Navigate to={correctOnboardingPath} replace />;
+  }
+
+  return <>{children}</>;
+};
+
+/**
+ * AdminRoute
+ * Only allows authenticated users with ADMIN role
+ * Redirects non-admin users to their appropriate page
+ */
+export const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isAuthenticated, initializeAuth } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    initializeAuth();
+    setIsLoading(false);
+  }, [initializeAuth]);
+
+  if (isLoading) {
+    return <PageLoader message="Checking authorization..." />;
+  }
+
+  // Not authenticated - redirect to login
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Not an admin - redirect to appropriate page
+  if (user.role !== 'ADMIN') {
+    if (!user.hasCompletedOnboarding) {
+      const onboardingPath = user.role === 'INFLUENCER' 
+        ? '/influencer/onboarding' 
+        : '/salon/onboarding';
+      return <Navigate to={onboardingPath} replace />;
+    }
+    return <Navigate to="/discover" replace />;
   }
 
   return <>{children}</>;

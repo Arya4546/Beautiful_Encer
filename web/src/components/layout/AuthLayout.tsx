@@ -34,15 +34,25 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
         className="w-full max-w-md relative z-10"
       >
         {/* Logo/Brand */}
-        <Link to="/" className="block mb-8">
+        <Link to="/" className="block mb-4">
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="text-center"
+            className="flex flex-col items-center gap-1.5"
           >
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Beautiful Encer
-            </h1>
-            <p className="text-gray-600 mt-2">Influencer Marketing Platform</p>
+            {/* BE Logo Image - Standalone with 3D effect */}
+            <div className="relative">
+              <img 
+                src="/BE.png" 
+                alt="Beautiful Encer" 
+                className="h-32 w-auto sm:h-36 object-contain relative z-10"
+                style={{
+                  filter: 'drop-shadow(0 10px 25px rgba(236, 72, 153, 0.3)) drop-shadow(0 4px 10px rgba(168, 85, 247, 0.2))',
+                }}
+              />
+              {/* 3D Shadow layers */}
+              <div className="absolute inset-0 blur-2xl opacity-40 bg-gradient-to-br from-pink-400 to-purple-500 transform translate-y-2 -z-10"></div>
+            </div>
+            <p className="text-gray-600 text-xs font-medium">Influencer Marketing Platform</p>
           </motion.div>
         </Link>
 
@@ -51,12 +61,12 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-white rounded-3xl shadow-2xl p-8"
+          className="bg-white rounded-3xl shadow-2xl p-6"
         >
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">{title}</h2>
+          <div className="mb-5">
+            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
             {subtitle && (
-              <p className="text-gray-600 mt-2">{subtitle}</p>
+              <p className="text-gray-600 mt-1 text-sm">{subtitle}</p>
             )}
           </div>
 
@@ -64,7 +74,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
         </motion.div>
 
         {/* Footer */}
-        <p className="text-center text-gray-600 mt-6 text-sm">
+        <p className="text-center text-gray-600 mt-3 text-xs">
           © 2025 Beautiful Encer. All rights reserved.
         </p>
       </motion.div>

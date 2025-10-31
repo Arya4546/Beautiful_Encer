@@ -7,11 +7,15 @@
     "loading": "読み込み中...",
     "never": "未設定",
     "save": "保存する",
+    "saving": "保存中...",
+    "updating": "更新中...",
     "cancel": "キャンセル",
     "delete": "削除する",
     "edit": "編集",
     "submit": "送信する",
     "close": "閉じる",
+    "menu": "メニュー",
+    "admin": "管理者",
     "back": "戻る",
     "next": "次へ",
     "previous": "前へ",
@@ -284,11 +288,15 @@
       "resendLink": "もう一度送信する"
     },
     "validation": {
+      "required": "この項目は必須です",
       "emailRequired": "メールアドレスを入力してください",
       "emailInvalid": "メールアドレスの形式が正しくありません",
+      "invalidEmail": "メールアドレスの形式が正しくありません",
       "passwordRequired": "パスワードを入力してください",
       "passwordMin": "パスワードは8文字以上で設定してください",
+      "passwordMinLength": "パスワードは8文字以上で設定してください",
       "passwordMismatch": "パスワードが一致しません",
+      "passwordsDoNotMatch": "パスワードが一致しません",
       "nameRequired": "お名前を入力してください",
       "phoneRequired": "電話番号を入力してください",
       "otpRequired": "確認コードを入力してください",
@@ -863,6 +871,216 @@
       "accountNotFoundDisconnect": "アカウントが見つかりません",
       "disconnectServerError": "連携解除中にサーバーエラーが発生しました。もう一度お試しください",
       "disconnectNetworkError": "ネットワークエラーです。接続を確認してください"
+    }
+  },
+  "admin": {
+    "title": "管理者パネル",
+    "dashboard": {
+      "title": "ダッシュボード",
+      "overview": "プラットフォーム概要",
+      "stats": {
+        "totalUsers": "総ユーザー数",
+        "influencers": "インフルエンサー",
+        "salons": "サロン",
+        "connections": "コネクション",
+        "pending": "保留中",
+        "accepted": "承認済み",
+        "messages": "メッセージ",
+        "socialMedia": "ソーシャルメディアアカウント",
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "verified": "認証済み",
+        "unverified": "未認証",
+        "recentSignups": "最近のサインアップ",
+        "last30Days": "過去30日間"
+      },
+      "charts": {
+        "userGrowth": "ユーザー増加",
+        "connectionStatus": "コネクションステータス",
+        "users": "ユーザー",
+        "status": "ステータス",
+        "count": "数"
+      }
+    },
+    "users": {
+      "title": "ユーザー管理",
+      "allUsers": "全ユーザー",
+      "search": "名前またはメールで検索",
+      "filters": {
+        "all": "全ユーザー",
+        "role": "役割",
+        "verified": "認証ステータス",
+        "allVerified": "全て",
+        "verifiedOnly": "認証済みのみ",
+        "unverifiedOnly": "未認証のみ"
+      },
+      "table": {
+        "name": "名前",
+        "email": "メール",
+        "role": "役割",
+        "status": "ステータス",
+        "joined": "登録日",
+        "actions": "操作"
+      },
+      "status": {
+        "active": "アクティブ",
+        "suspended": "停止中"
+      },
+      "actions": {
+        "view": "詳細を見る",
+        "suspend": "停止",
+        "activate": "有効化",
+        "delete": "削除"
+      },
+      "confirmDelete": "このユーザーを削除してもよろしいですか？この操作は元に戻せません。",
+      "confirmSuspend": "このユーザーを停止してもよろしいですか？",
+      "confirmActivate": "このユーザーを有効化してもよろしいですか？",
+      "details": {
+        "title": "ユーザー詳細",
+        "basicInfo": "基本情報",
+        "phone": "電話番号",
+        "region": "地域",
+        "categories": "カテゴリー",
+        "bio": "自己紹介",
+        "businessName": "ビジネス名",
+        "description": "説明",
+        "teamSize": "チーム規模",
+        "website": "ウェブサイト",
+        "socialMedia": "ソーシャルメディアアカウント",
+        "followers": "フォロワー",
+        "engagement": "エンゲージメント",
+        "connections": "コネクション",
+        "sent": "送信",
+        "received": "受信",
+        "accepted": "承認済み",
+        "recentActivity": "最近のアクティビティ"
+      },
+      "success": {
+        "created": "ユーザーを作成しました",
+        "updated": "ユーザーを更新しました",
+        "suspended": "ユーザーを停止しました",
+        "activated": "ユーザーを有効化しました",
+        "deleted": "ユーザーを削除しました"
+      },
+      "error": {
+        "loadFailed": "ユーザーの読み込みに失敗しました",
+        "suspendFailed": "ユーザーの停止に失敗しました",
+        "activateFailed": "ユーザーの有効化に失敗しました",
+        "deleteFailed": "ユーザーの削除に失敗しました"
+      }
+    },
+    "connections": {
+      "title": "コネクション管理",
+      "allConnections": "全コネクション",
+      "search": "コネクションを検索",
+      "filters": {
+        "all": "全ステータス",
+        "status": "ステータス"
+      },
+      "table": {
+        "sender": "送信者",
+        "receiver": "受信者",
+        "status": "ステータス",
+        "message": "メッセージ",
+        "date": "日付",
+        "actions": "操作"
+      },
+      "actions": {
+        "delete": "削除"
+      },
+      "confirmDelete": "このコネクションを削除してもよろしいですか？",
+      "success": {
+        "deleted": "コネクションを削除しました"
+      },
+      "error": {
+        "loadFailed": "コネクションの読み込みに失敗しました",
+        "deleteFailed": "コネクションの削除に失敗しました"
+      }
+    },
+    "activityLogs": {
+      "title": "アクティビティログ",
+      "allLogs": "全アクティビティログ",
+      "search": "ログを検索",
+      "filters": {
+        "all": "全アクション",
+        "action": "アクションタイプ"
+      },
+      "table": {
+        "action": "アクション",
+        "admin": "管理者",
+        "target": "対象ユーザー",
+        "description": "説明",
+        "date": "日付",
+        "ip": "IPアドレス"
+      },
+      "actions": {
+        "userSuspended": "ユーザー停止",
+        "userActivated": "ユーザー有効化",
+        "userDeleted": "ユーザー削除",
+        "passwordReset": "パスワードリセット",
+        "connectionDeleted": "コネクション削除",
+        "messageDeleted": "メッセージ削除",
+        "userViewed": "ユーザー閲覧",
+        "notificationSent": "通知送信",
+        "systemSettingsUpdated": "システム設定更新"
+      },
+      "error": {
+        "loadFailed": "アクティビティログの読み込みに失敗しました"
+      }
+    },
+    "nav": {
+      "dashboard": "ダッシュボード",
+      "users": "ユーザー",
+      "connections": "コネクション",
+      "activityLogs": "アクティビティログ",
+      "profile": "プロフィール",
+      "backToApp": "アプリに戻る"
+    },
+    "common": {
+      "loading": "読み込み中...",
+      "noData": "データがありません",
+      "error": "エラー",
+      "success": "成功",
+      "cancel": "キャンセル",
+      "confirm": "確認",
+      "showing": "表示中",
+      "to": "〜",
+      "of": "件中",
+      "results": "件",
+      "page": "ページ",
+      "previous": "前へ",
+      "next": "次へ"
+    },
+    "profile": {
+      "title": "マイプロフィール",
+      "subtitle": "管理者アカウント設定を管理",
+      "profileTab": "プロフィール情報",
+      "passwordTab": "パスワード変更",
+      "name": "氏名",
+      "namePlaceholder": "氏名を入力",
+      "email": "メールアドレス",
+      "emailPlaceholder": "メールアドレスを入力",
+      "role": "役割",
+      "currentPassword": "現在のパスワード",
+      "currentPasswordPlaceholder": "現在のパスワードを入力",
+      "newPassword": "新しいパスワード",
+      "newPasswordPlaceholder": "新しいパスワードを入力",
+      "confirmPassword": "新しいパスワード（確認）",
+      "confirmPasswordPlaceholder": "新しいパスワードを再入力",
+      "saveChanges": "変更を保存",
+      "updatePassword": "パスワードを更新",
+      "updateSuccess": "プロフィールを更新しました",
+      "updateError": "プロフィールの更新に失敗しました",
+      "passwordUpdateSuccess": "パスワードを更新しました",
+      "passwordUpdateError": "パスワードの更新に失敗しました",
+      "securityNote": "セキュリティに関する注意",
+      "passwordRequirements": "パスワードは8文字以上で、より強固なセキュリティのため文字と数字を組み合わせてください。"
+    },
+    "pagination": {
+      "goTo": "ページへ移動",
+      "go": "移動",
+      "first": "最初のページ",
+      "last": "最後のページ"
     }
   }
 }

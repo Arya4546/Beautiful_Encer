@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FiLogOut, FiUser, FiSettings, FiChevronDown } from 'react-icons/fi';
-import { FaRocket } from 'react-icons/fa';
 import { useAuthStore } from '../../store/authStore';
 import { showToast } from '../../utils/toast';
 import { ButtonLoader } from '../ui/Loader';
@@ -70,21 +69,39 @@ export const Header: React.FC = () => {
     <header className="bg-white/80 backdrop-blur-2xl border-b border-pink-200/50 fixed top-0 left-0 right-0 z-50 shadow-xl shadow-pink-500/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo with Rocket Icon */}
-          <Link to="/discover" className="flex items-center gap-2 flex-shrink-0 group">
+          {/* Logo with 3D effect */}
+          <Link to="/discover" className="flex items-center flex-shrink-0 group relative">
             <motion.div
-              className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-600 to-fuchsia-600 flex items-center justify-center shadow-lg"
-              whileHover={{ rotate: 360, scale: 1.1 }}
+              whileHover={{ 
+                scale: 1.08,
+                rotateY: [0, 10, -10, 0],
+                rotateX: [0, 5, -5, 0]
+              }}
               transition={{ duration: 0.6 }}
+              className="relative"
+              style={{ transformStyle: 'preserve-3d' }}
             >
-              <FaRocket className="text-white text-lg" />
+              <img 
+                src="/BE.png" 
+                alt="Beautiful Encer" 
+                className="h-20 w-auto sm:h-24 md:h-28 lg:h-32 object-contain relative z-10 transition-all duration-300"
+                style={{
+                  filter: 'drop-shadow(0 6px 16px rgba(236, 72, 153, 0.3)) drop-shadow(0 3px 8px rgba(168, 85, 247, 0.2))',
+                }}
+              />
+              {/* 3D Glow effect */}
+              <motion.div
+                className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-400 via-fuchsia-400 to-purple-500 opacity-0 group-hover:opacity-40 blur-xl transition-opacity duration-300"
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                }}
+                transition={{ 
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
             </motion.div>
-            <div className="hidden sm:flex flex-col leading-none">
-              <span className="text-xl font-black bg-gradient-to-r from-pink-600 via-rose-600 to-fuchsia-600 bg-clip-text text-transparent">
-                Beautiful
-              </span>
-              <span className="text-xs font-bold text-gray-500 tracking-wider">ENCER</span>
-            </div>
           </Link>
 
           {/* Language Switcher & Profile */}

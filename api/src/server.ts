@@ -11,12 +11,14 @@ import profileRoutes from './routes/profile.routes.js';
 import chatRoutes from './routes/chat.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import proxyRoutes from './routes/proxy.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 import chatController from './controllers/chat.controller.js';
 import notificationController from './controllers/notification.controller.js';
 import { generalLimiter } from './middlewares/rateLimiter.middleware.js';
 import tokenRefreshJob from './jobs/tokenRefresh.job.js';
 import dataSyncSchedulerJob from './jobs/dataSyncScheduler.job.js';
 import instagramReminderJob from './jobs/instagramReminder.job.js';
+import { seedSuperAdmin } from './utils/seedSuperAdmin.util.js';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 
@@ -127,7 +129,7 @@ app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/chat', chatRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/proxy', proxyRoutes); // Image proxy for CORS issues
-app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/admin', adminRoutes); // Admin panel routes
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
@@ -143,6 +145,11 @@ try {
 } catch (error) {
   console.error('[cron]: Failed to initialize automated jobs:', error);
 }
+
+// Seed super admin account on server start
+seedSuperAdmin().catch((error) => {
+  console.error('[Super Admin Seed] Failed:', error);
+});
 
 httpServer.listen(PORT, () => {
   console.log(`[server]: Running at http://localhost:${PORT}`);
