@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import logger from './logger.util.js';
 
 /**
  * Encryption utility for securely storing sensitive data like access tokens
@@ -55,7 +56,7 @@ export function encrypt(text: string): string {
     // Combine salt, iv, encrypted data, and tag
     return `${salt.toString('base64')}:${iv.toString('base64')}:${encrypted}:${tag.toString('base64')}`;
   } catch (error) {
-    console.error('[Encryption] Error encrypting data:', error);
+    logger.error('[Encryption] Error encrypting data:', error);
     throw new Error('Failed to encrypt data');
   }
 }
@@ -87,7 +88,7 @@ export function decrypt(encryptedData: string): string {
     
     return decrypted;
   } catch (error) {
-    console.error('[Encryption] Error decrypting data:', error);
+    logger.error('[Encryption] Error decrypting data:', error);
     throw new Error('Failed to decrypt data');
   }
 }

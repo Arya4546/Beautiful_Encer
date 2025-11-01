@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import { prisma } from '../lib/prisma.js';
 import { Role } from '@prisma/client';
+import logger from './logger.util.js';
 
 /**
  * Super Admin Seed Utility
@@ -20,7 +21,7 @@ export async function seedSuperAdmin(): Promise<void> {
     });
 
     if (existingAdmin) {
-      console.log('[Super Admin Seed] Admin user already exists. Skipping seed.');
+      logger.log('[Super Admin Seed] Admin user already exists. Skipping seed.');
       return;
     }
 
@@ -38,13 +39,13 @@ export async function seedSuperAdmin(): Promise<void> {
       },
     });
 
-    console.log('[Super Admin Seed] ✓ Default admin account created successfully');
-    console.log('[Super Admin Seed] Email:', DEFAULT_ADMIN_EMAIL);
-    console.log('[Super Admin Seed] Password: Admin@123456');
-    console.log('[Super Admin Seed] User ID:', superAdmin.id);
-    console.log('[Super Admin Seed] IMPORTANT: Please change the password after first login!');
+    logger.log('[Super Admin Seed] ✓ Default admin account created successfully');
+    logger.log('[Super Admin Seed] Email:', DEFAULT_ADMIN_EMAIL);
+    logger.log('[Super Admin Seed] Password: Admin@123456');
+    logger.log('[Super Admin Seed] User ID:', superAdmin.id);
+    logger.log('[Super Admin Seed] IMPORTANT: Please change the password after first login!');
   } catch (error) {
-    console.error('[Super Admin Seed] Error creating super admin:', error);
+    logger.error('[Super Admin Seed] Error creating super admin:', error);
     // Don't throw - allow server to continue starting
   }
 }

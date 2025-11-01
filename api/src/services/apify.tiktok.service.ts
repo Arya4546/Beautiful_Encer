@@ -1,6 +1,7 @@
 import { ApifyClient } from 'apify-client';
 import { prisma } from '../lib/prisma.js';
 import { SocialMediaPlatform, MediaType } from '@prisma/client';
+import logger from '../utils/logger.util.js';
 
 /**
  * Apify TikTok Scraper Service (Public profiles)
@@ -90,7 +91,7 @@ class ApifyTikTokService {
       token: apiToken,
     });
 
-    console.log('[ApifyTikTokService] Initialized with actor:', this.actorId);
+    logger.log('[ApifyTikTokService] Initialized with actor:', this.actorId);
   }
 
   /**
@@ -154,7 +155,7 @@ class ApifyTikTokService {
     // Try multiple possible username fields
     const username = rawData.name || rawData.uniqueId || rawData.username || rawData.handle || rawData.id;
     if (!username) {
-      console.log(`[ApifyTikTokService] No username found in data:`, Object.keys(rawData));
+      logger.log(`[ApifyTikTokService] No username found in data:`, Object.keys(rawData));
       return null;
     }
 
@@ -172,7 +173,7 @@ class ApifyTikTokService {
       profileUrl: rawData.profileUrl || `https://www.tiktok.com/@${username}`,
     };
 
-    console.log(`[ApifyTikTokService] Normalized profile:`, {
+    logger.log(`[ApifyTikTokService] Normalized profile:`, {
       username: profile.username,
       displayName: profile.displayName,
       followers: profile.followersCount,
@@ -191,7 +192,7 @@ class ApifyTikTokService {
 
     const videoId = rawVideo.id || rawVideo.video_id || rawVideo.videoId || rawVideo.aweme_id;
     if (!videoId) {
-      console.log(`[ApifyTikTokService] No video ID found in:`, Object.keys(rawVideo));
+      logger.log(`[ApifyTikTokService] No video ID found in:`, Object.keys(rawVideo));
       return null;
     }
 
@@ -223,7 +224,7 @@ class ApifyTikTokService {
         throw new Error('TikTok username is required');
       }
 
-      console.log(`[ApifyTikTokService] Starting scrape for @${cleanUsername}`);
+      logger.log(`[ApifyTikTokService] Starting scrape for @${cleanUsername}`);
 
       // Run the Apify actor
       const run = await this.client.actor(this.actorId).call({
@@ -234,7 +235,7 @@ class ApifyTikTokService {
         shouldDownloadSubtitles: false,
       });
 
-      console.log(`[ApifyTikTokService] Actor run completed:`, run.id);
+      logger.log(`[ApifyTikTokService] Actor run completed:`, run.id);
 
       // Fetch results from dataset
       const { items } = await this.client.dataset(run.defaultDatasetId).listItems();
@@ -246,15 +247,15 @@ class ApifyTikTokService {
       // The first item usually contains profile data
       const profileData = items[0] as any;
 
-      console.log(`[ApifyTikTokService] Raw Apify data for @${cleanUsername}:`, JSON.stringify(profileData, null, 2));
+      logger.log(`[ApifyTikTokService] Raw Apify data for @${cleanUsername}:`, JSON.stringify(profileData, null, 2));
 
       // Check if this is a video object with authorMeta (clockworks/tiktok-scraper format)
       let authorData = profileData;
       if (profileData.authorMeta) {
-        console.log(`[ApifyTikTokService] Found authorMeta, extracting profile from there`);
+        logger.log(`[ApifyTikTokService] Found authorMeta, extracting profile from there`);
         authorData = profileData.authorMeta;
       } else if (profileData.author) {
-        console.log(`[ApifyTikTokService] Found author, extracting profile from there`);
+        logger.log(`[ApifyTikTokService] Found author, extracting profile from there`);
         authorData = profileData.author;
       }
 
@@ -267,7 +268,7 @@ class ApifyTikTokService {
       const profile = this.normalizeProfileData(authorData);
       
       if (!profile) {
-        console.error(`[ApifyTikTokService] Failed to extract profile. Available keys:`, Object.keys(authorData));
+        logger.error(`[ApifyTikTokService] Failed to extract profile. Available keys:`, Object.keys(authorData));
         throw new Error(`Failed to parse profile data for @${cleanUsername}. The data structure may have changed.`);
       }
 
@@ -280,7 +281,7 @@ class ApifyTikTokService {
       const recentVideos: TikTokPublicVideo[] = [];
       
       // For clockworks/tiktok-scraper, all items are videos
-      console.log(`[ApifyTikTokService] Processing ${items.length} items from dataset`);
+      logger.log(`[ApifyTikTokService] Processing ${items.length} items from dataset`);
       
       for (const item of items) {
         const normalizedVideo = this.normalizeVideoData(item);
@@ -289,7 +290,7 @@ class ApifyTikTokService {
         }
       }
 
-      console.log(`[ApifyTikTokService] Extracted ${recentVideos.length} videos`);
+      logger.log(`[ApifyTikTokService] Extracted ${recentVideos.length} videos`);
 
       // Calculate metrics
       const followersCount = profile.followersCount;
@@ -329,7 +330,7 @@ class ApifyTikTokService {
         lastScraped: new Date(),
       };
 
-      console.log(`[ApifyTikTokService] Successfully scraped @${cleanUsername}:`, {
+      logger.log(`[ApifyTikTokService] Successfully scraped @${cleanUsername}:`, {
         followers: scrapedData.followersCount,
         following: scrapedData.followingCount,
         videos: scrapedData.videoCount,
@@ -340,7 +341,7 @@ class ApifyTikTokService {
       return scrapedData;
 
     } catch (error: any) {
-      console.error(`[ApifyTikTokService] Error scraping @${username}:`, error.message);
+      logger.error(`[ApifyTikTokService] Error scraping @${username}:`, error.message);
       throw new Error(`Failed to scrape TikTok profile: ${error.message}`);
     }
   }
@@ -359,7 +360,7 @@ class ApifyTikTokService {
         throw new Error('TikTok username is required');
       }
 
-      console.log(`[ApifyTikTokService] Connecting TikTok @${cleanUsername} for user ${userId}`);
+      logger.log(`[ApifyTikTokService] Connecting TikTok @${cleanUsername} for user ${userId}`);
 
       // Scrape TikTok profile
       const profileData = await this.scrapeTikTokProfile(cleanUsername);
@@ -486,7 +487,7 @@ class ApifyTikTokService {
         });
       }
 
-      console.log(`[ApifyTikTokService] TikTok @${cleanUsername} connected successfully`);
+      logger.log(`[ApifyTikTokService] TikTok @${cleanUsername} connected successfully`);
 
       return {
         success: true,
@@ -503,7 +504,7 @@ class ApifyTikTokService {
       };
 
     } catch (error: any) {
-      console.error('[ApifyTikTokService] Error connecting TikTok:', error.message);
+      logger.error('[ApifyTikTokService] Error connecting TikTok:', error.message);
       throw error;
     }
   }
@@ -524,7 +525,7 @@ class ApifyTikTokService {
 
       // Check cache
       if (this.isCacheValid(account.lastSyncedAt)) {
-        console.log(`[ApifyTikTokService] Using cached data for @${account.platformUsername}`);
+        logger.log(`[ApifyTikTokService] Using cached data for @${account.platformUsername}`);
         return {
           success: true,
           message: 'Using cached data (less than 7 days old)',
@@ -533,7 +534,7 @@ class ApifyTikTokService {
         };
       }
 
-      console.log(`[ApifyTikTokService] Syncing data for @${account.platformUsername}`);
+      logger.log(`[ApifyTikTokService] Syncing data for @${account.platformUsername}`);
 
       // Scrape fresh data
       const profileData = await this.scrapeTikTokProfile(account.platformUsername);
@@ -599,7 +600,7 @@ class ApifyTikTokService {
         });
       }
 
-      console.log(`[ApifyTikTokService] Sync completed for @${account.platformUsername}`);
+      logger.log(`[ApifyTikTokService] Sync completed for @${account.platformUsername}`);
 
       return {
         success: true,
@@ -609,7 +610,7 @@ class ApifyTikTokService {
       };
 
     } catch (error: any) {
-      console.error('[ApifyTikTokService] Error syncing TikTok data:', error.message);
+      logger.error('[ApifyTikTokService] Error syncing TikTok data:', error.message);
       throw error;
     }
   }
@@ -642,7 +643,7 @@ class ApifyTikTokService {
       return await this.syncTikTokData(accountId);
 
     } catch (error: any) {
-      console.error('[ApifyTikTokService] Error getting TikTok data:', error.message);
+      logger.error('[ApifyTikTokService] Error getting TikTok data:', error.message);
       throw error;
     }
   }
@@ -668,10 +669,10 @@ class ApifyTikTokService {
         },
       });
 
-      console.log(`[ApifyTikTokService] Disconnected TikTok @${account.platformUsername}`);
+      logger.log(`[ApifyTikTokService] Disconnected TikTok @${account.platformUsername}`);
 
     } catch (error: any) {
-      console.error('[ApifyTikTokService] Error disconnecting TikTok:', error.message);
+      logger.error('[ApifyTikTokService] Error disconnecting TikTok:', error.message);
       throw error;
     }
   }

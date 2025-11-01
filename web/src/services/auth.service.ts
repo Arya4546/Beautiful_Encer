@@ -97,4 +97,40 @@ export const authService = {
   isAuthenticated: (): boolean => {
     return !!localStorage.getItem('accessToken');
   },
+
+  /**
+   * Forgot Password - Send OTP to email
+   */
+  forgotPassword: async (email: string): Promise<{ message: string; email: string }> => {
+    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
+    return response.data;
+  },
+
+  /**
+   * Verify Forgot Password OTP
+   */
+  verifyForgotPasswordOtp: async (email: string, otp: string): Promise<{ message: string; email: string }> => {
+    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.VERIFY_FORGOT_OTP, { email, otp });
+    return response.data;
+  },
+
+  /**
+   * Reset Password
+   */
+  resetPassword: async (email: string, otp: string, newPassword: string): Promise<{ message: string }> => {
+    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, { 
+      email, 
+      otp, 
+      newPassword 
+    });
+    return response.data;
+  },
+
+  /**
+   * Resend Forgot Password OTP
+   */
+  resendForgotPasswordOtp: async (email: string): Promise<{ message: string }> => {
+    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.RESEND_FORGOT_OTP, { email });
+    return response.data;
+  },
 };

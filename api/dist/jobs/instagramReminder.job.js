@@ -1,16 +1,17 @@
 import cron from 'node-cron';
 import { prisma } from '../lib/prisma.js';
 import notificationController from '../controllers/notification.controller.js';
+import logger from '../utils/logger.util.js';
 /**
  * Instagram Connection Reminder Job
  *
- * Sends daily reminders to influencers who haven't connected their Instagram account
- * Runs daily at 10:00 AM
+ * Sends weekly reminders to influencers who haven't connected their Instagram account
+ * Runs every Monday at 10:00 AM
  *
  * Features:
  * - Finds influencers without Instagram connections
  * - Creates in-app notifications
- * - Only notifies once per day
+ * - Only notifies once per week
  * - Skips users who have dismissed the notification
  */
 class InstagramConnectionReminderJob {
@@ -21,19 +22,20 @@ class InstagramConnectionReminderJob {
      * Initialize the cron job
      */
     init() {
-        // Run daily at 10:00 AM
-        cron.schedule('0 10 * * *', async () => {
-            console.log('[InstagramReminderJob] Starting scheduled Instagram connection reminder...');
+        // Run every Monday at 10:00 AM (0 10 * * 1)
+        // Changed from daily to weekly to reduce notification spam
+        cron.schedule('0 10 * * 1', async () => {
+            logger.log('[InstagramReminderJob] Starting scheduled Instagram connection reminder...');
             await this.sendReminders();
         });
-        console.log('[InstagramReminderJob] Initialized - will run daily at 10:00 AM');
+        logger.log('[InstagramReminderJob] Initialized - will run every Monday at 10:00 AM');
     }
     /**
      * Send reminders to influencers without Instagram connection
      */
     async sendReminders() {
         if (this.isRunning) {
-            console.log('[InstagramReminderJob] Already running, skipping...');
+            logger.log('[InstagramReminderJob] Already running, skipping...');
             return;
         }
         this.isRunning = true;
@@ -61,7 +63,7 @@ class InstagramConnectionReminderJob {
                     },
                 },
             });
-            console.log(`[InstagramReminderJob] Found ${influencersWithoutInstagram.length} influencers without Instagram`);
+            logger.log(`[InstagramReminderJob] Found ${influencersWithoutInstagram.length} influencers without Instagram`);
             let notificationsSent = 0;
             let skipped = 0;
             for (const influencer of influencersWithoutInstagram) {
@@ -92,14 +94,14 @@ class InstagramConnectionReminderJob {
                         metadata: { link: '/social-media' },
                     });
                     notificationsSent++;
-                    console.log(`[InstagramReminderJob] Sent reminder to ${influencer.user.name} (${influencer.user.email})`);
+                    logger.log(`[InstagramReminderJob] Sent reminder to ${influencer.user.name} (${influencer.user.email})`);
                 }
                 catch (error) {
-                    console.error(`[InstagramReminderJob] Error sending reminder to user ${influencer.user.id}:`, error.message);
+                    logger.error(`[InstagramReminderJob] Error sending reminder to user ${influencer.user.id}:`, error.message);
                 }
             }
             const duration = Date.now() - startTime;
-            console.log(`[InstagramReminderJob] Completed in ${duration}ms - Sent: ${notificationsSent}, Skipped: ${skipped}`);
+            logger.log(`[InstagramReminderJob] Completed in ${duration}ms - Sent: ${notificationsSent}, Skipped: ${skipped}`);
             return {
                 sent: notificationsSent,
                 skipped,
@@ -107,7 +109,7 @@ class InstagramConnectionReminderJob {
             };
         }
         catch (error) {
-            console.error('[InstagramReminderJob] Critical error:', error);
+            logger.error('[InstagramReminderJob] Critical error:', error);
             throw error;
         }
         finally {
@@ -118,7 +120,7 @@ class InstagramConnectionReminderJob {
      * Manual trigger for testing (can be called via API endpoint)
      */
     async triggerManualReminder() {
-        console.log('[InstagramReminderJob] Manual reminder triggered');
+        logger.log('[InstagramReminderJob] Manual reminder triggered');
         return await this.sendReminders();
     }
 }

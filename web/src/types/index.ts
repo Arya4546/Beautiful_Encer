@@ -49,6 +49,7 @@ export interface Salon {
   description?: string;
   profilePic?: string;
   preferredCategories: string[];
+  region?: string;
   website?: string;
   establishedYear?: number;
   teamSize?: number;
@@ -151,6 +152,7 @@ export interface SalonOnboardingRequest {
   businessName: string;
   description: string;
   preferredCategories: string[];
+  region: string;
   website?: string;
   establishedYear?: number;
   teamSize?: number;

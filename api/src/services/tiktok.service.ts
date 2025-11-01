@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { encrypt, decrypt } from '../utils/encryption.util.js';
+import logger from '../utils/logger.util.js';
 
 /**
  * TikTok API Service
@@ -85,7 +86,7 @@ class TikTokService {
     this.redirectUri = process.env.TIKTOK_REDIRECT_URI || '';
 
     if (!this.clientKey || !this.clientSecret || !this.redirectUri) {
-      console.warn('[TikTokService] Missing TikTok API credentials in environment variables');
+      logger.warn('[TikTokService] Missing TikTok API credentials in environment variables');
     }
   }
 
@@ -146,7 +147,7 @@ class TikTokService {
 
       return response.data.data;
     } catch (error: any) {
-      console.error('[TikTokService] Error exchanging code for token:', error.response?.data || error.message);
+      logger.error('[TikTokService] Error exchanging code for token:', error.response?.data || error.message);
       throw new Error('Failed to authenticate with TikTok');
     }
   }
@@ -179,7 +180,7 @@ class TikTokService {
 
       return response.data.data;
     } catch (error: any) {
-      console.error('[TikTokService] Error refreshing token:', error.response?.data || error.message);
+      logger.error('[TikTokService] Error refreshing token:', error.response?.data || error.message);
       throw new Error('Failed to refresh TikTok access token');
     }
   }
@@ -204,7 +205,7 @@ class TikTokService {
         }
       );
     } catch (error: any) {
-      console.error('[TikTokService] Error revoking token:', error.response?.data || error.message);
+      logger.error('[TikTokService] Error revoking token:', error.response?.data || error.message);
       throw new Error('Failed to revoke TikTok access token');
     }
   }
@@ -248,7 +249,7 @@ class TikTokService {
 
       return response.data.data.user;
     } catch (error: any) {
-      console.error('[TikTokService] Error fetching user profile:', error.response?.data || error.message);
+      logger.error('[TikTokService] Error fetching user profile:', error.response?.data || error.message);
       throw new Error('Failed to fetch TikTok profile');
     }
   }
@@ -271,7 +272,7 @@ class TikTokService {
 
       return insights;
     } catch (error: any) {
-      console.error('[TikTokService] Error fetching insights:', error.response?.data || error.message);
+      logger.error('[TikTokService] Error fetching insights:', error.response?.data || error.message);
       throw new Error('Failed to fetch TikTok insights');
     }
   }
@@ -324,7 +325,7 @@ class TikTokService {
 
       return response.data.data.videos || [];
     } catch (error: any) {
-      console.error('[TikTokService] Error fetching user videos:', error.response?.data || error.message);
+      logger.error('[TikTokService] Error fetching user videos:', error.response?.data || error.message);
       throw new Error('Failed to fetch TikTok videos');
     }
   }

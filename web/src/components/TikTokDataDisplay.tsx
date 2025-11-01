@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { FiGrid, FiBarChart2, FiTrendingUp, FiTag, FiHeart, FiMessageCircle, FiShare2, FiEye, FiPlay } from 'react-icons/fi';
+import { FaTiktok } from 'react-icons/fa';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { getProxiedImageUrl } from '../utils/imageProxy';
 import { useTranslation } from 'react-i18next';
 import { ImageWithFallback } from './ui/ImageWithFallback';
@@ -48,6 +50,58 @@ export const TikTokDataDisplay: React.FC<TikTokDataDisplayProps> = ({ account, m
     if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
     return num.toString();
   };
+
+  // Generate chart data for TikTok
+  const getChartData = () => {
+    // Video Engagement Trend Data (for line chart)
+    const videoEngagementData = recentVideos.slice(0, 10).map((video: TikTokVideo, index: number) => ({
+      name: `V${index + 1}`,
+      likes: video.likeCount || video.likesCount || 0,
+      comments: video.commentCount || video.commentsCount || 0,
+      shares: video.shareCount || video.sharesCount || 0,
+      views: video.viewCount || video.viewsCount || 0,
+    }));
+
+    // Engagement Metrics (for bar chart comparison)
+    const engagementMetrics = [
+      {
+        name: 'Avg Likes',
+        value: metadata?.averageLikes || 0,
+        color: '#E91E63',
+      },
+      {
+        name: 'Avg Comments',
+        value: metadata?.averageComments || 0,
+        color: '#9C27B0',
+      },
+      {
+        name: 'Avg Views',
+        value: (metadata?.averageViews || 0) / 10, // Scale down for visibility
+        color: '#00BCD4',
+      },
+      {
+        name: 'Avg Shares',
+        value: metadata?.averageShares || 0,
+        color: '#FF9800',
+      },
+    ];
+
+    // Content Type Distribution (simplified for TikTok - show engagement distribution)
+    const contentTypeData = [
+      { name: 'Likes', value: metadata?.averageLikes || 0, color: '#E91E63' },
+      { name: 'Comments', value: metadata?.averageComments || 0, color: '#9C27B0' },
+      { name: 'Shares', value: metadata?.averageShares || 0, color: '#FF9800' },
+    ];
+
+    return {
+      videoEngagementData,
+      engagementMetrics,
+      contentTypeData,
+    };
+  };
+
+  const { videoEngagementData, engagementMetrics, contentTypeData } = getChartData();
+  const COLORS = ['#E91E63', '#9C27B0', '#FF9800', '#00BCD4'];
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -150,121 +204,99 @@ export const TikTokDataDisplay: React.FC<TikTokDataDisplayProps> = ({ account, m
         )}
 
         {activeTab === 'analytics' && (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-            {/* Average Views */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-blue-200">
-              <div className="flex items-center justify-between mb-2 sm:mb-4">
-                <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.averageViews', 'Average Views')}</h4>
-                <FiEye className="text-blue-600 w-4 h-4 sm:w-6 sm:h-6" />
+          <div className="space-y-6">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {/* Followers */}
+              <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-cyan-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.stats.followers')}</h4>
+                  <FiTrendingUp className="text-cyan-600 w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <p className="text-xl sm:text-2xl font-bold text-cyan-700">
+                  {formatNumber(account?.followersCount || 0)}
+                </p>
               </div>
-              <p className="text-xl sm:text-3xl font-bold text-blue-700">
-                {formatNumber(metadata?.averageViews || 0)}
-              </p>
-              <p className="text-[10px] sm:text-sm text-blue-600 mt-1 sm:mt-2">{t('tiktok.analytics.perVideo', 'per video')}</p>
+
+              {/* Videos */}
+              <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-teal-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.totalVideos', 'Videos')}</h4>
+                  <FiGrid className="text-teal-600 w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <p className="text-xl sm:text-2xl font-bold text-teal-700">
+                  {account?.postsCount || recentVideos.length}
+                </p>
+              </div>
+
+              {/* Total Likes */}
+              <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-pink-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.totalLikes', 'Total Likes')}</h4>
+                  <FiHeart className="text-pink-600 w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <p className="text-xl sm:text-2xl font-bold text-pink-700">
+                  {formatNumber(metadata?.likesCount || recentVideos.reduce((sum: number, v: TikTokVideo) => sum + (v.likeCount || v.likesCount || 0), 0))}
+                </p>
+              </div>
+
+              {/* Avg Views */}
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-purple-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.averageViews', 'Avg Views')}</h4>
+                  <FiEye className="text-purple-600 w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <p className="text-xl sm:text-2xl font-bold text-purple-700">
+                  {formatNumber(metadata?.averageViews || 0)}
+                </p>
+              </div>
             </div>
 
-            {/* Average Likes */}
-            <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-pink-200">
-              <div className="flex items-center justify-between mb-2 sm:mb-4">
-                <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.averageLikes', 'Average Likes')}</h4>
-                <FiHeart className="text-pink-600 w-4 h-4 sm:w-6 sm:h-6" />
+            {/* Additional Stats Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              {/* Average Likes */}
+              <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-pink-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.averageLikes', 'Avg Likes')}</h4>
+                  <FiHeart className="text-pink-600 w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <p className="text-xl sm:text-2xl font-bold text-pink-700">
+                  {formatNumber(metadata?.averageLikes || 0)}
+                </p>
               </div>
-              <p className="text-xl sm:text-3xl font-bold text-pink-700">
-                {formatNumber(metadata?.averageLikes || 0)}
-              </p>
-              <p className="text-[10px] sm:text-sm text-pink-600 mt-1 sm:mt-2">{t('tiktok.analytics.perVideo', 'per video')}</p>
-            </div>
 
-            {/* Average Comments */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-purple-200">
-              <div className="flex items-center justify-between mb-2 sm:mb-4">
-                <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.avgComments', 'Avg Comments')}</h4>
-                <FiMessageCircle className="text-purple-600 w-4 h-4 sm:w-6 sm:h-6" />
+              {/* Average Comments */}
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-purple-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.avgComments', 'Avg Comments')}</h4>
+                  <FiMessageCircle className="text-purple-600 w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <p className="text-xl sm:text-2xl font-bold text-purple-700">
+                  {formatNumber(metadata?.averageComments || 0)}
+                </p>
               </div>
-              <p className="text-xl sm:text-3xl font-bold text-purple-700">
-                {formatNumber(metadata?.averageComments || 0)}
-              </p>
-              <p className="text-[10px] sm:text-sm text-purple-600 mt-1 sm:mt-2">{t('tiktok.analytics.perVideo', 'per video')}</p>
-            </div>
 
-            {/* Average Shares */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-green-200">
-              <div className="flex items-center justify-between mb-2 sm:mb-4">
-                <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.avgShares', 'Avg Shares')}</h4>
-                <FiShare2 className="text-green-600 w-4 h-4 sm:w-6 sm:h-6" />
+              {/* Average Shares */}
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-orange-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.avgShares', 'Avg Shares')}</h4>
+                  <FiShare2 className="text-orange-600 w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <p className="text-xl sm:text-2xl font-bold text-orange-700">
+                  {formatNumber(metadata?.averageShares || 0)}
+                </p>
               </div>
-              <p className="text-xl sm:text-3xl font-bold text-green-700">
-                {formatNumber(metadata?.averageShares || 0)}
-              </p>
-              <p className="text-[10px] sm:text-sm text-green-600 mt-1 sm:mt-2">{t('tiktok.analytics.perVideo', 'per video')}</p>
-            </div>
 
-            {/* Engagement Rate */}
-            <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-teal-200">
-              <div className="flex items-center justify-between mb-2 sm:mb-4">
-                <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.stats.engagement')}</h4>
-                <FiTrendingUp className="text-teal-600 w-4 h-4 sm:w-6 sm:h-6" />
+              {/* Engagement Rate */}
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-blue-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.stats.engagement')}</h4>
+                  <FiTrendingUp className="text-blue-600 w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+                <p className="text-xl sm:text-2xl font-bold text-blue-700">
+                  {(account?.engagementRate || 0).toFixed(2)}%
+                </p>
               </div>
-              <p className="text-xl sm:text-3xl font-bold text-teal-700">
-                {(account?.engagementRate || 0).toFixed(2)}%
-              </p>
-              <p className="text-[10px] sm:text-sm text-teal-600 mt-1 sm:mt-2">{t('tiktok.analytics.overall', 'overall')}</p>
-            </div>
-
-            {/* Total Videos */}
-            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-indigo-200">
-              <div className="flex items-center justify-between mb-2 sm:mb-4">
-                <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.totalVideos', 'Total Videos')}</h4>
-                <FiGrid className="text-indigo-600 w-4 h-4 sm:w-6 sm:h-6" />
-              </div>
-              <p className="text-xl sm:text-3xl font-bold text-indigo-700">
-                {(account?.postsCount || 0).toLocaleString()}
-              </p>
-              <p className="text-[10px] sm:text-sm text-indigo-600 mt-1 sm:mt-2">{t('tiktok.analytics.published', 'published')}</p>
-            </div>
-
-            {/* Followers */}
-            <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-amber-200">
-              <div className="flex items-center justify-between mb-2 sm:mb-4">
-                <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.stats.followers')}</h4>
-                <FiTrendingUp className="text-amber-600 w-4 h-4 sm:w-6 sm:h-6" />
-              </div>
-              <p className="text-xl sm:text-3xl font-bold text-amber-700">
-                {formatNumber(account?.followersCount || 0)}
-              </p>
-              <p className="text-[10px] sm:text-sm text-amber-600 mt-1 sm:mt-2">{t('tiktok.analytics.overall', 'overall')}</p>
-            </div>
-
-            {/* Following */}
-            <div className="bg-gradient-to-br from-rose-50 to-rose-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-rose-200">
-              <div className="flex items-center justify-between mb-2 sm:mb-4">
-                <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.following', 'Following')}</h4>
-                <FiTrendingUp className="text-rose-600 w-4 h-4 sm:w-6 sm:h-6" />
-              </div>
-              <p className="text-xl sm:text-3xl font-bold text-rose-700">
-                {(() => {
-                  const followingCount = account?.followingCount || metadata?.followingCount || 0;
-                  return followingCount > 0 ? formatNumber(followingCount) : t('tiktok.analytics.hidden', 'Hidden');
-                })()}
-              </p>
-              <p className="text-[10px] sm:text-sm text-rose-600 mt-1 sm:mt-2">
-                {(() => {
-                  const followingCount = account?.followingCount || metadata?.followingCount || 0;
-                  return followingCount > 0 ? t('tiktok.analytics.accounts', 'accounts') : t('tiktok.analytics.byUser', 'by user');
-                })()}
-              </p>
-            </div>
-
-            {/* Total Likes */}
-            <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-red-200">
-              <div className="flex items-center justify-between mb-2 sm:mb-4">
-                <h4 className="font-semibold text-gray-700 text-xs sm:text-sm">{t('tiktok.analytics.totalLikes', 'Total Likes')}</h4>
-                <FiHeart className="text-red-600 w-4 h-4 sm:w-6 sm:h-6" />
-              </div>
-              <p className="text-xl sm:text-3xl font-bold text-red-700">
-                {formatNumber(metadata?.likesCount || 0)}
-              </p>
-              <p className="text-[10px] sm:text-sm text-red-600 mt-1 sm:mt-2">{t('tiktok.analytics.overall', 'overall')}</p>
             </div>
           </div>
         )}

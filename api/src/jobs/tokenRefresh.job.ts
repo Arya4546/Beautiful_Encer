@@ -4,6 +4,7 @@ import { SocialMediaPlatform } from '@prisma/client';
 // Instagram now uses Apify scraping - no token refresh needed
 // import instagramService from '../services/instagram.service.js';
 import tiktokService from '../services/tiktok.service.js';
+import logger from '../utils/logger.util.js';
 
 /**
  * Token Refresh Cron Job
@@ -29,11 +30,11 @@ class TokenRefreshJob {
   init() {
     // Run daily at 2:00 AM
     cron.schedule('0 2 * * *', async () => {
-      console.log('[TokenRefreshJob] Starting scheduled token refresh...');
+      logger.log('[TokenRefreshJob] Starting scheduled token refresh...');
       await this.refreshExpiringTokens();
     });
 
-    console.log('[TokenRefreshJob] Initialized - will run daily at 2:00 AM');
+    logger.log('[TokenRefreshJob] Initialized - will run daily at 2:00 AM');
   }
 
   /**
@@ -41,7 +42,7 @@ class TokenRefreshJob {
    */
   async refreshExpiringTokens() {
     if (this.isRunning) {
-      console.log('[TokenRefreshJob] Already running, skipping...');
+      logger.log('[TokenRefreshJob] Already running, skipping...');
       return;
     }
 
@@ -75,7 +76,7 @@ class TokenRefreshJob {
         },
       });
 
-      console.log(`[TokenRefreshJob] Found ${expiringAccounts.length} accounts with expiring tokens`);
+      logger.log(`[TokenRefreshJob] Found ${expiringAccounts.length} accounts with expiring tokens`);
 
       let successCount = 0;
       let failureCount = 0;
@@ -97,7 +98,7 @@ class TokenRefreshJob {
             error: error.message,
           });
 
-          console.error(`[TokenRefreshJob] Failed to refresh ${account.platform} for account ${account.id}:`, error.message);
+          logger.error(`[TokenRefreshJob] Failed to refresh ${account.platform} for account ${account.id}:`, error.message);
 
           // Mark account as inactive after failure
           await this.markAsInactive(account.id, error.message);
@@ -105,11 +106,11 @@ class TokenRefreshJob {
       }
 
       const duration = Date.now() - startTime;
-      console.log(`[TokenRefreshJob] Completed in ${duration}ms - Success: ${successCount}, Failed: ${failureCount}`);
+      logger.log(`[TokenRefreshJob] Completed in ${duration}ms - Success: ${successCount}, Failed: ${failureCount}`);
 
       // Log failures for monitoring/alerting
       if (failures.length > 0) {
-        console.error('[TokenRefreshJob] Failures:', JSON.stringify(failures, null, 2));
+        logger.error('[TokenRefreshJob] Failures:', JSON.stringify(failures, null, 2));
         // TODO: Send alert to monitoring service (e.g., Sentry, Slack)
       }
 
@@ -119,7 +120,7 @@ class TokenRefreshJob {
         failures,
       };
     } catch (error: any) {
-      console.error('[TokenRefreshJob] Critical error:', error);
+      logger.error('[TokenRefreshJob] Critical error:', error);
       throw error;
     } finally {
       this.isRunning = false;
@@ -138,7 +139,7 @@ class TokenRefreshJob {
    * Refresh TikTok access token using refresh token
    */
   private async refreshTikTokToken(account: any) {
-    console.log(`[TokenRefreshJob] Refreshing TikTok token for account ${account.id}...`);
+    logger.log(`[TokenRefreshJob] Refreshing TikTok token for account ${account.id}...`);
 
     if (!account.refreshToken) {
       throw new Error('No refresh token available for TikTok account');
@@ -170,7 +171,7 @@ class TokenRefreshJob {
       },
     });
 
-    console.log(`[TokenRefreshJob] TikTok token refreshed successfully for account ${account.id}. New expiry: ${newExpiresAt.toISOString()}`);
+    logger.log(`[TokenRefreshJob] TikTok token refreshed successfully for account ${account.id}. New expiry: ${newExpiresAt.toISOString()}`);
   }
 
   /**
@@ -185,7 +186,7 @@ class TokenRefreshJob {
       },
     });
 
-    console.log(`[TokenRefreshJob] Marked account ${accountId} as inactive. Reason: ${reason}`);
+    logger.log(`[TokenRefreshJob] Marked account ${accountId} as inactive. Reason: ${reason}`);
 
     // TODO: Notify user that their social media connection needs to be re-authorized
     // Can create a notification in the database or send an email
@@ -195,7 +196,7 @@ class TokenRefreshJob {
    * Manual trigger for token refresh (can be called via API endpoint)
    */
   async triggerManualRefresh() {
-    console.log('[TokenRefreshJob] Manual refresh triggered');
+    logger.log('[TokenRefreshJob] Manual refresh triggered');
     return await this.refreshExpiringTokens();
   }
 }

@@ -258,10 +258,13 @@
     "signup": {
       "title": "ビューティフルエンサーへようこそ",
       "subtitle": "アカウントタイプを選んで始めましょう",
+      "selectRoleTitle": "SIGN UP",
       "roleInfluencer": "インフルエンサーです",
       "roleInfluencerDesc": "クリエイティブな活動を共有して、ブランドとコラボしよう",
+      "roleInfluencerButton": "インフルエンサー",
       "roleSalon": "サロン・ブランドです",
       "roleSalonDesc": "本物のインフルエンサーを見つけて、パートナーになろう",
+      "roleSalonButton": "サロン",
       "name": "お名前",
       "namePlaceholder": "お名前を入力してください",
       "email": "メールアドレス",
@@ -287,6 +290,38 @@
       "resend": "コードが届きませんか？",
       "resendLink": "もう一度送信する"
     },
+    "forgotPassword": {
+      "title": "パスワードを忘れた場合",
+      "subtitle": "登録されたメールアドレスに確認コードを送信します",
+      "email": "メールアドレス",
+      "emailPlaceholder": "メールアドレスを入力してください",
+      "button": "確認コードを送信",
+      "otpSent": "確認コードを送信しました！メールをご確認ください",
+      "rememberPassword": "パスワードを思い出しましたか？",
+      "loginLink": "ログインページへ戻る"
+    },
+    "verifyForgotOtp": {
+      "title": "確認コードを入力",
+      "subtitle": "メールアドレスに送信された6桁のコードを入力してください",
+      "button": "確認する",
+      "otpVerified": "確認コードが正常に確認されました",
+      "didntReceive": "コードが届きませんでしたか？",
+      "resend": "もう一度送信する"
+    },
+    "resetPassword": {
+      "title": "新しいパスワードを設定",
+      "subtitle": "アカウントの新しいパスワードを入力してください",
+      "newPassword": "新しいパスワード",
+      "newPasswordPlaceholder": "新しいパスワードを入力してください",
+      "confirmPassword": "パスワード（確認）",
+      "confirmPasswordPlaceholder": "もう一度パスワードを入力してください",
+      "button": "パスワードをリセット",
+      "success": "パスワードが正常にリセットされました",
+      "successMessage": "新しいパスワードでログインできます",
+      "requirements": "パスワード要件：",
+      "requirement1": "8文字以上",
+      "requirement2": "パスワードが一致する必要があります"
+    },
     "validation": {
       "required": "この項目は必須です",
       "emailRequired": "メールアドレスを入力してください",
@@ -297,6 +332,7 @@
       "passwordMinLength": "パスワードは8文字以上で設定してください",
       "passwordMismatch": "パスワードが一致しません",
       "passwordsDoNotMatch": "パスワードが一致しません",
+      "confirmPasswordRequired": "確認用パスワードを入力してください",
       "nameRequired": "お名前を入力してください",
       "phoneRequired": "電話番号を入力してください",
       "otpRequired": "確認コードを入力してください",
@@ -457,7 +493,7 @@
     "title": "サロンを探す",
     "titleInfluencers": "インフルエンサーを探す",
     "subtitle": "素敵な美容サロンとつながって、ネットワークを広げよう",
-    "subtitleInfluencers": "才能あるインフルエンサーとつながって、ネットワークを広げよう",
+    "subtitleInfluencers": "才能あるナノ・マイクロインフルエンサーとつながって、サロンのブランドを成長させよう",
     "searchPlaceholder": "サロンを検索...",
     "searchPlaceholderInfluencers": "インフルエンサーを検索...",
     "searchInfluencers": "インフルエンサーを検索...",
@@ -484,8 +520,36 @@
     "clearFilters": "絞り込みをクリア",
     "noResults": "該当するユーザーが見つかりません",
     "noResultsSubtitle": "検索条件を変更してみてください",
-    "loading": "読み込み中...",
-    "endOfResults": "すべて表示しました！🎉"
+    "loading": "素敵なプロフィールを探しています...",
+    "loadingMore": "さらに読み込み中...",
+    "endOfResults": "すべてのプロフィールを表示しました",
+    "allLoaded": "すべて読み込み完了！",
+    "premium": {
+      "findInfluencers": "プレミアムインフルエンサーを見つける",
+      "findSalons": "トップサロンを発見"
+    },
+    "stats": {
+      "influencers": "インフルエンサー",
+      "salons": "サロン",
+      "found": "見つかりました",
+      "connected": "つながり",
+      "sortedBy": "関連性順で並び替え"
+    },
+    "card": {
+      "viewProfile": "プロフィールを見る",
+      "connect": "つながる",
+      "connected": "つながっています",
+      "pending": "保留中",
+      "accept": "承認する",
+      "processing": "処理中...",
+      "location": "所在地",
+      "followers": "フォロワー",
+      "engagement": "エンゲージメント",
+      "status": "ステータス",
+      "more": "その他",
+      "influencer": "インフルエンサー",
+      "salon": "サロン"
+    }
   },
   "profile": {
     "title": "設定",
@@ -657,7 +721,12 @@
       "somethingWrong": "エラーが発生しました。もう一度お試しください。",
       "passwordResetComingSoon": "パスワードリセット機能は近日公開予定です！",
       "onlyConnectedUsers": "つながっているユーザーとのみチャットできます",
-      "failedToStartChat": "チャットの開始に失敗しました"
+      "failedToStartChat": "チャットの開始に失敗しました",
+      "emailNotFound": "このメールアドレスのアカウントが見つかりません",
+      "forgotPasswordFailed": "リセットメールの送信に失敗しました。もう一度お試しください。",
+      "otpVerificationFailed": "確認コードが無効または期限切れです。もう一度お試しください。",
+      "resetPasswordFailed": "パスワードのリセットに失敗しました。もう一度お試しください。",
+      "invalidResetSession": "パスワードリセットのセッションが無効です。最初からやり直してください。"
     }
   },
   "categories": {

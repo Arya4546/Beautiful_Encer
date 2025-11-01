@@ -21,12 +21,13 @@ import instagramReminderJob from './jobs/instagramReminder.job.js';
 import { seedSuperAdmin } from './utils/seedSuperAdmin.util.js';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
+import logger from './utils/logger.util.js';
 
 dotenv.config();
 
 // Verify JWT_ACCESS_SECRET is loaded
 if (!process.env.JWT_ACCESS_SECRET) {
-  console.error('FATAL ERROR: JWT_ACCESS_SECRET is not defined in environment variables');
+  logger.error('FATAL ERROR: JWT_ACCESS_SECRET is not defined in environment variables');
   process.exit(1);
 }
 
@@ -60,7 +61,7 @@ io.use((socket, next) => {
   const token = socket.handshake.auth.token;
   
   if (!token) {
-    console.error('[WebSocket Auth] No token provided');
+    logger.error('[WebSocket Auth] No token provided');
     return next(new Error('Authentication error'));
   }
 
@@ -73,16 +74,16 @@ io.use((socket, next) => {
     };
     socket.data.userId = decoded.userId;
     socket.data.role = decoded.role;
-    console.log(`[WebSocket Auth] User authenticated: ${decoded.userId}`);
+    logger.log(`[WebSocket Auth] User authenticated: ${decoded.userId}`);
     next();
   } catch (error) {
-    console.error('[WebSocket Auth] Token verification failed:', error);
+    logger.error('[WebSocket Auth] Token verification failed:', error);
     next(new Error('Authentication error'));
   }
 });
 
 io.on('connection', (socket) => {
-  console.log(`[WebSocket] User connected: ${socket.data.userId}`);
+  logger.log(`[WebSocket] User connected: ${socket.data.userId}`);
 
   // Join user's personal room
   socket.join(socket.data.userId);
@@ -90,13 +91,13 @@ io.on('connection', (socket) => {
   // Join conversation rooms
   socket.on('join_conversation', (conversationId: string) => {
     socket.join(conversationId);
-    console.log(`[WebSocket] User ${socket.data.userId} joined conversation ${conversationId}`);
+    logger.log(`[WebSocket] User ${socket.data.userId} joined conversation ${conversationId}`);
   });
 
   // Leave conversation room
   socket.on('leave_conversation', (conversationId: string) => {
     socket.leave(conversationId);
-    console.log(`[WebSocket] User ${socket.data.userId} left conversation ${conversationId}`);
+    logger.log(`[WebSocket] User ${socket.data.userId} left conversation ${conversationId}`);
   });
 
   // Typing indicator
@@ -116,7 +117,7 @@ io.on('connection', (socket) => {
 
   // Handle disconnection
   socket.on('disconnect', () => {
-    console.log(`[WebSocket] User disconnected: ${socket.data.userId}`);
+    logger.log(`[WebSocket] User disconnected: ${socket.data.userId}`);
   });
 });
 // Routes
@@ -141,20 +142,20 @@ try {
   tokenRefreshJob.init();
   dataSyncSchedulerJob.init();
   instagramReminderJob.init();
-  console.log('[cron]: Automated jobs initialized successfully');
+  logger.log('[cron]: Automated jobs initialized successfully');
 } catch (error) {
-  console.error('[cron]: Failed to initialize automated jobs:', error);
+  logger.error('[cron]: Failed to initialize automated jobs:', error);
 }
 
 // Seed super admin account on server start
 seedSuperAdmin().catch((error) => {
-  console.error('[Super Admin Seed] Failed:', error);
+  logger.error('[Super Admin Seed] Failed:', error);
 });
 
 httpServer.listen(PORT, () => {
-  console.log(`[server]: Running at http://localhost:${PORT}`);
-  console.log(`[websocket]: WebSocket server ready`);
-  console.log(`[cron]: Token refresh job scheduled for 2:00 AM daily`);
-  console.log(`[cron]: Data sync job scheduled for 3:00 AM daily`);
-  console.log(`[cron]: Instagram reminder job scheduled for 10:00 AM daily`);
+  logger.log(`[server]: Running at http://localhost:${PORT}`);
+  logger.log(`[websocket]: WebSocket server ready`);
+  logger.log(`[cron]: Token refresh job scheduled for 2:00 AM daily`);
+  logger.log(`[cron]: Data sync job scheduled for 3:00 AM daily`);
+  logger.log(`[cron]: Instagram reminder job scheduled for 10:00 AM every Monday`);
 });

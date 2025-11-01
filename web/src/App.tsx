@@ -7,6 +7,9 @@ import LandingPage from "./pages/LandingPage";
 import { SignupPage } from "./pages/auth/SignupPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { VerifyOtpPage } from "./pages/auth/VerifyOtpPage";
+import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
+import { VerifyForgotOTPPage } from "./pages/auth/VerifyForgotOTPPage";
+import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
 import { InfluencerOnboarding } from "./pages/onboarding/InfluencerOnboarding";
 import { SalonOnboarding } from "./pages/onboarding/SalonOnboarding";
 import { DiscoveryPage } from "./pages/DiscoveryPage";
@@ -89,6 +92,9 @@ const App: React.FC = () => {
         <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
         <Route path="/verify-otp" element={<PublicRoute><VerifyOtpPage /></PublicRoute>} />
+        <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
+        <Route path="/verify-forgot-otp" element={<PublicRoute><VerifyForgotOTPPage /></PublicRoute>} />
+        <Route path="/reset-password" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
 
         {/* Onboarding Routes - Only accessible after signup, before onboarding completion */}
         <Route 

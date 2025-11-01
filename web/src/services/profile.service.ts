@@ -28,7 +28,12 @@ export interface UserProfile {
     businessName: string | null;
     description: string | null;
     preferredCategories: string[];
+    region: string | null;
     budget: number | null;
+    website?: string | null;
+    establishedYear?: number | null;
+    teamSize?: number | null;
+    operatingHours?: string | null;
   };
 }
 
