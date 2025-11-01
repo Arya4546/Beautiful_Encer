@@ -50,6 +50,7 @@ export const onboardingService = {
     formData.append('businessName', data.businessName);
     formData.append('description', data.description);
     formData.append('preferredCategories', JSON.stringify(data.preferredCategories));
+    if (data.region) formData.append('region', data.region);
 
     if (data.website) formData.append('website', data.website);
     if (data.establishedYear) formData.append('establishedYear', data.establishedYear.toString());

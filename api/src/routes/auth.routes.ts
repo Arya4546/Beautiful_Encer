@@ -39,4 +39,32 @@ router.post('/resend-otp', authLimiter, authController.resendOtp.bind(authContro
  */
 router.post('/login', authLimiter, authController.login.bind(authController));
 
+/**
+ * @route   POST /api/v1/auth/forgot-password
+ * @desc    Request password reset - Send OTP to email
+ * @access  Public + Rate Limited
+ */
+router.post('/forgot-password', authLimiter, authController.forgotPassword.bind(authController));
+
+/**
+ * @route   POST /api/v1/auth/verify-forgot-otp
+ * @desc    Verify OTP for password reset
+ * @access  Public + Rate Limited
+ */
+router.post('/verify-forgot-otp', authLimiter, authController.verifyForgotPasswordOtp.bind(authController));
+
+/**
+ * @route   POST /api/v1/auth/reset-password
+ * @desc    Reset password with verified OTP
+ * @access  Public + Rate Limited
+ */
+router.post('/reset-password', authLimiter, authController.resetPassword.bind(authController));
+
+/**
+ * @route   POST /api/v1/auth/resend-forgot-otp
+ * @desc    Resend OTP for password reset
+ * @access  Public + Rate Limited
+ */
+router.post('/resend-forgot-otp', authLimiter, authController.resendForgotPasswordOtp.bind(authController));
+
 export default router;

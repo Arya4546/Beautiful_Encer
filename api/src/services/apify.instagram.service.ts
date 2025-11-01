@@ -1,5 +1,6 @@
 import { ApifyClient } from 'apify-client';
 import { PrismaClient } from '@prisma/client';
+import logger from '../utils/logger.util.js';
 
 const prisma = new PrismaClient();
 
@@ -78,7 +79,7 @@ class ApifyInstagramService {
       token: apiToken,
     });
 
-    console.log('[ApifyInstagramService] Initialized with actor:', this.actorId);
+    logger.log('[ApifyInstagramService] Initialized with actor:', this.actorId);
   }
 
   /**
@@ -140,7 +141,7 @@ class ApifyInstagramService {
    */
   async scrapeInstagramProfile(username: string): Promise<ScrapedInstagramData> {
     try {
-      console.log(`[ApifyInstagramService] Starting scrape for @${username}`);
+      logger.log(`[ApifyInstagramService] Starting scrape for @${username}`);
 
       // Run the Apify actor (will wait for completion by default)
       const run = await this.client.actor(this.actorId).call({
@@ -149,7 +150,7 @@ class ApifyInstagramService {
         addParentData: false,
       });
 
-      console.log(`[ApifyInstagramService] Actor run completed:`, run.id);
+      logger.log(`[ApifyInstagramService] Actor run completed:`, run.id);
 
       // Fetch results from dataset
       const { items } = await this.client.dataset(run.defaultDatasetId).listItems();
@@ -161,7 +162,7 @@ class ApifyInstagramService {
       const profileData = items[0] as any;
       
       // Debug: Log raw profile data from Apify
-      console.log(`[ApifyInstagramService] Raw Apify data for @${username}:`, {
+      logger.log(`[ApifyInstagramService] Raw Apify data for @${username}:`, {
         username: profileData.username,
         followersCount: profileData.followersCount,
         followingCount: profileData.followingCount,
@@ -222,7 +223,7 @@ class ApifyInstagramService {
         lastScraped: new Date(),
       };
 
-      console.log(`[ApifyInstagramService] Successfully scraped @${username}:`, {
+      logger.log(`[ApifyInstagramService] Successfully scraped @${username}:`, {
         followers: scrapedData.followersCount,
         following: scrapedData.followingCount,
         posts: scrapedData.postsCount,
@@ -232,7 +233,7 @@ class ApifyInstagramService {
       return scrapedData;
 
     } catch (error: any) {
-      console.error(`[ApifyInstagramService] Error scraping @${username}:`, error.message);
+      logger.error(`[ApifyInstagramService] Error scraping @${username}:`, error.message);
       throw new Error(`Failed to scrape Instagram profile: ${error.message}`);
     }
   }
@@ -251,7 +252,7 @@ class ApifyInstagramService {
         throw new Error('Instagram username is required');
       }
 
-      console.log(`[ApifyInstagramService] Connecting Instagram @${cleanUsername} for user ${userId}`);
+      logger.log(`[ApifyInstagramService] Connecting Instagram @${cleanUsername} for user ${userId}`);
 
       // Scrape Instagram profile
       const profileData = await this.scrapeInstagramProfile(cleanUsername);
@@ -344,7 +345,7 @@ class ApifyInstagramService {
         });
       }
 
-      console.log(`[ApifyInstagramService] Instagram @${cleanUsername} connected successfully`);
+      logger.log(`[ApifyInstagramService] Instagram @${cleanUsername} connected successfully`);
 
       return {
         success: true,
@@ -361,7 +362,7 @@ class ApifyInstagramService {
       };
 
     } catch (error: any) {
-      console.error('[ApifyInstagramService] Error connecting Instagram:', error.message);
+      logger.error('[ApifyInstagramService] Error connecting Instagram:', error.message);
       throw error;
     }
   }
@@ -382,7 +383,7 @@ class ApifyInstagramService {
 
       // Check cache
       if (this.isCacheValid(account.lastSyncedAt)) {
-        console.log(`[ApifyInstagramService] Using cached data for @${account.platformUsername}`);
+        logger.log(`[ApifyInstagramService] Using cached data for @${account.platformUsername}`);
         return {
           success: true,
           message: 'Using cached data (less than 7 days old)',
@@ -391,7 +392,7 @@ class ApifyInstagramService {
         };
       }
 
-      console.log(`[ApifyInstagramService] Syncing data for @${account.platformUsername}`);
+      logger.log(`[ApifyInstagramService] Syncing data for @${account.platformUsername}`);
 
       // Scrape fresh data
       const profileData = await this.scrapeInstagramProfile(account.platformUsername);
@@ -424,7 +425,7 @@ class ApifyInstagramService {
         },
       });
 
-      console.log(`[ApifyInstagramService] Sync completed for @${account.platformUsername}`);
+      logger.log(`[ApifyInstagramService] Sync completed for @${account.platformUsername}`);
 
       return {
         success: true,
@@ -434,7 +435,7 @@ class ApifyInstagramService {
       };
 
     } catch (error: any) {
-      console.error('[ApifyInstagramService] Error syncing Instagram data:', error.message);
+      logger.error('[ApifyInstagramService] Error syncing Instagram data:', error.message);
       throw error;
     }
   }
@@ -467,7 +468,7 @@ class ApifyInstagramService {
       return await this.syncInstagramData(accountId);
 
     } catch (error: any) {
-      console.error('[ApifyInstagramService] Error getting Instagram data:', error.message);
+      logger.error('[ApifyInstagramService] Error getting Instagram data:', error.message);
       throw error;
     }
   }
@@ -493,10 +494,10 @@ class ApifyInstagramService {
         },
       });
 
-      console.log(`[ApifyInstagramService] Disconnected Instagram @${account.platformUsername}`);
+      logger.log(`[ApifyInstagramService] Disconnected Instagram @${account.platformUsername}`);
 
     } catch (error: any) {
-      console.error('[ApifyInstagramService] Error disconnecting Instagram:', error.message);
+      logger.error('[ApifyInstagramService] Error disconnecting Instagram:', error.message);
       throw error;
     }
   }

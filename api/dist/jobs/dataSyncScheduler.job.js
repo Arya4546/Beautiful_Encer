@@ -6,6 +6,7 @@ import apifyInstagramService from '../services/apify.instagram.service.js';
 // TikTok now uses Apify scraping service for public accounts
 import apifyTikTokService from '../services/apify.tiktok.service.js';
 import tiktokService from '../services/tiktok.service.js';
+import logger from '../utils/logger.util.js';
 /**
  * Data Sync Scheduler Job
  *
@@ -33,17 +34,17 @@ class DataSyncSchedulerJob {
     init() {
         // Run daily at 3:00 AM (1 hour after token refresh)
         cron.schedule('0 3 * * *', async () => {
-            console.log('[DataSyncScheduler] Starting scheduled data sync...');
+            logger.log('[DataSyncScheduler] Starting scheduled data sync...');
             await this.syncAllAccounts();
         });
-        console.log('[DataSyncScheduler] Initialized - will run daily at 3:00 AM');
+        logger.log('[DataSyncScheduler] Initialized - will run daily at 3:00 AM');
     }
     /**
      * Sync all active social media accounts
      */
     async syncAllAccounts() {
         if (this.isRunning) {
-            console.log('[DataSyncScheduler] Already running, skipping...');
+            logger.log('[DataSyncScheduler] Already running, skipping...');
             return;
         }
         this.isRunning = true;
@@ -53,17 +54,18 @@ class DataSyncSchedulerJob {
             const activeAccounts = await prisma.socialMediaAccount.findMany({
                 where: {
                     isActive: true,
-                    // Only sync if last sync was more than 12 hours ago
+                    // Only sync if last sync was more than 7 days ago (matches Apify cache duration)
+                    // This reduces Apify API costs by respecting the cache window
                     OR: [
                         { lastSyncedAt: null },
-                        { lastSyncedAt: { lte: new Date(Date.now() - 12 * 60 * 60 * 1000) } },
+                        { lastSyncedAt: { lte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
                     ],
                 },
                 include: {
                     influencer: true,
                 },
             });
-            console.log(`[DataSyncScheduler] Found ${activeAccounts.length} accounts to sync`);
+            logger.log(`[DataSyncScheduler] Found ${activeAccounts.length} accounts to sync`);
             let successCount = 0;
             let failureCount = 0;
             const failures = [];
@@ -97,13 +99,13 @@ class DataSyncSchedulerJob {
                         platform: account.platform,
                         error: error.message,
                     });
-                    console.error(`[DataSyncScheduler] Failed to sync ${account.platform} for account ${account.id}:`, error.message);
+                    logger.error(`[DataSyncScheduler] Failed to sync ${account.platform} for account ${account.id}:`, error.message);
                 }
             }
             const duration = Date.now() - startTime;
-            console.log(`[DataSyncScheduler] Completed in ${duration}ms - Success: ${successCount}, Failed: ${failureCount}`);
+            logger.log(`[DataSyncScheduler] Completed in ${duration}ms - Success: ${successCount}, Failed: ${failureCount}`);
             if (failures.length > 0) {
-                console.error('[DataSyncScheduler] Failures:', JSON.stringify(failures, null, 2));
+                logger.error('[DataSyncScheduler] Failures:', JSON.stringify(failures, null, 2));
             }
             return {
                 success: successCount,
@@ -112,7 +114,7 @@ class DataSyncSchedulerJob {
             };
         }
         catch (error) {
-            console.error('[DataSyncScheduler] Critical error:', error);
+            logger.error('[DataSyncScheduler] Critical error:', error);
             throw error;
         }
         finally {
@@ -123,14 +125,14 @@ class DataSyncSchedulerJob {
      * Sync Instagram account data using Apify
      */
     async syncInstagramData(influencerId, account) {
-        console.log(`[DataSyncScheduler] Syncing Instagram data for account ${account.id}...`);
+        logger.log(`[DataSyncScheduler] Syncing Instagram data for account ${account.id}...`);
         try {
             // Use Apify service to sync data (respects 7-day cache)
             await apifyInstagramService.syncInstagramData(account.id);
-            console.log(`[DataSyncScheduler] Instagram sync completed for account ${account.id}`);
+            logger.log(`[DataSyncScheduler] Instagram sync completed for account ${account.id}`);
         }
         catch (error) {
-            console.error(`[DataSyncScheduler] Instagram sync failed for account ${account.id}:`, error.message);
+            logger.error(`[DataSyncScheduler] Instagram sync failed for account ${account.id}:`, error.message);
             throw error;
         }
     }
@@ -138,14 +140,14 @@ class DataSyncSchedulerJob {
      * Sync TikTok account data using Apify (public accounts)
      */
     async syncTikTokDataApify(influencerId, account) {
-        console.log(`[DataSyncScheduler] Syncing TikTok data (Apify) for account ${account.id}...`);
+        logger.log(`[DataSyncScheduler] Syncing TikTok data (Apify) for account ${account.id}...`);
         try {
             // Use Apify service to sync data (respects 7-day cache)
             await apifyTikTokService.syncTikTokData(account.id);
-            console.log(`[DataSyncScheduler] TikTok (Apify) sync completed for account ${account.id}`);
+            logger.log(`[DataSyncScheduler] TikTok (Apify) sync completed for account ${account.id}`);
         }
         catch (error) {
-            console.error(`[DataSyncScheduler] TikTok (Apify) sync failed for account ${account.id}:`, error.message);
+            logger.error(`[DataSyncScheduler] TikTok (Apify) sync failed for account ${account.id}:`, error.message);
             throw error;
         }
     }
@@ -153,7 +155,7 @@ class DataSyncSchedulerJob {
      * Sync TikTok account data using OAuth (connected accounts)
      */
     async syncTikTokDataOAuth(influencerId, account) {
-        console.log(`[DataSyncScheduler] Syncing TikTok data (OAuth) for account ${account.id}...`);
+        logger.log(`[DataSyncScheduler] Syncing TikTok data (OAuth) for account ${account.id}...`);
         const accessToken = tiktokService.decryptToken(account.accessToken);
         // Fetch insights
         const insights = await tiktokService.getUserInsights(accessToken);
@@ -201,7 +203,7 @@ class DataSyncSchedulerJob {
                 },
             });
         }
-        console.log(`[DataSyncScheduler] TikTok sync completed for account ${account.id}`);
+        logger.log(`[DataSyncScheduler] TikTok sync completed for account ${account.id}`);
     }
     /**
      * Map Instagram media type to database enum
@@ -228,7 +230,7 @@ class DataSyncSchedulerJob {
      * Manual trigger for data sync
      */
     async triggerManualSync() {
-        console.log('[DataSyncScheduler] Manual sync triggered');
+        logger.log('[DataSyncScheduler] Manual sync triggered');
         return await this.syncAllAccounts();
     }
 }

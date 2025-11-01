@@ -49,10 +49,25 @@ interface InstagramPost {
   timestamp?: string;
 }
 
+interface TikTokPost {
+  id?: string;
+  url: string;
+  displayUrl?: string;
+  caption?: string;
+  likesCount?: number;
+  commentsCount?: number;
+  sharesCount?: number;
+  viewsCount?: number;
+  timestamp?: string;
+}
+
 interface ParsedMetadata {
   recentPosts?: InstagramPost[];
+  recentVideos?: TikTokPost[];
   averageLikes?: number;
   averageComments?: number;
+  averageViews?: number;
+  averageShares?: number;
   topHashtags?: string[];
   [key: string]: any;
 }
@@ -98,9 +113,9 @@ export const UserProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showPostsModal, setShowPostsModal] = useState(false);
-  const [selectedPosts, setSelectedPosts] = useState<InstagramPost[]>([]);
+  const [selectedPosts, setSelectedPosts] = useState<(InstagramPost | TikTokPost)[]>([]);
   const [selectedAccount, setSelectedAccount] = useState<SocialMediaAccount | null>(null);
-  const [selectedPost, setSelectedPost] = useState<InstagramPost | null>(null);
+  const [selectedPost, setSelectedPost] = useState<InstagramPost | TikTokPost | null>(null);
 
   const {
     connectionStatus,
@@ -149,7 +164,10 @@ export const UserProfilePage: React.FC = () => {
 
   const handleViewPosts = (account: SocialMediaAccount) => {
     const metadata = parseMetadata(account.metadata);
-    const posts = metadata?.recentPosts || [];
+    const isInstagram = account.platform.toUpperCase() === 'INSTAGRAM';
+    const posts = isInstagram 
+      ? (metadata?.recentPosts || [])
+      : (metadata?.recentVideos || []);
     setSelectedPosts(posts);
     setSelectedAccount(account);
     setShowPostsModal(true);
@@ -235,11 +253,18 @@ export const UserProfilePage: React.FC = () => {
     );
   }
 
-  const socialMediaAccounts = (user.influencer?.socialMediaAccounts || []) as any[];
+  const socialMediaAccounts = user.role === 'INFLUENCER' ? (user.influencer?.socialMediaAccounts || []) as any[] : [];
   const categories = (user.influencer?.categories || user.salon?.preferredCategories || []) as string[];
   const profilePicture = user.influencer?.profilePic || user.salon?.profilePic || null;
   const bio = user.influencer?.bio || user.salon?.description || null;
-  const location = user.influencer?.region || null;
+  const location = user.influencer?.region || user.salon?.region || null;
+  
+  // Salon-specific fields
+  const businessName = user.salon?.businessName || null;
+  const website = user.salon?.website || null;
+  const establishedYear = user.salon?.establishedYear || null;
+  const teamSize = user.salon?.teamSize || null;
+  const operatingHours = user.salon?.operatingHours || null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -332,7 +357,9 @@ export const UserProfilePage: React.FC = () => {
                 {/* Categories */}
                 {categories.length > 0 && (
                   <div className="mt-4">
-                    <p className="text-sm text-gray-500 mb-2">Categories</p>
+                    <p className="text-sm text-gray-500 mb-2">
+                      {user.role === 'SALON' ? 'Preferred Categories' : 'Categories'}
+                    </p>
                     <div className="flex flex-wrap gap-2">
                       {categories.map((category, idx) => (
                         <span
@@ -349,8 +376,84 @@ export const UserProfilePage: React.FC = () => {
             </div>
           </motion.div>
 
-          {/* Social Media Accounts */}
-          {socialMediaAccounts && socialMediaAccounts.length > 0 && (
+          {/* Salon Specific Information */}
+          {user.role === 'SALON' && (businessName || website || establishedYear || teamSize || operatingHours) && (
+            <motion.div
+              className="bg-white rounded-3xl shadow-soft p-8 mb-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Salon Information</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {businessName && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center flex-shrink-0">
+                      <FiActivity size={20} className="text-pink-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Business Name</p>
+                      <p className="text-gray-900 font-medium">{businessName}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {website && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center flex-shrink-0">
+                      <FiExternalLink size={20} className="text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Website</p>
+                      <a
+                        href={website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline font-medium"
+                      >
+                        Visit Website
+                      </a>
+                    </div>
+                  </div>
+                )}
+                
+                {establishedYear && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center flex-shrink-0">
+                      <FiCalendar size={20} className="text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Established</p>
+                      <p className="text-gray-900 font-medium">{establishedYear}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {teamSize && (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center flex-shrink-0">
+                      <FiUsers size={20} className="text-orange-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Team Size</p>
+                      <p className="text-gray-900 font-medium">{teamSize} members</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {operatingHours && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <p className="text-sm text-gray-500 mb-2">Operating Hours</p>
+                  <pre className="text-gray-900 font-mono text-sm whitespace-pre-wrap bg-gray-50 p-3 rounded-lg">
+                    {operatingHours}
+                  </pre>
+                </div>
+              )}
+            </motion.div>
+          )}
+
+          {/* Social Media Accounts - Only for Influencers */}
+          {user.role === 'INFLUENCER' && socialMediaAccounts && socialMediaAccounts.length > 0 && (
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Social Media Analytics</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -397,7 +500,9 @@ interface SocialMediaAccountCardProps {
 const SocialMediaAccountCard: React.FC<SocialMediaAccountCardProps> = ({ account, onViewPosts }) => {
   const isInstagram = account.platform.toUpperCase() === 'INSTAGRAM';
   const metadata = parseMetadata(account.metadata);
-  const postsCount = metadata?.recentPosts?.length || 0;
+  const postsCount = isInstagram 
+    ? (metadata?.recentPosts?.length || 0)
+    : (metadata?.recentVideos?.length || 0);
 
   const gradientClass = isInstagram
     ? 'from-purple-500 via-pink-500 to-orange-500'
@@ -406,11 +511,17 @@ const SocialMediaAccountCard: React.FC<SocialMediaAccountCardProps> = ({ account
   const Icon = isInstagram ? FiInstagram : SiTiktok;
 
   // Generate engagement data for chart
-  const engagementData = metadata?.recentPosts?.slice(0, 10).map((post, idx) => ({
-    name: `Post ${idx + 1}`,
-    likes: post.likesCount || 0,
-    comments: post.commentsCount || 0,
-  })) || [];
+  const engagementData = isInstagram
+    ? metadata?.recentPosts?.slice(0, 10).map((post, idx) => ({
+        name: `Post ${idx + 1}`,
+        likes: post.likesCount || 0,
+        comments: post.commentsCount || 0,
+      })) || []
+    : metadata?.recentVideos?.slice(0, 10).map((video, idx) => ({
+        name: `Video ${idx + 1}`,
+        likes: video.likesCount || 0,
+        comments: video.commentsCount || 0,
+      })) || [];
 
   return (
     <motion.div
@@ -518,7 +629,7 @@ const SocialMediaAccountCard: React.FC<SocialMediaAccountCardProps> = ({ account
               whileTap={{ scale: 0.98 }}
             >
               <FiEye size={18} />
-              View Posts ({postsCount})
+              {isInstagram ? `View Posts (${postsCount})` : `View Videos (${postsCount})`}
             </motion.button>
           )}
           {account.profileUrl && (
@@ -569,27 +680,56 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, bgColor }) => {
 // Posts Modal Component
 interface PostsModalProps {
   account: SocialMediaAccount;
-  posts: InstagramPost[];
+  posts: (InstagramPost | TikTokPost)[];
   onClose: () => void;
-  selectedPost: InstagramPost | null;
-  setSelectedPost: (post: InstagramPost | null) => void;
+  selectedPost: InstagramPost | TikTokPost | null;
+  setSelectedPost: (post: InstagramPost | TikTokPost | null) => void;
 }
 
 const PostsModal: React.FC<PostsModalProps> = ({ account, posts, onClose, selectedPost, setSelectedPost }) => {
+  const isInstagram = account.platform.toUpperCase() === 'INSTAGRAM';
+  const isTikTok = account.platform.toUpperCase() === 'TIKTOK';
   const metadata = parseMetadata(account.metadata);
+  
+  // Calculate metrics based on platform
   const avgLikes = metadata?.averageLikes || 0;
   const avgComments = metadata?.averageComments || 0;
+  const avgViews = metadata?.averageViews || 0;
+  const avgShares = metadata?.averageShares || 0;
   const totalPosts = posts.length;
   const totalLikes = posts.reduce((sum, post) => sum + (post.likesCount || 0), 0);
   const totalComments = posts.reduce((sum, post) => sum + (post.commentsCount || 0), 0);
+  const totalViews = isTikTok ? (posts as TikTokPost[]).reduce((sum, post) => sum + (post.viewsCount || 0), 0) : 0;
+  const totalShares = isTikTok ? (posts as TikTokPost[]).reduce((sum, post) => sum + (post.sharesCount || 0), 0) : 0;
   const engagementRate = account.engagementRate || 0;
 
   // Generate trend data
-  const engagementTrendData = posts.slice(0, 15).map((post, idx) => ({
-    name: `#${idx + 1}`,
-    likes: post.likesCount || 0,
-    comments: post.commentsCount || 0,
-  }));
+  const engagementTrendData = posts.slice(0, 15).map((post, idx) => {
+    if (isTikTok) {
+      const tiktokPost = post as TikTokPost;
+      return {
+        name: `#${idx + 1}`,
+        likes: tiktokPost.likesCount || 0,
+        comments: tiktokPost.commentsCount || 0,
+        views: tiktokPost.viewsCount || 0,
+        shares: tiktokPost.sharesCount || 0,
+      };
+    } else {
+      return {
+        name: `#${idx + 1}`,
+        likes: post.likesCount || 0,
+        comments: post.commentsCount || 0,
+      };
+    }
+  });
+
+  // Header gradient based on platform
+  const headerGradient = isInstagram
+    ? 'from-purple-500 via-pink-500 to-orange-500'
+    : 'from-black via-gray-800 to-pink-600';
+  
+  const platformIcon = isInstagram ? <FiInstagram size={24} /> : <SiTiktok size={24} />;
+  const platformName = isInstagram ? 'Instagram' : 'TikTok';
 
   return (
     <motion.div
@@ -607,11 +747,14 @@ const PostsModal: React.FC<PostsModalProps> = ({ account, posts, onClose, select
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 p-6 text-white z-10">
+        <div className={`sticky top-0 bg-gradient-to-r ${headerGradient} p-6 text-white z-10`}>
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold">Instagram Posts</h2>
-              <p className="text-white/90 text-sm">@{account.username || account.displayName}</p>
+            <div className="flex items-center gap-3">
+              {platformIcon}
+              <div>
+                <h2 className="text-2xl font-bold">{platformName} {isInstagram ? 'Posts' : 'Videos'}</h2>
+                <p className="text-white/90 text-sm">@{account.username || account.displayName}</p>
+              </div>
             </div>
             <motion.button
               onClick={onClose}
@@ -625,34 +768,64 @@ const PostsModal: React.FC<PostsModalProps> = ({ account, posts, onClose, select
 
         {/* Performance Overview */}
         <div className="p-6 border-b border-gray-100">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Performance Overview</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl p-4 text-center">
-              <FiHeart className="mx-auto mb-2 text-pink-600" size={24} />
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(avgLikes)}</p>
-              <p className="text-xs text-gray-600">Avg Likes</p>
+          <h3 className="text-lg font-bold text-gray-900 mb-4">{platformName} Stats</h3>
+          
+          {/* Stats Grid - Platform Specific */}
+          {isInstagram ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl p-4 text-center">
+                <FiHeart className="mx-auto mb-2 text-pink-600" size={24} />
+                <p className="text-2xl font-bold text-gray-900">{formatNumber(avgLikes)}</p>
+                <p className="text-xs text-gray-600">Avg Likes</p>
+              </div>
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 text-center">
+                <FiMessageCircle className="mx-auto mb-2 text-purple-600" size={24} />
+                <p className="text-2xl font-bold text-gray-900">{formatNumber(avgComments)}</p>
+                <p className="text-xs text-gray-600">Avg Comments</p>
+              </div>
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 text-center">
+                <FiTrendingUp className="mx-auto mb-2 text-blue-600" size={24} />
+                <p className="text-2xl font-bold text-gray-900">{engagementRate}%</p>
+                <p className="text-xs text-gray-600">Engagement Rate</p>
+              </div>
+              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 text-center">
+                <FiGrid className="mx-auto mb-2 text-green-600" size={24} />
+                <p className="text-2xl font-bold text-gray-900">{totalPosts}</p>
+                <p className="text-xs text-gray-600">Total Posts</p>
+              </div>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 text-center">
-              <FiMessageCircle className="mx-auto mb-2 text-purple-600" size={24} />
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(avgComments)}</p>
-              <p className="text-xs text-gray-600">Avg Comments</p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-2xl p-4 text-center">
+                <FiUsers className="mx-auto mb-2 text-cyan-600" size={24} />
+                <p className="text-2xl font-bold text-gray-900">{formatNumber(account.followersCount)}</p>
+                <p className="text-xs text-gray-600">Followers</p>
+              </div>
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 text-center">
+                <FiGrid className="mx-auto mb-2 text-purple-600" size={24} />
+                <p className="text-2xl font-bold text-gray-900">{totalPosts}</p>
+                <p className="text-xs text-gray-600">Videos</p>
+              </div>
+              <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl p-4 text-center">
+                <FiHeart className="mx-auto mb-2 text-pink-600" size={24} />
+                <p className="text-2xl font-bold text-gray-900">{formatNumber(totalLikes)}</p>
+                <p className="text-xs text-gray-600">Total Likes</p>
+              </div>
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 text-center">
+                <FiEye className="mx-auto mb-2 text-blue-600" size={24} />
+                <p className="text-2xl font-bold text-gray-900">{formatNumber(avgViews)}</p>
+                <p className="text-xs text-gray-600">Avg Views</p>
+              </div>
             </div>
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 text-center">
-              <FiTrendingUp className="mx-auto mb-2 text-blue-600" size={24} />
-              <p className="text-2xl font-bold text-gray-900">{engagementRate}%</p>
-              <p className="text-xs text-gray-600">Engagement Rate</p>
-            </div>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-4 text-center">
-              <FiGrid className="mx-auto mb-2 text-green-600" size={24} />
-              <p className="text-2xl font-bold text-gray-900">{totalPosts}</p>
-              <p className="text-xs text-gray-600">Total Posts</p>
-            </div>
-          </div>
+          )}
 
           {/* Engagement Trend Chart */}
           {engagementTrendData.length > 0 && (
             <div className="mt-6">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">Engagement Trend</h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                <FiBarChart2 size={16} />
+                {isInstagram ? 'Post Engagement Trend' : 'Video Engagement Trend'}
+              </h4>
               <div className="h-64 bg-gray-50 rounded-xl p-4">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={engagementTrendData}>
@@ -666,10 +839,86 @@ const PostsModal: React.FC<PostsModalProps> = ({ account, posts, onClose, select
                         borderRadius: '8px'
                       }}
                     />
-                    <Line type="monotone" dataKey="likes" stroke="#E91E63" strokeWidth={3} dot={{ fill: '#E91E63' }} />
-                    <Line type="monotone" dataKey="comments" stroke="#9C27B0" strokeWidth={3} dot={{ fill: '#9C27B0' }} />
+                    <Line type="monotone" dataKey="likes" stroke="#E91E63" strokeWidth={2} dot={{ fill: '#E91E63' }} name="Likes" />
+                    <Line type="monotone" dataKey="comments" stroke="#9C27B0" strokeWidth={2} dot={{ fill: '#9C27B0' }} name="Comments" />
+                    {isTikTok && (
+                      <>
+                        <Line type="monotone" dataKey="views" stroke="#00BCD4" strokeWidth={2} dot={{ fill: '#00BCD4' }} name="Views" />
+                        <Line type="monotone" dataKey="shares" stroke="#FF9800" strokeWidth={2} dot={{ fill: '#FF9800' }} name="Shares" />
+                      </>
+                    )}
                   </LineChart>
                 </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
+          {/* TikTok Additional Charts */}
+          {isTikTok && engagementTrendData.length > 0 && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              {/* Engagement Metrics Bar Chart */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <FiBarChart2 size={16} />
+                  TikTok Engagement Metrics
+                </h4>
+                <div className="h-64 bg-gray-50 rounded-xl p-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={[
+                      { metric: 'Avg Likes', value: avgLikes, fill: '#E91E63' },
+                      { metric: 'Avg Comments', value: avgComments, fill: '#9C27B0' },
+                      { metric: 'Avg Views', value: avgViews / 10, fill: '#00BCD4' },
+                      { metric: 'Avg Shares', value: avgShares, fill: '#FF9800' },
+                    ]}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="metric" tick={{ fontSize: 11 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px'
+                        }}
+                      />
+                      <Bar dataKey="value" fill="#8884d8" radius={[8, 8, 0, 0]}>
+                        {[
+                          { metric: 'Avg Likes', value: avgLikes, fill: '#E91E63' },
+                          { metric: 'Avg Comments', value: avgComments, fill: '#9C27B0' },
+                          { metric: 'Avg Views', value: avgViews / 10, fill: '#00BCD4' },
+                          { metric: 'Avg Shares', value: avgShares, fill: '#FF9800' },
+                        ].map((entry, index) => (
+                          <Bar key={`cell-${index}`} dataKey="value" fill={entry.fill} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Views vs Engagement Comparison */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <FiActivity size={16} />
+                  TikTok Content Type Distribution
+                </h4>
+                <div className="h-64 bg-gray-50 rounded-xl p-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={engagementTrendData.slice(0, 8)}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'white',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px'
+                        }}
+                      />
+                      <Bar dataKey="likes" fill="#E91E63" radius={[4, 4, 0, 0]} name="Likes" />
+                      <Bar dataKey="shares" fill="#FF9800" radius={[4, 4, 0, 0]} name="Shares" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
           )}
@@ -680,7 +929,7 @@ const PostsModal: React.FC<PostsModalProps> = ({ account, posts, onClose, select
           {posts.length === 0 ? (
             <div className="text-center py-12">
               <FiGrid size={48} className="mx-auto mb-4 text-gray-300" />
-              <p className="text-gray-500">No posts available</p>
+              <p className="text-gray-500">No {isInstagram ? 'posts' : 'videos'} available</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -693,14 +942,14 @@ const PostsModal: React.FC<PostsModalProps> = ({ account, posts, onClose, select
                 >
                   <img
                     src={post.displayUrl || post.url}
-                    alt={post.caption || 'Instagram post'}
+                    alt={post.caption || `${platformName} post`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       e.currentTarget.src = 'https://via.placeholder.com/400x400?text=Image+Not+Available';
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                    <div className="flex items-center gap-4 text-white">
+                    <div className="flex items-center gap-4 text-white flex-wrap">
                       <span className="flex items-center gap-1">
                         <FiHeart size={16} />
                         {formatNumber(post.likesCount || 0)}
@@ -709,6 +958,12 @@ const PostsModal: React.FC<PostsModalProps> = ({ account, posts, onClose, select
                         <FiMessageCircle size={16} />
                         {formatNumber(post.commentsCount || 0)}
                       </span>
+                      {isTikTok && (post as TikTokPost).viewsCount !== undefined && (
+                        <span className="flex items-center gap-1">
+                          <FiEye size={16} />
+                          {formatNumber((post as TikTokPost).viewsCount || 0)}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -738,7 +993,7 @@ const PostsModal: React.FC<PostsModalProps> = ({ account, posts, onClose, select
               <div className="relative">
                 <img
                   src={selectedPost.displayUrl || selectedPost.url}
-                  alt={selectedPost.caption || 'Instagram post'}
+                  alt={selectedPost.caption || `${platformName} post`}
                   className="w-full max-h-[60vh] object-contain bg-black"
                   onError={(e) => {
                     e.currentTarget.src = 'https://via.placeholder.com/800x800?text=Image+Not+Available';
@@ -753,7 +1008,7 @@ const PostsModal: React.FC<PostsModalProps> = ({ account, posts, onClose, select
                 </motion.button>
               </div>
               <div className="p-6">
-                <div className="flex items-center gap-6 mb-4">
+                <div className="flex items-center gap-6 mb-4 flex-wrap">
                   <div className="flex items-center gap-2 text-pink-600">
                     <FiHeart size={20} />
                     <span className="font-bold text-lg">{formatNumber(selectedPost.likesCount || 0)}</span>
@@ -762,6 +1017,21 @@ const PostsModal: React.FC<PostsModalProps> = ({ account, posts, onClose, select
                     <FiMessageCircle size={20} />
                     <span className="font-bold text-lg">{formatNumber(selectedPost.commentsCount || 0)}</span>
                   </div>
+                  {isTikTok && (selectedPost as TikTokPost).viewsCount !== undefined && (
+                    <>
+                      <div className="flex items-center gap-2 text-blue-600">
+                        <FiEye size={20} />
+                        <span className="font-bold text-lg">{formatNumber((selectedPost as TikTokPost).viewsCount || 0)}</span>
+                      </div>
+                      {(selectedPost as TikTokPost).sharesCount !== undefined && (
+                        <div className="flex items-center gap-2 text-orange-600">
+                          <FiActivity size={20} />
+                          <span className="font-bold text-lg">{formatNumber((selectedPost as TikTokPost).sharesCount || 0)}</span>
+                          <span className="text-sm text-gray-500">shares</span>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
                 {selectedPost.caption && (
                   <p className="text-gray-700 leading-relaxed mb-4">{selectedPost.caption}</p>

@@ -16,6 +16,10 @@ export const API_ENDPOINTS = {
     VERIFY_OTP: '/auth/verify-otp',
     RESEND_OTP: '/auth/resend-otp',
     LOGIN: '/auth/login',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    VERIFY_FORGOT_OTP: '/auth/verify-forgot-otp',
+    RESET_PASSWORD: '/auth/reset-password',
+    RESEND_FORGOT_OTP: '/auth/resend-forgot-otp',
   },
   // Onboarding endpoints
   ONBOARDING: {

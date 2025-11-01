@@ -63,6 +63,7 @@ model Salon {
   description         String?      @db.Text
   profilePic          String?      // Logo/profile picture
   preferredCategories String[]     // Types of influencers they want to work with
+  region              String?      // Business location (Japanese prefecture)
   
   // Business details
   website             String?

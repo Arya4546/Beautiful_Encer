@@ -1,6 +1,6 @@
 /**
- * OTP Verification Page
- * Email verification with OTP
+ * Verify Forgot Password OTP Page
+ * Step 2: Verify OTP for password reset
  */
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -11,7 +11,7 @@ import { showToast } from '../../utils/toast';
 import { FiArrowLeft } from 'react-icons/fi';
 import { authService } from '../../services/auth.service';
 
-export const VerifyOtpPage: React.FC = () => {
+export const VerifyForgotOTPPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,10 +24,10 @@ export const VerifyOtpPage: React.FC = () => {
 
   useEffect(() => {
     if (!email) {
-      showToast.error('Email not found. Please sign up again.');
-      navigate('/signup');
+      showToast.error(t('toast.error.emailNotFound'));
+      navigate('/forgot-password');
     }
-  }, [email, navigate]);
+  }, [email, navigate, t]);
 
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) {
@@ -42,7 +42,6 @@ export const VerifyOtpPage: React.FC = () => {
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto-focus next input
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -68,7 +67,6 @@ export const VerifyOtpPage: React.FC = () => {
     }
     setOtp(newOtp);
     
-    // Focus last filled input
     const lastIndex = Math.min(pastedData.length, 5);
     inputRefs.current[lastIndex]?.focus();
   };
@@ -85,26 +83,36 @@ export const VerifyOtpPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await authService.verifyOtp({
-        email,
-        otp: otpString,
-      });
-
-      showToast.success(response.message);
-      
-      // Navigate to login
-      navigate('/login', { 
-        state: { 
-          message: t('toast.success.otpVerified'),
-          email 
-        } 
-      });
+      await authService.verifyForgotPasswordOtp(email, otpString);
+      showToast.success(t('auth.verifyForgotOtp.otpVerified'));
+      navigate('/reset-password', { state: { email, otp: otpString } });
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.error || t('toast.error.otpFailed');
+      const errorMessage = error?.response?.data?.error || t('toast.error.otpVerificationFailed');
       showToast.error(errorMessage);
+      
+      // Clear OTP on error
+      setOtp(['', '', '', '', '', '']);
+      inputRefs.current[0]?.focus();
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setIsResending(true);
+
+    try {
+      await authService.resendForgotPasswordOtp(email);
+      showToast.success(t('auth.verifyForgotOtp.otpResent'));
+      
+      // Clear and focus first input
+      setOtp(['', '', '', '', '', '']);
+      inputRefs.current[0]?.focus();
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.error || t('toast.error.resendFailed');
+      showToast.error(errorMessage);
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -115,8 +123,7 @@ export const VerifyOtpPage: React.FC = () => {
         background: '#e8d5f0'
       }}
     >
-      {/* Decorative Background Elements - Same as signup/login */}
-      {/* Bottom-left pink blur */}
+      {/* Decorative Background Elements */}
       <div 
         className="absolute bottom-0 left-0 w-[700px] h-[700px] rounded-full opacity-70 blur-[100px]"
         style={{
@@ -125,7 +132,6 @@ export const VerifyOtpPage: React.FC = () => {
         }}
       />
       
-      {/* Top-right purple/blue blur */}
       <div 
         className="absolute top-0 right-0 w-[700px] h-[700px] rounded-full opacity-65 blur-[100px]"
         style={{
@@ -136,11 +142,11 @@ export const VerifyOtpPage: React.FC = () => {
 
       {/* Back Button */}
       <Link
-        to="/signup"
+        to="/forgot-password"
         className="absolute top-6 left-6 flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors group z-10"
       >
         <FiArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-        <span className="text-sm font-medium">Back</span>
+        <span className="text-sm font-medium">{t('common.back')}</span>
       </Link>
 
       <motion.div 
@@ -149,7 +155,6 @@ export const VerifyOtpPage: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md relative z-10"
       >
-        {/* Card Container */}
         <div className="bg-white rounded-[32px] shadow-2xl px-8 py-12 sm:px-12 sm:py-14">
           {/* Logo Section */}
           <div className="flex flex-col items-center mb-8">
@@ -162,23 +167,22 @@ export const VerifyOtpPage: React.FC = () => {
               }}
             />
             <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 text-center mb-2">
-              {t('auth.verifyOtp.title')}
+              {t('auth.verifyForgotOtp.title')}
             </h1>
-            <p className="text-sm text-gray-600 text-center px-4">
-              {t('auth.verifyOtp.subtitle')}<br />
-              <span className="font-medium text-pink-600">{email}</span>
+            <p className="text-sm text-gray-600 text-center">
+              {t('auth.verifyForgotOtp.subtitle', { email })}
             </p>
           </div>
 
           {/* OTP Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* OTP Input Boxes */}
+            {/* OTP Inputs */}
             <div className="flex justify-center gap-2 sm:gap-3">
               {otp.map((digit, index) => (
-                <motion.input
+                <input
                   key={index}
                   ref={(el) => {
-                    inputRefs.current[index] = el;
+                    if (el) inputRefs.current[index] = el;
                   }}
                   type="text"
                   inputMode="numeric"
@@ -186,11 +190,8 @@ export const VerifyOtpPage: React.FC = () => {
                   value={digit}
                   onChange={(e) => handleChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
-                  onPaste={handlePaste}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all duration-300"
+                  onPaste={index === 0 ? handlePaste : undefined}
+                  className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-semibold border-2 border-gray-300 rounded-lg focus:border-pink-500 focus:ring-2 focus:ring-pink-500 focus:outline-none transition-all"
                 />
               ))}
             </div>
@@ -198,7 +199,7 @@ export const VerifyOtpPage: React.FC = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || otp.some(d => !d)}
               className="w-full py-4 rounded-xl text-white text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
@@ -210,36 +211,25 @@ export const VerifyOtpPage: React.FC = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  {t('common.loading')}
+                  {t('common.verifying')}
                 </span>
               ) : (
-                t('auth.verifyOtp.button')
+                t('auth.verifyForgotOtp.button')
               )}
             </button>
 
-            {/* Resend Link */}
-            <div className="text-center space-y-3">
+            {/* Resend OTP */}
+            <div className="text-center">
               <p className="text-sm text-gray-600">
-                {t('auth.verifyOtp.resend')}{' '}
+                {t('auth.verifyForgotOtp.didntReceive')}{' '}
                 <button
                   type="button"
-                  className="font-semibold hover:underline transition-colors"
-                  style={{ color: '#ec4899' }}
+                  onClick={handleResendOtp}
                   disabled={isResending}
-                  onClick={async () => {
-                    if (!email) return;
-                    try {
-                      setIsResending(true);
-                      await authService.resendOtp(email);
-                      showToast.success(t('toast.success.otpSent'));
-                    } catch (err: any) {
-                      showToast.error(err?.response?.data?.error || t('toast.error.somethingWrong'));
-                    } finally {
-                      setIsResending(false);
-                    }
-                  }}
+                  className="font-semibold hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ color: '#ec4899' }}
                 >
-                  {isResending ? t('common.loading') : t('auth.verifyOtp.resendLink')}
+                  {isResending ? t('common.sending') : t('auth.verifyForgotOtp.resend')}
                 </button>
               </p>
             </div>

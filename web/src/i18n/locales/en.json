@@ -259,10 +259,13 @@
     "signup": {
       "title": "Join Beautiful Encer",
       "subtitle": "Choose your account type to get started",
+      "selectRoleTitle": "SIGN UP",
       "roleInfluencer": "I'm an Influencer",
       "roleInfluencerDesc": "Share your creativity and collaborate with brands",
+      "roleInfluencerButton": "Influencer",
       "roleSalon": "I'm a Salon/Brand",
       "roleSalonDesc": "Discover and partner with authentic influencers",
+      "roleSalonButton": "Salon",
       "name": "Full Name",
       "namePlaceholder": "Enter your full name",
       "email": "Email",
@@ -288,6 +291,38 @@
       "resend": "Didn't receive the code?",
       "resendLink": "Resend OTP"
     },
+    "forgotPassword": {
+      "title": "Forgot Password?",
+      "subtitle": "Enter your email to receive a password reset code",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "button": "Send Reset Code",
+      "otpSent": "Reset code sent! Check your email.",
+      "rememberPassword": "Remember your password?",
+      "loginLink": "Back to login"
+    },
+    "verifyForgotOtp": {
+      "title": "Enter Reset Code",
+      "subtitle": "Enter the 6-digit code sent to {{email}}",
+      "button": "Verify Code",
+      "otpVerified": "Code verified successfully!",
+      "didntReceive": "Didn't receive the code?",
+      "resend": "Resend Code"
+    },
+    "resetPassword": {
+      "title": "Reset Your Password",
+      "subtitle": "Enter your new password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter new password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter new password",
+      "button": "Reset Password",
+      "success": "Password reset successful!",
+      "successMessage": "Your password has been reset. You can now log in with your new password.",
+      "requirements": "Password Requirements:",
+      "requirement1": "At least 8 characters long",
+      "requirement2": "Contains letters and numbers recommended"
+    },
     "validation": {
       "required": "This field is required",
       "emailRequired": "Email is required",
@@ -298,6 +333,7 @@
       "passwordMinLength": "Password must be at least 8 characters",
       "passwordMismatch": "Passwords do not match",
       "passwordsDoNotMatch": "Passwords do not match",
+      "confirmPasswordRequired": "Please confirm your password",
       "nameRequired": "Name is required",
       "phoneRequired": "Phone number is required",
       "otpRequired": "OTP is required",
@@ -458,7 +494,7 @@
     "title": "Discover Salons",
     "titleInfluencers": "Discover Influencers",
     "subtitle": "Connect with talented beauty salons and grow your network",
-    "subtitleInfluencers": "Connect with talented influencers and grow your network",
+    "subtitleInfluencers": "Connect with talented nano and micro-influencers to grow your salon brand",
     "searchPlaceholder": "Search salons...",
     "searchPlaceholderInfluencers": "Search influencers...",
     "searchInfluencers": "Search influencers...",
@@ -485,8 +521,36 @@
     "clearFilters": "Clear Filters",
     "noResults": "No users found",
     "noResultsSubtitle": "Try adjusting your search criteria",
-    "loading": "Loading...",
-    "endOfResults": "You've reached the end! 🎉"
+    "loading": "Discovering amazing profiles...",
+    "loadingMore": "Loading more...",
+    "endOfResults": "You've seen all available profiles",
+    "allLoaded": "All caught up!",
+    "premium": {
+      "findInfluencers": "Find Premium Influencers",
+      "findSalons": "Discover Top Salons"
+    },
+    "stats": {
+      "influencers": "Influencers",
+      "salons": "Salons",
+      "found": "Found",
+      "connected": "Connected",
+      "sortedBy": "Sorted by relevance"
+    },
+    "card": {
+      "viewProfile": "View Profile",
+      "connect": "Connect",
+      "connected": "Connected",
+      "pending": "Pending",
+      "accept": "Accept",
+      "processing": "Processing...",
+      "location": "Location",
+      "followers": "Followers",
+      "engagement": "Engagement",
+      "status": "Status",
+      "more": "more",
+      "influencer": "Influencer",
+      "salon": "Salon"
+    }
   },
   "profile": {
     "title": "Settings",
@@ -658,7 +722,12 @@
       "somethingWrong": "Something went wrong. Please try again.",
       "passwordResetComingSoon": "Password reset coming soon!",
       "onlyConnectedUsers": "You can only chat with connected users",
-      "failedToStartChat": "Failed to start chat"
+      "failedToStartChat": "Failed to start chat",
+      "emailNotFound": "No account found with this email address",
+      "forgotPasswordFailed": "Failed to send reset email. Please try again.",
+      "otpVerificationFailed": "Invalid or expired OTP. Please try again.",
+      "resetPasswordFailed": "Failed to reset password. Please try again.",
+      "invalidResetSession": "Invalid password reset session. Please start over."
     }
   },
   "categories": {

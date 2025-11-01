@@ -75,7 +75,7 @@ class OnboardingController {
                 return res.status(401).json({ error: 'Unauthorized' });
             }
             // Destructure all fields
-            const { businessName, description, preferredCategories, website, establishedYear, teamSize, operatingHours, instagramHandle, tiktokHandle, facebookPage, } = req.body;
+            const { businessName, description, preferredCategories, region, website, establishedYear, teamSize, operatingHours, instagramHandle, tiktokHandle, facebookPage, } = req.body;
             // Validation: required fields
             if (!businessName || !description || !preferredCategories) {
                 return res.status(400).json({
@@ -96,6 +96,7 @@ class OnboardingController {
                 businessName,
                 description,
                 preferredCategories: parsedCategories,
+                region: region || null,
                 website: website || null,
                 establishedYear: parsedEstablishedYear,
                 teamSize: parsedTeamSize,
