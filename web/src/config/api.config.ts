@@ -42,6 +42,12 @@ export const API_ENDPOINTS = {
     TIKTOK_PROFILE: (username: string) => `/social-media/tiktok/profile/${username}`,
     TIKTOK_VIDEOS: (username: string) => `/social-media/tiktok/videos/${username}`,
     
+    // YouTube endpoints (Apify public scraping)
+    YOUTUBE_CONNECT: '/social-media/youtube/connect',
+    YOUTUBE_SYNC: '/social-media/youtube/sync',
+    YOUTUBE_DATA: (accountId: string) => `/social-media/youtube/${accountId}`,
+    YOUTUBE_DISCONNECT: (accountId: string) => `/social-media/youtube/${accountId}`,
+    
     // TikTok OAuth (for future connected accounts)
     TIKTOK_AUTH: '/social-media/tiktok/auth',
     

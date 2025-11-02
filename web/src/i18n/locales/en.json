@@ -855,6 +855,12 @@
       "notConnectedDesc": "Connect your TikTok account to display your follower count, engagement rate, and recent videos",
       "connect": "Connect TikTok",
       "comingSoonDesc": "TikTok integration will be available soon. Stay tuned!"
+    },
+    "youtube": {
+      "description": "Connect your YouTube to showcase your videos",
+      "notConnected": "YouTube Not Connected",
+      "notConnectedDesc": "Connect your YouTube channel to display your subscriber count, engagement rate, and recent videos",
+      "connect": "Connect YouTube"
     }
   },
   "tiktok": {
@@ -939,6 +945,94 @@
       "disconnectFailed": "Failed to disconnect TikTok account. Please try again.",
       "noAccountToDisconnect": "No account to disconnect",
       "accountNotFoundDisconnect": "Account not found",
+      "disconnectServerError": "Server error during disconnect. Please try again",
+      "disconnectNetworkError": "Network error. Please check your connection"
+    }
+  },
+  "youtube": {
+    "title": {
+      "connect": "Connect YouTube",
+      "connected": "YouTube Connected"
+    },
+    "subtitle": {
+      "enterHandle": "Enter your YouTube channel handle to connect your channel",
+      "manage": "View and manage your YouTube connection"
+    },
+    "form": {
+      "handleLabel": "YouTube Channel Handle",
+      "handlePlaceholder": "yourchannelhandle",
+      "handleHint": "Enter your YouTube channel handle without the @ symbol (e.g., MrBeast)"
+    },
+    "buttons": {
+      "connect": "Connect YouTube",
+      "connecting": "Connecting...",
+      "sync": "Refresh Data",
+      "syncing": "Refreshing...",
+      "disconnect": "Disconnect"
+    },
+    "stats": {
+      "subscribers": "Subscribers",
+      "videos": "Videos",
+      "engagement": "Engagement",
+      "views": "Views"
+    },
+    "recentVideos": "Recent Videos",
+    "details": "YouTube Details",
+    "topHashtags": "Top Hashtags",
+    "noVideos": "No videos available",
+    "alt": {
+      "video": "YouTube video"
+    },
+    "analytics": {
+      "averageViews": "Average Views",
+      "averageLikes": "Average Likes",
+      "avgComments": "Avg Comments",
+      "totalVideos": "Total Videos",
+      "totalViews": "Total Views",
+      "customUrl": "Custom URL",
+      "country": "Country",
+      "perVideo": "per video",
+      "overall": "overall",
+      "published": "published",
+      "allTime": "all time"
+    },
+    "hashtags": {
+      "description": "These are the most frequently used hashtags extracted from this creator's recent video descriptions. Hashtags help understand content themes and reach specific audiences on YouTube.",
+      "none": "No Hashtags Found",
+      "noneDesc": "This creator hasn't used hashtags in their recent videos"
+    },
+    "info": {
+      "title": "How it works",
+      "point1": "We fetch your public YouTube channel data",
+      "point2": "No password or login required",
+      "point3": "Data updates automatically every 7 days"
+    },
+    "error": "Error",
+    "success": "Success!",
+    "successMessage": "YouTube channel connected successfully",
+    "synced": "YouTube data synced successfully!",
+    "connected": "YouTube channel connected successfully!",
+    "disconnected": "YouTube channel disconnected successfully",
+    "confirmDisconnect": "Are you sure you want to disconnect your YouTube channel? This will remove all synced data.",
+    "errors": {
+      "handleRequired": "Please enter your YouTube channel handle",
+      "invalidHandle": "Channel handle can only contain letters, numbers, underscores, dots, and hyphens",
+      "handleLengthInvalid": "Channel handle must be between 3 and 30 characters",
+      "connectionFailed": "Failed to connect YouTube channel. Please check the handle and try again.",
+      "invalidRequest": "Invalid request. Please check the channel handle",
+      "channelNotFound": "YouTube channel not found. Please verify the handle",
+      "rateLimitExceeded": "Too many requests. Please try again later",
+      "serverError": "Server error. Please try again later",
+      "networkError": "Network error. Please check your connection",
+      "syncFailed": "Failed to refresh YouTube data. Please try again later.",
+      "noAccountToSync": "No channel to sync",
+      "channelNotFoundSync": "Channel not found. Please reconnect",
+      "syncRateLimitExceeded": "Sync limit exceeded. Please try again in a few minutes",
+      "syncServerError": "Server error during sync. Please try again later",
+      "syncNetworkError": "Network error during sync. Please check your connection",
+      "disconnectFailed": "Failed to disconnect YouTube channel. Please try again.",
+      "noAccountToDisconnect": "No channel to disconnect",
+      "channelNotFoundDisconnect": "Channel not found",
       "disconnectServerError": "Server error during disconnect. Please try again",
       "disconnectNetworkError": "Network error. Please check your connection"
     }

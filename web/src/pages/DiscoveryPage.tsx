@@ -578,15 +578,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
                 <FiStar className="text-white" size={14} />
               </div>
             )}
-            
-            {/* Role Badge */}
-            <div className="absolute -bottom-2 -right-2 bg-white rounded-xl p-1.5 shadow-lg border-2 border-gray-100">
-              <div className={`px-2 py-1 rounded-lg flex items-center justify-center text-xs font-bold ${
-                user.role === 'INFLUENCER' ? 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700' : 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700'
-              }`}>
-                {user.role === 'INFLUENCER' ? `✨ ${t('discovery.card.influencer')}` : `💼 ${t('discovery.card.salon')}`}
-              </div>
-            </div>
+
           </div>
 
           {/* Social Platform Icons */}

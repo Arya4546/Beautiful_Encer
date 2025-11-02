@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { FaInstagram, FaPlus, FaCheck, FaClock } from 'react-icons/fa';
+import { FaInstagram, FaYoutube, FaPlus, FaCheck, FaClock } from 'react-icons/fa';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
 import InstagramConnect from '../components/InstagramConnect';
 import TikTokConnect from '../components/TikTokConnect';
+import YoutubeConnect from '../components/YoutubeConnect';
 import { useAuthStore } from '../store/authStore';
 import axiosInstance from '../lib/axios';
 import { API_ENDPOINTS } from '../config/api.config';
@@ -28,15 +29,20 @@ interface SocialMediaAccount {
   lastSynced: string;
   metadata?: {
     bio?: string;
+    description?: string; // YouTube description
     postsCount?: number;
     videosCount?: number;
+    videoCount?: number; // YouTube video count
     likesCount?: number;
+    viewCount?: number; // YouTube total views
     engagementRate?: number;
     averageLikes?: number;
     averageComments?: number;
     averageShares?: number;
     averageViews?: number;
     isVerified?: boolean;
+    customUrl?: string; // YouTube custom URL
+    country?: string; // YouTube country
     recentPosts?: any[];
     recentVideos?: any[];
     topHashtags?: string[];
@@ -48,10 +54,12 @@ export default function SocialMediaPage() {
   const { user } = useAuthStore();
   const [instagramModalOpen, setInstagramModalOpen] = useState(false);
   const [tiktokModalOpen, setTiktokModalOpen] = useState(false);
+  const [youtubeModalOpen, setYoutubeModalOpen] = useState(false);
   const [accounts, setAccounts] = useState<SocialMediaAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState<any>(null);
   const [selectedTikTokAccount, setSelectedTikTokAccount] = useState<any>(null);
+  const [selectedYoutubeAccount, setSelectedYoutubeAccount] = useState<any>(null);
 
   useEffect(() => {
     fetchAccounts();
@@ -81,11 +89,15 @@ export default function SocialMediaPage() {
     } else if (account.platform === 'TIKTOK') {
       setSelectedTikTokAccount(account);
       setTiktokModalOpen(true);
+    } else if (account.platform === 'YOUTUBE') {
+      setSelectedYoutubeAccount(account);
+      setYoutubeModalOpen(true);
     }
   };
 
   const instagramAccount = accounts.find(acc => acc.platform === 'INSTAGRAM');
   const tiktokAccount = accounts.find(acc => acc.platform === 'TIKTOK');
+  const youtubeAccount = accounts.find(acc => acc.platform === 'YOUTUBE');
 
   const formatLastSynced = (dateString: string) => {
     const date = new Date(dateString);
@@ -444,6 +456,159 @@ export default function SocialMediaPage() {
                     )}
                   </div>
                 </motion.div>
+
+                {/* YouTube Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="bg-white rounded-3xl shadow-soft border-2 border-gray-200 overflow-hidden hover:shadow-large transition-shadow"
+                >
+                  <div className="bg-gradient-to-br from-red-500 via-red-600 to-red-700 p-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-white">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-white/20 backdrop-blur-sm p-4 rounded-2xl">
+                          <FaYoutube className="text-4xl" />
+                        </div>
+                        <div>
+                          <h2 className="text-2xl font-bold">YouTube</h2>
+                          <p className="text-white/80 text-sm">
+                            {t('socialMedia.youtube.description') || 'Connect your YouTube to showcase your videos'}
+                          </p>
+                        </div>
+                      </div>
+                      {youtubeAccount && (
+                        <div className="bg-green-400 text-green-900 px-4 py-2 rounded-full flex items-center gap-2 font-bold text-sm whitespace-nowrap">
+                          <FaCheck />
+                          {t('common.connected')}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    {loading ? (
+                      <div className="text-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+                        <p className="text-gray-500 mt-4">{t('common.loading')}</p>
+                      </div>
+                    ) : youtubeAccount ? (
+                      /* Connected Account Display */
+                      <div className="space-y-6">
+                        {/* Profile Header */}
+                        <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border-2 border-red-200">
+                          <img
+                            src={youtubeAccount.profilePicture || '/default-avatar.svg'}
+                            alt={youtubeAccount.displayName || youtubeAccount.username}
+                            className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/default-avatar.svg';
+                            }}
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-xl font-bold text-gray-900">
+                                {youtubeAccount.displayName || youtubeAccount.username}
+                              </h3>
+                              {youtubeAccount.metadata?.isVerified && (
+                                <FaCheck className="text-red-500 bg-white rounded-full p-1 text-lg" />
+                              )}
+                            </div>
+                            <p className="text-red-600 font-semibold">@{youtubeAccount.username}</p>
+                            {youtubeAccount.metadata?.description && (
+                              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                {youtubeAccount.metadata.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div className="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-200 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-red-600">
+                              {(youtubeAccount.followersCount || 0).toLocaleString()}
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mt-1">
+                              {t('youtube.stats.subscribers') || 'Subscribers'}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-orange-600">
+                              {(youtubeAccount.metadata?.videoCount || youtubeAccount.postsCount || 0).toLocaleString()}
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mt-1">
+                              {t('youtube.stats.videos') || 'Videos'}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-pink-50 to-pink-100 border-2 border-pink-200 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-pink-600">
+                              {(youtubeAccount.engagementRate || youtubeAccount.metadata?.engagementRate || 0).toFixed(2)}%
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mt-1">
+                              {t('youtube.stats.engagement') || 'Engagement'}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-blue-600">
+                              {youtubeAccount.metadata?.viewCount 
+                                ? `${(youtubeAccount.metadata.viewCount / 1000000).toFixed(1)}M`
+                                : '0'}
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mt-1">
+                              {t('youtube.stats.views') || 'Total Views'}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Last Synced Info */}
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                          <div className="flex items-center gap-3 text-gray-600">
+                            <FaClock className="text-lg" />
+                            <div>
+                              <p className="text-sm font-semibold">
+                                {t('socialMedia.lastSynced') || 'Last Updated'}
+                              </p>
+                              <p className="text-xs">
+                                {youtubeAccount.lastSynced ? formatLastSynced(youtubeAccount.lastSynced) : 'Never'}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleEditAccount(youtubeAccount)}
+                            className="px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-bold hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+                          >
+                            {t('common.manage') || 'Manage'}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Not Connected State */
+                      <div className="text-center py-12">
+                        <div className="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <FaYoutube className="text-4xl text-gray-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                          {t('socialMedia.youtube.notConnected') || 'YouTube Not Connected'}
+                        </h3>
+                        <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                          {t('socialMedia.youtube.notConnectedDesc') || 'Connect your YouTube channel to display your subscriber count, engagement rate, and recent videos'}
+                        </p>
+                        <button
+                          onClick={() => {
+                            setSelectedYoutubeAccount(null);
+                            setYoutubeModalOpen(true);
+                          }}
+                          className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white rounded-xl font-bold text-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
+                        >
+                          <FaPlus />
+                          {t('socialMedia.youtube.connect') || 'Connect YouTube'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
               </div>
             )}
           </div>
@@ -472,6 +637,17 @@ export default function SocialMediaPage() {
         }}
         onSuccess={handleConnectSuccess}
         existingAccount={selectedTikTokAccount}
+      />
+
+      {/* YouTube Connect Modal */}
+      <YoutubeConnect
+        isOpen={youtubeModalOpen}
+        onClose={() => {
+          setYoutubeModalOpen(false);
+          setSelectedYoutubeAccount(null);
+        }}
+        onSuccess={handleConnectSuccess}
+        existingAccount={selectedYoutubeAccount}
       />
     </div>
   );

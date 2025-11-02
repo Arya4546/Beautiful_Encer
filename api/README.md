@@ -324,8 +324,20 @@ CLOUDINARY_API_SECRET=your_api_secret
 #### Apify (Social Media Scraping)
 ```bash
 # Get from: https://console.apify.com/account/integrations
+# Used for Instagram, TikTok (public), and YouTube scraping
 APIFY_API_TOKEN=your_apify_token
+
+# YouTube Channel Scraper Actor ID (recommended: streamers/youtube-channel-scraper)
+APIFY_YOUTUBE_ACTOR_ID=streamers/youtube-channel-scraper
 ```
+
+**Note on Apify Actors:**
+- Instagram: `apify/instagram-profile-scraper` (configured in code)
+- TikTok Public: `clockworks/tiktok-scraper` (configured in code)
+- YouTube: `streamers/youtube-channel-scraper` (env variable)
+  - Cost: ~$0.50 per 1,000 videos
+  - Rating: 4.6/5 (286 users, 7.3K runs)
+  - Provides channel info and recent videos (view counts accurate, likes/comments estimated)
 
 #### TikTok OAuth (Connected Accounts)
 ```bash
@@ -361,9 +373,10 @@ The application uses **PostgreSQL** with **Prisma ORM**. The schema is defined i
 - `Role` enum: `INFLUENCER | SALON | ADMIN`
 
 **Social Media**
-- `SocialMediaAccount` - Connected accounts (Instagram/TikTok)
-- `SocialMediaPost` - Cached posts/videos
-- `SocialMediaPlatform` enum: `INSTAGRAM | TIKTOK`
+- `SocialMediaAccount` - Connected accounts (Instagram/TikTok/YouTube)
+- `SocialMediaPost` - Cached posts/videos with thumbnails and metadata
+- `SocialMediaPlatform` enum: `INSTAGRAM | TIKTOK | YOUTUBE`
+- Fields: `thumbnailUrl` (for video thumbnails), `metadata` (JSONB for extra data like duration, description)
 
 **Connections & Chat**
 - `ConnectionRequest` - Connection requests between users
@@ -516,6 +529,16 @@ Response: 201 Created
 |--------|----------|-------------|---------------|
 | `GET` | `/tiktok/oauth/callback` | OAuth callback | No |
 | `GET` | `/tiktok/auth` | Initiate OAuth flow | Yes |
+
+**YouTube (Public Scraping via Apify)**
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| `POST` | `/youtube/connect` | Connect YouTube by channel handle | Yes |
+| `POST` | `/youtube/sync` | Manual sync (rate limited) | Yes |
+| `GET` | `/youtube/:accountId` | Get account data with videos | Yes |
+| `DELETE` | `/youtube/:accountId` | Disconnect account | Yes |
+| `GET` | `/youtube/profile/:username` | Public channel lookup | Yes |
 
 **General**
 
@@ -986,6 +1009,59 @@ class TikTokService {
 }
 ```
 
+### Apify YouTube Service (`apify.youtube.service.ts`)
+
+Scrapes YouTube public channels without OAuth:
+
+```typescript
+class ApifyYouTubeService {
+  async scrapeYouTubeChannel(channelHandle: string) {
+    const client = new ApifyClient({ token: process.env.APIFY_API_TOKEN });
+    
+    // Uses streamers/youtube-channel-scraper actor
+    const run = await client.actor(this.actorId).call({
+      channelUrls: [`https://www.youtube.com/@${channelHandle}`],
+      maxResults: 20
+    });
+    
+    // Extract channel info and recent videos
+    const { items } = await client.dataset(run.defaultDatasetId).listItems();
+    const profile = items[0].channelInfo;
+    const videos = items.filter(item => item.type === 'video');
+    
+    // Calculate engagement metrics
+    // Note: Individual video likes/comments estimated using industry rates
+    const averageViews = Math.round(totalViews / videos.length);
+    const averageLikes = Math.round(averageViews * 0.04); // 4% like rate
+    const averageComments = Math.round(averageViews * 0.005); // 0.5% comment rate
+    
+    return { profile, videos, averageLikes, averageComments };
+  }
+
+  async connectYouTubeAccount(userId: string, channelHandle: string) {
+    const scrapedData = await this.scrapeYouTubeChannel(channelHandle);
+    
+    // Check if account exists (update) or create new
+    // Store videos with estimated engagement
+    await this.storeVideos(accountId, scrapedData.recentVideos);
+  }
+  
+  async syncYouTubeData(accountId: string) {
+    // Refresh data if cache expired (7 days)
+    // Rate limited: max 3 syncs per hour
+  }
+}
+```
+
+**Important Notes**:
+- YouTube channel scraper API **does not provide** individual video likes/comments
+- Engagement metrics (likes/comments) are **estimated** using industry-standard rates:
+  - **Like rate**: 4% of average views (typical for YouTube)
+  - **Comment rate**: 0.5% of average views
+- View counts are **accurate** from the scraper
+- 7-day data caching reduces API costs (same as Instagram/TikTok)
+- Manual sync available with rate limiting (3 per hour)
+
 ### Admin Service (`admin.service.ts`)
 
 ```typescript
@@ -1046,7 +1122,7 @@ export default {
 ### 2. Data Sync Scheduler (`dataSyncScheduler.job.ts`)
 
 **Schedule:** Daily at 3:00 AM
-**Purpose:** Sync Instagram/TikTok data for active accounts
+**Purpose:** Sync Instagram/TikTok/YouTube data for active accounts
 
 ```typescript
 export default {
@@ -1063,7 +1139,7 @@ export default {
         }
       });
       
-      // Sync each account
+      // Sync each account based on platform
       for (const account of accountsToSync) {
         if (account.platform === 'INSTAGRAM') {
           await apifyInstagramService.syncInstagramData(account.id);
@@ -1075,6 +1151,9 @@ export default {
             // Public scraping
             await apifyTikTokService.syncTikTokData(account.id);
           }
+        } else if (account.platform === 'YOUTUBE') {
+          // Public scraping (YouTube doesn't use OAuth)
+          await apifyYouTubeService.syncYouTubeData(account.id);
         }
       }
       

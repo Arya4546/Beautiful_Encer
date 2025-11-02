@@ -176,6 +176,8 @@ web/
 │   │   ├── InstagramDataDisplay.tsx
 │   │   ├── TikTokConnect.tsx        # TikTok integration
 │   │   ├── TikTokDataDisplay.tsx
+│   │   ├── YoutubeConnect.tsx       # YouTube integration
+│   │   ├── YoutubeDataDisplay.tsx
 │   │   └── MessageActionsDropdown.tsx
 │   │
 │   ├── pages/                       # Page components

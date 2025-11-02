@@ -5,6 +5,8 @@ import { SocialMediaPlatform } from '@prisma/client';
 import apifyInstagramService from '../services/apify.instagram.service.js';
 // TikTok now uses Apify scraping service for public accounts
 import apifyTikTokService from '../services/apify.tiktok.service.js';
+// YouTube uses Apify scraping service
+import apifyYouTubeService from '../services/apify.youtube.service.js';
 import tiktokService from '../services/tiktok.service.js';
 import logger from '../utils/logger.util.js';
 
@@ -19,6 +21,7 @@ import logger from '../utils/logger.util.js';
  * - Instagram: Uses Apify scraping (7-day cache)
  * - TikTok Public: Uses Apify scraping (7-day cache)
  * - TikTok OAuth: Uses OAuth API for connected accounts
+ * - YouTube: Uses Apify scraping (7-day cache)
  * - Updates follower counts and engagement metrics
  * - Fetches latest posts/videos
  * - Rate-limited to avoid API throttling
@@ -92,6 +95,9 @@ class DataSyncSchedulerJob {
             } else {
               await this.syncTikTokDataOAuth(account.influencerId, account);
             }
+            successCount++;
+          } else if (account.platform === SocialMediaPlatform.YOUTUBE) {
+            await this.syncYouTubeData(account.influencerId, account);
             successCount++;
           }
 
@@ -223,6 +229,23 @@ class DataSyncSchedulerJob {
     }
 
     logger.log(`[DataSyncScheduler] TikTok sync completed for account ${account.id}`);
+  }
+
+  /**
+   * Sync YouTube data using Apify scraping
+   */
+  private async syncYouTubeData(influencerId: string, account: any) {
+    try {
+      logger.log(`[DataSyncScheduler] Syncing YouTube account ${account.id} (@${account.platformUsername})`);
+
+      // Use the YouTube service to sync data
+      await apifyYouTubeService.syncYouTubeData(account.id);
+
+      logger.log(`[DataSyncScheduler] YouTube sync completed for account ${account.id}`);
+    } catch (error: any) {
+      logger.error(`[DataSyncScheduler] YouTube sync error for account ${account.id}:`, error.message);
+      throw error;
+    }
   }
 
   /**

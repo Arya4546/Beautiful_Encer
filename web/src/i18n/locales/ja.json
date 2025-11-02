@@ -854,6 +854,12 @@
       "notConnectedDesc": "TikTokアカウントを連携すると、フォロワー数、エンゲージメント率、最近の動画が表示されます",
       "connect": "TikTok連携",
       "comingSoonDesc": "TikTok連携は近日公開予定です。お楽しみに！"
+    },
+    "youtube": {
+      "description": "YouTubeを連携して動画をアピール",
+      "notConnected": "YouTube未連携",
+      "notConnectedDesc": "YouTubeチャンネルを連携すると、登録者数、エンゲージメント率、最近の動画が表示されます",
+      "connect": "YouTube連携"
     }
   },
   "tiktok": {
@@ -938,6 +944,94 @@
       "disconnectFailed": "TikTokアカウントの連携解除に失敗しました。もう一度お試しください。",
       "noAccountToDisconnect": "連携解除するアカウントがありません",
       "accountNotFoundDisconnect": "アカウントが見つかりません",
+      "disconnectServerError": "連携解除中にサーバーエラーが発生しました。もう一度お試しください",
+      "disconnectNetworkError": "ネットワークエラーです。接続を確認してください"
+    }
+  },
+  "youtube": {
+    "title": {
+      "connect": "YouTube連携",
+      "connected": "YouTube連携済み"
+    },
+    "subtitle": {
+      "enterHandle": "YouTubeチャンネルのハンドルを入力してチャンネルを連携",
+      "manage": "YouTube連携の表示と管理"
+    },
+    "form": {
+      "handleLabel": "YouTubeチャンネルハンドル",
+      "handlePlaceholder": "チャンネルハンドル",
+      "handleHint": "@記号なしでYouTubeチャンネルハンドルを入力してください（例：MrBeast）"
+    },
+    "buttons": {
+      "connect": "YouTube連携",
+      "connecting": "連携中...",
+      "sync": "データ更新",
+      "syncing": "更新中...",
+      "disconnect": "連携解除"
+    },
+    "stats": {
+      "subscribers": "登録者",
+      "videos": "動画",
+      "engagement": "エンゲージメント",
+      "views": "再生回数"
+    },
+    "recentVideos": "最近の動画",
+    "details": "YouTube詳細",
+    "topHashtags": "トップハッシュタグ",
+    "noVideos": "利用可能な動画がありません",
+    "alt": {
+      "video": "YouTube動画"
+    },
+    "analytics": {
+      "averageViews": "平均再生回数",
+      "averageLikes": "平均いいね数",
+      "avgComments": "平均コメント数",
+      "totalVideos": "総動画数",
+      "totalViews": "総再生回数",
+      "customUrl": "カスタムURL",
+      "country": "国",
+      "perVideo": "動画あたり",
+      "overall": "全体",
+      "published": "公開済み",
+      "allTime": "全期間"
+    },
+    "hashtags": {
+      "description": "これは、このクリエイターの最近の動画説明から抽出された最も頻繁に使用されるハッシュタグです。ハッシュタグは、YouTubeでコンテンツのテーマを理解し、特定のオーディエンスにリーチするのに役立ちます。",
+      "none": "ハッシュタグが見つかりません",
+      "noneDesc": "このクリエイターは最近の動画でハッシュタグを使用していません"
+    },
+    "info": {
+      "title": "仕組み",
+      "point1": "公開されているYouTubeチャンネルデータを取得します",
+      "point2": "パスワードやログインは不要です",
+      "point3": "データは7日ごとに自動更新されます"
+    },
+    "error": "エラー",
+    "success": "成功！",
+    "successMessage": "YouTubeチャンネルが正常に連携されました",
+    "synced": "YouTubeデータが正常に同期されました！",
+    "connected": "YouTubeチャンネルが正常に連携されました！",
+    "disconnected": "YouTubeチャンネルが正常に連携解除されました",
+    "confirmDisconnect": "YouTubeチャンネルの連携を解除してもよろしいですか？すべての同期データが削除されます。",
+    "errors": {
+      "handleRequired": "YouTubeチャンネルハンドルを入力してください",
+      "invalidHandle": "チャンネルハンドルには英数字、アンダースコア、ドット、ハイフンのみ使用できます",
+      "handleLengthInvalid": "チャンネルハンドルは3文字以上30文字以内である必要があります",
+      "connectionFailed": "YouTubeチャンネルの連携に失敗しました。ハンドルを確認して、もう一度お試しください。",
+      "invalidRequest": "無効なリクエストです。チャンネルハンドルを確認してください",
+      "channelNotFound": "YouTubeチャンネルが見つかりません。ハンドルを確認してください",
+      "rateLimitExceeded": "リクエストが多すぎます。後でもう一度お試しください",
+      "serverError": "サーバーエラーです。後でもう一度お試しください",
+      "networkError": "ネットワークエラーです。接続を確認してください",
+      "syncFailed": "YouTubeデータの更新に失敗しました。後でもう一度お試しください。",
+      "noAccountToSync": "同期するチャンネルがありません",
+      "channelNotFoundSync": "チャンネルが見つかりません。もう一度連携してください",
+      "syncRateLimitExceeded": "同期の制限を超えました。数分後にもう一度お試しください",
+      "syncServerError": "同期中にサーバーエラーが発生しました。後でもう一度お試しください",
+      "syncNetworkError": "同期中にネットワークエラーが発生しました。接続を確認してください",
+      "disconnectFailed": "YouTubeチャンネルの連携解除に失敗しました。もう一度お試しください。",
+      "noAccountToDisconnect": "連携解除するチャンネルがありません",
+      "channelNotFoundDisconnect": "チャンネルが見つかりません",
       "disconnectServerError": "連携解除中にサーバーエラーが発生しました。もう一度お試しください",
       "disconnectNetworkError": "ネットワークエラーです。接続を確認してください"
     }
