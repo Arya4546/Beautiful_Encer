@@ -4,6 +4,7 @@ import { SocialMediaPlatform, MediaType } from '@prisma/client';
 import apifyInstagramService from '../services/apify.instagram.service.js';
 import tiktokService from '../services/tiktok.service.js';
 import apifyTikTokService from '../services/apify.tiktok.service.js';
+import apifyYouTubeService from '../services/apify.youtube.service.js';
 
 /**
  * Social Media Account Linking Controller
@@ -893,6 +894,240 @@ class SocialMediaController {
         return MediaType.CAROUSEL;
       default:
         return MediaType.IMAGE;
+    }
+  }
+
+  // ===========================
+  // YOUTUBE - CONNECT VIA CHANNEL HANDLE (APIFY SCRAPING)
+  // ===========================
+  async connectYouTube(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ 
+          error: 'Unauthorized',
+          message: 'You must be logged in to connect a YouTube channel'
+        });
+      }
+
+      const { channelHandle } = req.body;
+
+      if (!channelHandle || typeof channelHandle !== 'string' || channelHandle.trim() === '') {
+        return res.status(400).json({ 
+          error: 'Invalid channel handle',
+          message: 'Please provide a valid YouTube channel handle (e.g., @username)'
+        });
+      }
+
+      // Remove @ if present
+      const cleanHandle = channelHandle.startsWith('@') ? channelHandle.slice(1) : channelHandle;
+
+      // Connect YouTube channel using Apify scraping
+      const result = await apifyYouTubeService.connectYouTubeAccount(userId, cleanHandle);
+
+      return res.status(200).json({
+        success: true,
+        message: 'YouTube channel connected successfully',
+        data: result
+      });
+
+    } catch (error: any) {
+      console.error('[SocialMediaController.connectYouTube] Error:', error);
+      
+      // Handle specific error cases
+      if (error.message.includes('not found') || error.message.includes('No data')) {
+        return res.status(404).json({ 
+          error: 'YouTube channel not found',
+          message: 'The YouTube channel handle you provided does not exist or is private'
+        });
+      }
+
+      if (error.message.includes('already connected')) {
+        return res.status(409).json({ 
+          error: 'Channel already connected',
+          message: 'This YouTube channel is already connected to your account'
+        });
+      }
+
+      if (error.message.includes('influencer')) {
+        return res.status(403).json({ 
+          error: 'Not an influencer',
+          message: 'Only influencer accounts can connect YouTube channels'
+        });
+      }
+
+      return res.status(500).json({ 
+        error: 'Failed to connect YouTube',
+        message: error.message || 'An unexpected error occurred while connecting your YouTube channel'
+      });
+    }
+  }
+
+  // ===========================
+  // YOUTUBE - SYNC DATA
+  // ===========================
+  async syncYouTube(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ 
+          error: 'Unauthorized',
+          message: 'You must be logged in to sync YouTube data'
+        });
+      }
+
+      const { accountId } = req.body;
+
+      if (!accountId) {
+        return res.status(400).json({ 
+          error: 'Missing account ID',
+          message: 'Please provide the YouTube account ID to sync'
+        });
+      }
+
+      // Verify account belongs to this user
+      const account = await prisma.socialMediaAccount.findUnique({
+        where: { id: accountId },
+        include: { influencer: { include: { user: true } } },
+      });
+
+      if (!account) {
+        return res.status(404).json({ 
+          error: 'Account not found',
+          message: 'The YouTube account you are trying to sync does not exist'
+        });
+      }
+
+      if (account.platform !== SocialMediaPlatform.YOUTUBE) {
+        return res.status(400).json({ 
+          error: 'Invalid platform',
+          message: 'This account is not a YouTube account'
+        });
+      }
+
+      if (account.influencer.user.id !== userId) {
+        return res.status(403).json({ 
+          error: 'Forbidden',
+          message: 'You do not have permission to sync this YouTube account'
+        });
+      }
+
+      // Sync YouTube data
+      const result = await apifyYouTubeService.syncYouTubeData(accountId);
+
+      return res.status(200).json({
+        success: true,
+        message: 'YouTube data synced successfully',
+        data: result
+      });
+
+    } catch (error: any) {
+      console.error('[SocialMediaController.syncYouTube] Error:', error);
+      
+      return res.status(500).json({ 
+        error: 'Failed to sync YouTube data',
+        message: error.message || 'An unexpected error occurred while syncing your YouTube data'
+      });
+    }
+  }
+
+  // ===========================
+  // YOUTUBE - GET DATA
+  // ===========================
+  async getYouTubeData(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ 
+          error: 'Unauthorized',
+          message: 'You must be logged in to view YouTube data'
+        });
+      }
+
+      const { accountId } = req.params;
+
+      // Verify account belongs to this user
+      const account = await prisma.socialMediaAccount.findUnique({
+        where: { id: accountId },
+        include: { influencer: { include: { user: true } } },
+      });
+
+      if (!account) {
+        return res.status(404).json({ 
+          error: 'Account not found',
+          message: 'The YouTube account does not exist'
+        });
+      }
+
+      if (account.platform !== SocialMediaPlatform.YOUTUBE) {
+        return res.status(400).json({ 
+          error: 'Invalid platform',
+          message: 'This account is not a YouTube account'
+        });
+      }
+
+      if (account.influencer.user.id !== userId) {
+        return res.status(403).json({ 
+          error: 'Forbidden',
+          message: 'You do not have permission to view this YouTube account'
+        });
+      }
+
+      // Get YouTube data
+      const result = await apifyYouTubeService.getYouTubeData(accountId);
+
+      return res.status(200).json({
+        success: true,
+        data: result
+      });
+
+    } catch (error: any) {
+      console.error('[SocialMediaController.getYouTubeData] Error:', error);
+      
+      return res.status(500).json({ 
+        error: 'Failed to get YouTube data',
+        message: error.message || 'An unexpected error occurred while fetching YouTube data'
+      });
+    }
+  }
+
+  // ===========================
+  // YOUTUBE - DISCONNECT
+  // ===========================
+  async disconnectYouTube(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ 
+          error: 'Unauthorized',
+          message: 'You must be logged in to disconnect YouTube'
+        });
+      }
+
+      const { accountId } = req.params;
+
+      // Disconnect YouTube channel
+      await apifyYouTubeService.disconnectYouTubeAccount(accountId, userId);
+
+      return res.status(200).json({
+        success: true,
+        message: 'YouTube channel disconnected successfully'
+      });
+
+    } catch (error: any) {
+      console.error('[SocialMediaController.disconnectYouTube] Error:', error);
+      
+      if (error.message.includes('not found') || error.message.includes('access denied')) {
+        return res.status(404).json({ 
+          error: 'Account not found',
+          message: 'The YouTube account does not exist or you do not have permission to disconnect it'
+        });
+      }
+
+      return res.status(500).json({ 
+        error: 'Failed to disconnect YouTube',
+        message: error.message || 'An unexpected error occurred while disconnecting YouTube'
+      });
     }
   }
 }

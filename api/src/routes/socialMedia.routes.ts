@@ -158,6 +158,55 @@ router.post(
 );
 
 // ===========================
+// YOUTUBE ROUTES (APIFY SCRAPING)
+// ===========================
+
+/**
+ * @route   POST /api/v1/social-media/youtube/connect
+ * @desc    Connect YouTube channel using channel handle (Apify scraping)
+ * @access  Protected (Influencer)
+ */
+router.post(
+  '/youtube/connect',
+  protect,
+  socialMediaController.connectYouTube.bind(socialMediaController)
+);
+
+/**
+ * @route   POST /api/v1/social-media/youtube/sync
+ * @desc    Manually trigger YouTube data sync
+ * @access  Protected (Influencer) + Rate Limited
+ */
+router.post(
+  '/youtube/sync',
+  protect,
+  socialMediaLimiter,
+  socialMediaController.syncYouTube.bind(socialMediaController)
+);
+
+/**
+ * @route   GET /api/v1/social-media/youtube/:accountId
+ * @desc    Get YouTube account data
+ * @access  Protected (Influencer)
+ */
+router.get(
+  '/youtube/:accountId',
+  protect,
+  socialMediaController.getYouTubeData.bind(socialMediaController)
+);
+
+/**
+ * @route   DELETE /api/v1/social-media/youtube/:accountId
+ * @desc    Disconnect YouTube channel
+ * @access  Protected (Influencer)
+ */
+router.delete(
+  '/youtube/:accountId',
+  protect,
+  socialMediaController.disconnectYouTube.bind(socialMediaController)
+);
+
+// ===========================
 // GENERAL ROUTES
 // ===========================
 

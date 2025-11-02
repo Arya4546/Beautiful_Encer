@@ -92,6 +92,17 @@ The platform facilitates:
 - Daily automated data synchronization
 - Token refresh job (2 AM daily) for OAuth accounts
 
+#### YouTube (Public Data via Apify)
+- Channel profile scraping without OAuth requirement
+- Subscriber count, video count, total channel views
+- Recent videos with titles, thumbnails, durations
+- View counts per video (likes/comments estimated)
+- Engagement rate calculation based on views
+- Automatic hashtag extraction from descriptions
+- 7-day data caching to minimize costs
+- Manual sync available with rate limiting
+- **Note**: Individual video likes/comments estimated using industry-standard rates (4% like rate, 0.5% comment rate) as YouTube channel scraper API doesn't provide this data
+
 ### 🔍 **Discovery & Matchmaking**
 - Advanced search with multiple filters:
   - Categories (Beauty, Fashion, Lifestyle, Food, etc.)

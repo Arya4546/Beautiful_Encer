@@ -10,7 +10,8 @@ import { showToast } from '../utils/toast';
 import { getProxiedImageUrl } from '../utils/imageProxy';
 import { InstagramDataDisplay } from './InstagramDataDisplay';
 import { TikTokDataDisplay } from './TikTokDataDisplay';
-import { FaTiktok } from 'react-icons/fa';
+import { YoutubeDataDisplay } from './YoutubeDataDisplay';
+import { FaTiktok, FaYoutube } from 'react-icons/fa';
 
 interface ProfileModalProps {
   userId: string;
@@ -23,7 +24,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeView, setActiveView] = useState<'overview' | 'instagram' | 'tiktok'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'instagram' | 'tiktok' | 'youtube'>('overview');
   const navigate = useNavigate();
 
   const { connectionStatus, loading: connectionLoading, sendRequest, withdrawRequest, acceptRequest } = useConnectionStatus(userId);
@@ -39,6 +40,62 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
       setLoading(true);
       setError(null);
       const profile = await profileService.getUserProfile(userId);
+      
+      // Process social media accounts to add videos/posts to metadata
+      if (profile.influencer?.socialMediaAccounts) {
+        profile.influencer.socialMediaAccounts = profile.influencer.socialMediaAccounts.map((account: any) => {
+          if (account.posts && account.posts.length > 0) {
+            // Format posts for frontend consumption
+            const recentVideos = account.posts.map((post: any) => ({
+              id: post.platformPostId,
+              title: post.caption || '',
+              description: post.metadata?.description || '',
+              thumbnail: post.thumbnailUrl || '',
+              thumbnailUrl: post.thumbnailUrl || '',
+              url: post.mediaUrl || '',
+              publishedAt: post.postedAt,
+              viewCount: post.viewsCount || 0,
+              likeCount: post.likesCount || 0,
+              commentCount: post.commentsCount || 0,
+              duration: post.metadata?.duration || 0,
+            }));
+            
+            // Calculate totals and averages
+            const totalViews = recentVideos.reduce((sum: number, video: any) => sum + (video.viewCount || 0), 0);
+            const totalLikes = recentVideos.reduce((sum: number, video: any) => sum + (video.likeCount || 0), 0);
+            const totalComments = recentVideos.reduce((sum: number, video: any) => sum + (video.commentCount || 0), 0);
+            const videosCount = recentVideos.length;
+            
+            // If likes/comments are 0 (YouTube channel scraper limitation), estimate based on typical engagement rates
+            let estimatedAverageLikes = videosCount > 0 ? Math.round(totalLikes / videosCount) : 0;
+            let estimatedAverageComments = videosCount > 0 ? Math.round(totalComments / videosCount) : 0;
+            
+            // Only for YouTube: If likes/comments are 0, use industry-standard estimates
+            if (account.platform === 'YOUTUBE' && totalLikes === 0 && totalViews > 0) {
+              // Typical YouTube engagement rates: 4% like rate, 0.5% comment rate
+              const avgViews = videosCount > 0 ? totalViews / videosCount : 0;
+              estimatedAverageLikes = Math.round(avgViews * 0.04); // 4% of views
+              estimatedAverageComments = Math.round(avgViews * 0.005); // 0.5% of views
+            }
+            
+            // Add recentVideos and calculated metrics to metadata
+            return {
+              ...account,
+              metadata: {
+                ...account.metadata,
+                recentVideos,
+                recentPosts: recentVideos, // For Instagram/TikTok compatibility
+                totalViews: account.metadata?.viewCount || totalViews,
+                averageViews: account.metadata?.averageViews || (videosCount > 0 ? Math.round(totalViews / videosCount) : 0),
+                averageLikes: account.metadata?.averageLikes !== 0 ? account.metadata?.averageLikes : estimatedAverageLikes,
+                averageComments: account.metadata?.averageComments !== 0 ? account.metadata?.averageComments : estimatedAverageComments,
+              },
+            };
+          }
+          return account;
+        });
+      }
+      
       setUser(profile);
     } catch (err: any) {
       console.error('Failed to fetch profile:', err);
@@ -158,6 +215,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
     return accounts.find(acc => acc.platform.toUpperCase() === 'TIKTOK');
   };
 
+  const getYouTubeAccount = () => {
+    const accounts = user?.influencer?.socialMediaAccounts || [];
+    return accounts.find(acc => acc.platform.toUpperCase() === 'YOUTUBE');
+  };
+
   const formatNumber = (num: number | undefined | null): string => {
     if (!num && num !== 0) return '0';
     if (num >= 1000000000) return `${(num / 1000000000).toFixed(1)}B`;
@@ -264,8 +326,54 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
     };
   };
 
+  const getYouTubeChartData = () => {
+    const youtubeAccount = getYouTubeAccount();
+    const youtubeMetadata = youtubeAccount ? parseMetadata(youtubeAccount.metadata as any) : null;
+    const recentVideos = youtubeMetadata?.recentVideos || [];
+
+    // Video Engagement Trend Data (for line chart)
+    const youtubeEngagementData = recentVideos.slice(0, 10).map((video: any, index: number) => ({
+      name: `V${index + 1}`,
+      views: video.viewCount || video.viewsCount || 0,
+      likes: video.likeCount || video.likesCount || 0,
+      comments: video.commentCount || video.commentsCount || 0,
+    }));
+
+    // Engagement Metrics (for bar chart comparison)
+    const youtubeEngagementMetrics = [
+      {
+        name: 'Avg Views',
+        value: (youtubeMetadata?.averageViews || 0) / 100, // Scale down for visibility
+        color: '#FF0000',
+      },
+      {
+        name: 'Avg Likes',
+        value: youtubeMetadata?.averageLikes || 0,
+        color: '#FF4444',
+      },
+      {
+        name: 'Avg Comments',
+        value: youtubeMetadata?.averageComments || 0,
+        color: '#CC0000',
+      },
+    ];
+
+    // Content Type Distribution (show engagement distribution)
+    const youtubeContentTypeData = [
+      { name: 'Likes', value: youtubeMetadata?.averageLikes || 0, color: '#FF0000' },
+      { name: 'Comments', value: youtubeMetadata?.averageComments || 0, color: '#CC0000' },
+    ].filter(item => item.value > 0);
+
+    return {
+      youtubeEngagementData,
+      youtubeEngagementMetrics,
+      youtubeContentTypeData,
+    };
+  };
+
   const { postEngagementData, contentTypeData, engagementMetrics } = getChartData();
   const { videoEngagementData, tiktokEngagementMetrics, tiktokContentTypeData } = getTikTokChartData();
+  const { youtubeEngagementData, youtubeEngagementMetrics, youtubeContentTypeData } = getYouTubeChartData();
   const instagramAccount = getInstagramAccount();
   const metadata = instagramAccount ? parseMetadata(instagramAccount.metadata as any) : null;
 
@@ -296,7 +404,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
             </button>
           </div>
         ) : user && (user.influencer || user.salon) ? (
-          <div className="p-4 sm:p-6 lg:p-8 overflow-y-auto flex-1">{/* Scrollable content area */}
+          <div className="p-4 sm:p-6 lg:p-8 pb-24 md:pb-8 overflow-y-auto flex-1">{/* Scrollable content area with extra bottom padding for mobile */}
               {/* Profile Header */}
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-8">
                 <img
@@ -342,6 +450,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
                         <FaTiktok size={14} /> @{getTikTokAccount()!.platformUsername}
                       </span>
                     )}
+                    {getYouTubeAccount() && (
+                      <span className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full">
+                        <FaYoutube size={14} /> @{getYouTubeAccount()!.platformUsername}
+                      </span>
+                    )}
                   </div>
 
                   {(user.influencer?.categories && user.influencer.categories.length > 0) && (
@@ -375,7 +488,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
               </div>
 
               {/* View Toggle */}
-              {(instagramAccount || getTikTokAccount()) && (
+              {(instagramAccount || getTikTokAccount() || getYouTubeAccount()) && (
                 <div className="flex flex-wrap gap-2 sm:gap-4 mb-6 border-b border-gray-200">
                   <button
                     onClick={() => setActiveView('overview')}
@@ -415,6 +528,20 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
                       <FaTiktok size={18} />
                       <span className="hidden sm:inline">{t('tiktok.details', 'TikTok Details')}</span>
                       <span className="sm:hidden">TT</span>
+                    </button>
+                  )}
+                  {getYouTubeAccount() && (
+                    <button
+                      onClick={() => setActiveView('youtube')}
+                      className={`flex items-center gap-2 px-4 sm:px-6 py-3 font-semibold transition-all text-sm sm:text-base ${
+                        activeView === 'youtube'
+                          ? 'text-magenta border-b-2 border-magenta'
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      <FaYoutube size={20} />
+                      <span className="hidden sm:inline">{t('youtube.details', 'YouTube Details')}</span>
+                      <span className="sm:hidden">YT</span>
                     </button>
                   )}
                 </div>
@@ -492,6 +619,46 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
                             <p className="text-[10px] sm:text-sm text-purple-100 font-semibold mb-1">Avg Views</p>
                             <p className="text-xl sm:text-3xl font-bold text-white">
                               {formatNumber(tiktokMetadata?.averageViews || 0)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* YouTube Stats Cards */}
+                  {getYouTubeAccount() && (() => {
+                    const youtubeAccount = getYouTubeAccount()!;
+                    const youtubeMetadata = parseMetadata(youtubeAccount.metadata as any);
+                    return (
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          <FaYoutube className="text-red-600" size={24} />
+                          YouTube Stats
+                        </h3>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                          <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-red-400">
+                            <p className="text-[10px] sm:text-sm text-red-100 font-semibold mb-1">Subscribers</p>
+                            <p className="text-xl sm:text-3xl font-bold text-white">
+                              {formatNumber(youtubeAccount.followersCount || 0)}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-orange-400">
+                            <p className="text-[10px] sm:text-sm text-orange-100 font-semibold mb-1">Videos</p>
+                            <p className="text-xl sm:text-3xl font-bold text-white">
+                              {formatNumber(youtubeAccount.postsCount || 0)}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-red-700 to-red-800 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-red-600">
+                            <p className="text-[10px] sm:text-sm text-red-100 font-semibold mb-1">Total Views</p>
+                            <p className="text-xl sm:text-3xl font-bold text-white">
+                              {formatNumber(youtubeMetadata?.totalViews || 0)}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-pink-400">
+                            <p className="text-[10px] sm:text-sm text-pink-100 font-semibold mb-1">Avg Views</p>
+                            <p className="text-xl sm:text-3xl font-bold text-white">
+                              {formatNumber(youtubeMetadata?.averageViews || 0)}
                             </p>
                           </div>
                         </div>
@@ -670,11 +837,101 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
                       )}
                     </div>
                   )}
+
+                  {/* YouTube Charts */}
+                  {youtubeEngagementData.length > 0 && getYouTubeAccount() && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* YouTube Engagement Chart */}
+                      <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-soft border border-gray-200">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          <FaYoutube className="text-red-600" size={20} />
+                          YouTube Video Engagement Trend
+                        </h3>
+                        <ResponsiveContainer width="100%" height={250}>
+                          <AreaChart data={youtubeEngagementData}>
+                            <defs>
+                              <linearGradient id="colorYouTubeViews" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#FF0000" stopOpacity={0.8}/>
+                                <stop offset="95%" stopColor="#FF0000" stopOpacity={0.1}/>
+                              </linearGradient>
+                              <linearGradient id="colorYouTubeLikes" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#FF4444" stopOpacity={0.8}/>
+                                <stop offset="95%" stopColor="#FF4444" stopOpacity={0.1}/>
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                            <YAxis tick={{ fontSize: 12 }} />
+                            <Tooltip />
+                            <Legend />
+                            <Area type="monotone" dataKey="views" stroke="#FF0000" fillOpacity={1} fill="url(#colorYouTubeViews)" />
+                            <Area type="monotone" dataKey="likes" stroke="#FF4444" fillOpacity={1} fill="url(#colorYouTubeLikes)" />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      {/* YouTube Engagement Metrics */}
+                      <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-soft border border-gray-200">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          <FaYoutube className="text-red-600" size={20} />
+                          YouTube Engagement Metrics
+                        </h3>
+                        <ResponsiveContainer width="100%" height={250}>
+                          <BarChart data={youtubeEngagementMetrics}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                            <YAxis tick={{ fontSize: 12 }} />
+                            <Tooltip />
+                            <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                              {youtubeEngagementMetrics.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      {/* YouTube Content Distribution */}
+                      {youtubeContentTypeData.length > 0 && (
+                        <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-soft border border-gray-200">
+                          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <FaYoutube className="text-red-600" size={20} />
+                            YouTube Engagement Distribution
+                          </h3>
+                          <ResponsiveContainer width="100%" height={250}>
+                            <PieChart>
+                              <Pie
+                                data={youtubeContentTypeData}
+                                cx="50%"
+                                cy="50%"
+                                labelLine={false}
+                                label={(entry: any) => {
+                                  const percent = entry.percent as number;
+                                  return `${entry.name}: ${(percent * 100).toFixed(0)}%`;
+                                }}
+                                outerRadius={80}
+                                fill="#8884d8"
+                                dataKey="value"
+                              >
+                                {youtubeContentTypeData.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={entry.color} />
+                                ))}
+                              </Pie>
+                              <Tooltip />
+                              <Legend />
+                            </PieChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : activeView === 'instagram' ? (
                 <InstagramDataDisplay account={instagramAccount} metadata={metadata} />
               ) : activeView === 'tiktok' ? (
                 <TikTokDataDisplay account={getTikTokAccount()} metadata={getTikTokAccount() ? parseMetadata(getTikTokAccount()!.metadata as any) : null} />
+              ) : activeView === 'youtube' ? (
+                <YoutubeDataDisplay account={getYouTubeAccount()} metadata={getYouTubeAccount() ? parseMetadata(getYouTubeAccount()!.metadata as any) : null} />
               ) : null}
             </div>
           ) : (

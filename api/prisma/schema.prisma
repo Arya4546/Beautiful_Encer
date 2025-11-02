@@ -138,6 +138,7 @@ model SocialMediaPost {
   platformPostId    String              // Original post ID from platform
   caption           String?             @db.Text
   mediaUrl          String?             // Primary media URL
+  thumbnailUrl      String?             // Thumbnail/preview image URL
   mediaType         MediaType
   likesCount        Int                 @default(0)
   commentsCount     Int                 @default(0)
@@ -145,6 +146,7 @@ model SocialMediaPost {
   viewsCount        Int?
   engagementRate    Float?
   postedAt          DateTime
+  metadata          Json?               // Additional platform-specific data (description, duration, etc.)
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
 
@@ -339,6 +341,7 @@ enum Gender {
 enum SocialMediaPlatform {
   INSTAGRAM
   TIKTOK
+  YOUTUBE
 }
 
 enum MediaType {
