@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { FaInstagram, FaYoutube, FaPlus, FaCheck, FaClock } from 'react-icons/fa';
+import { FaInstagram, FaYoutube, FaTwitter, FaPlus, FaCheck, FaClock } from 'react-icons/fa';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
 import InstagramConnect from '../components/InstagramConnect';
 import TikTokConnect from '../components/TikTokConnect';
 import YoutubeConnect from '../components/YoutubeConnect';
+import TwitterConnect from '../components/TwitterConnect';
 import { useAuthStore } from '../store/authStore';
 import axiosInstance from '../lib/axios';
 import { API_ENDPOINTS } from '../config/api.config';
@@ -55,15 +56,27 @@ export default function SocialMediaPage() {
   const [instagramModalOpen, setInstagramModalOpen] = useState(false);
   const [tiktokModalOpen, setTiktokModalOpen] = useState(false);
   const [youtubeModalOpen, setYoutubeModalOpen] = useState(false);
+  const [twitterModalOpen, setTwitterModalOpen] = useState(false);
   const [accounts, setAccounts] = useState<SocialMediaAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState<any>(null);
   const [selectedTikTokAccount, setSelectedTikTokAccount] = useState<any>(null);
   const [selectedYoutubeAccount, setSelectedYoutubeAccount] = useState<any>(null);
+  const [selectedTwitterAccount, setSelectedTwitterAccount] = useState<any>(null);
 
   useEffect(() => {
     fetchAccounts();
   }, []);
+
+  // Update selected Twitter account when accounts change
+  useEffect(() => {
+    const twitterAccount = accounts.find(acc => acc.platform === 'TWITTER');
+    if (!twitterAccount) {
+      setSelectedTwitterAccount(null);
+    } else if (!selectedTwitterAccount || selectedTwitterAccount.id !== twitterAccount.id) {
+      setSelectedTwitterAccount(twitterAccount);
+    }
+  }, [accounts]);
 
   const fetchAccounts = async () => {
     try {
@@ -609,6 +622,148 @@ export default function SocialMediaPage() {
                     )}
                   </div>
                 </motion.div>
+
+                {/* Twitter/X Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl transition-all"
+                >
+                  {/* Header */}
+                  <div className="bg-gradient-to-r from-blue-400 to-blue-500 p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg">
+                          <FaTwitter className="text-3xl text-blue-500" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-white">Twitter/X</h2>
+                      </div>
+                      {selectedTwitterAccount && (
+                        <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                          <span className="text-sm text-white font-semibold">{t('common.connected')}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-8">
+                    {selectedTwitterAccount ? (
+                      /* Connected State */
+                      <div className="space-y-6">
+                        {/* Profile Header */}
+                        <div className="flex items-center gap-4 p-4 bg-gradient-to-br from-blue-50 to-gray-50 rounded-xl border-2 border-blue-200">
+                          <img
+                            src={getProxiedImageUrl(selectedTwitterAccount.profilePicture)}
+                            alt={selectedTwitterAccount.displayName || selectedTwitterAccount.username}
+                            className="w-16 h-16 rounded-full object-cover border-4 border-white shadow-lg"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/default-avatar.svg';
+                            }}
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-xl font-bold text-gray-900">
+                                {selectedTwitterAccount.displayName || selectedTwitterAccount.username}
+                              </h3>
+                              {selectedTwitterAccount.metadata?.isVerified && (
+                                <FaCheck className="text-blue-500 bg-white rounded-full p-1 text-lg" />
+                              )}
+                            </div>
+                            <p className="text-blue-600 font-semibold">@{selectedTwitterAccount.username}</p>
+                            {selectedTwitterAccount.metadata?.bio && (
+                              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                {selectedTwitterAccount.metadata.bio}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-blue-600">
+                              {(selectedTwitterAccount.followersCount || 0).toLocaleString()}
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mt-1">
+                              {t('twitter.followers') || 'Followers'}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-purple-600">
+                              {(selectedTwitterAccount.postsCount || 0).toLocaleString()}
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mt-1">
+                              {t('twitter.tweets') || 'Tweets'}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-pink-50 to-pink-100 border-2 border-pink-200 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-pink-600">
+                              {(selectedTwitterAccount.engagementRate || selectedTwitterAccount.metadata?.engagementRate || 0).toFixed(2)}%
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mt-1">
+                              {t('twitter.engagement') || 'Engagement'}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-green-600">
+                              {(selectedTwitterAccount.followingCount || 0).toLocaleString()}
+                            </p>
+                            <p className="text-xs text-gray-600 font-semibold mt-1">
+                              {t('twitter.following') || 'Following'}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Last Synced Info */}
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border-2 border-gray-200">
+                          <div className="flex items-center gap-3 text-gray-600">
+                            <FaClock className="text-lg" />
+                            <div>
+                              <p className="text-sm font-semibold">
+                                {t('socialMedia.lastSynced') || 'Last Updated'}
+                              </p>
+                              <p className="text-xs">
+                                {selectedTwitterAccount.lastSynced ? formatLastSynced(selectedTwitterAccount.lastSynced) : 'Never'}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setTwitterModalOpen(true)}
+                            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+                          >
+                            {t('common.manage') || 'Manage'}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Not Connected State */
+                      <div className="text-center py-12">
+                        <div className="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <FaTwitter className="text-4xl text-gray-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                          {t('socialMedia.twitter.notConnected') || 'Twitter/X Not Connected'}
+                        </h3>
+                        <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                          {t('socialMedia.twitter.notConnectedDesc') || 'Connect your Twitter/X account to display your followers, engagement rate, and recent tweets'}
+                        </p>
+                        <button
+                          onClick={() => {
+                            setSelectedTwitterAccount(null);
+                            setTwitterModalOpen(true);
+                          }}
+                          className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white rounded-xl font-bold text-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
+                        >
+                          <FaPlus />
+                          {t('socialMedia.twitter.connect') || 'Connect Twitter'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
               </div>
             )}
           </div>
@@ -648,6 +803,17 @@ export default function SocialMediaPage() {
         }}
         onSuccess={handleConnectSuccess}
         existingAccount={selectedYoutubeAccount}
+      />
+
+      {/* Twitter Connect Modal */}
+      <TwitterConnect
+        isOpen={twitterModalOpen}
+        onClose={() => {
+          setTwitterModalOpen(false);
+          setSelectedTwitterAccount(null);
+        }}
+        onSuccess={handleConnectSuccess}
+        existingAccount={selectedTwitterAccount}
       />
     </div>
   );

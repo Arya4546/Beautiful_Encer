@@ -5,6 +5,10 @@ import { SocialMediaPlatform } from '@prisma/client';
 import apifyInstagramService from '../services/apify.instagram.service.js';
 // TikTok now uses Apify scraping service for public accounts
 import apifyTikTokService from '../services/apify.tiktok.service.js';
+// YouTube uses Apify scraping service
+import apifyYouTubeService from '../services/apify.youtube.service.js';
+// Twitter uses Apify scraping service
+import apifyTwitterService from '../services/apify.twitter.service.js';
 import tiktokService from '../services/tiktok.service.js';
 import logger from '../utils/logger.util.js';
 /**
@@ -18,6 +22,7 @@ import logger from '../utils/logger.util.js';
  * - Instagram: Uses Apify scraping (7-day cache)
  * - TikTok Public: Uses Apify scraping (7-day cache)
  * - TikTok OAuth: Uses OAuth API for connected accounts
+ * - YouTube: Uses Apify scraping (7-day cache)
  * - Updates follower counts and engagement metrics
  * - Fetches latest posts/videos
  * - Rate-limited to avoid API throttling
@@ -85,6 +90,14 @@ class DataSyncSchedulerJob {
                         else {
                             await this.syncTikTokDataOAuth(account.influencerId, account);
                         }
+                        successCount++;
+                    }
+                    else if (account.platform === SocialMediaPlatform.YOUTUBE) {
+                        await this.syncYouTubeData(account.influencerId, account);
+                        successCount++;
+                    }
+                    else if (account.platform === SocialMediaPlatform.TWITTER) {
+                        await this.syncTwitterData(account.influencerId, account);
                         successCount++;
                     }
                     // Delay between accounts to avoid rate limiting
@@ -204,6 +217,36 @@ class DataSyncSchedulerJob {
             });
         }
         logger.log(`[DataSyncScheduler] TikTok sync completed for account ${account.id}`);
+    }
+    /**
+     * Sync YouTube data using Apify scraping
+     */
+    async syncYouTubeData(influencerId, account) {
+        try {
+            logger.log(`[DataSyncScheduler] Syncing YouTube account ${account.id} (@${account.platformUsername})`);
+            // Use the YouTube service to sync data
+            await apifyYouTubeService.syncYouTubeData(account.id);
+            logger.log(`[DataSyncScheduler] YouTube sync completed for account ${account.id}`);
+        }
+        catch (error) {
+            logger.error(`[DataSyncScheduler] YouTube sync error for account ${account.id}:`, error.message);
+            throw error;
+        }
+    }
+    /**
+     * Sync Twitter data using Apify scraping
+     */
+    async syncTwitterData(influencerId, account) {
+        try {
+            logger.log(`[DataSyncScheduler] Syncing Twitter account ${account.id} (@${account.platformUsername})`);
+            // Use the Twitter service to sync data
+            await apifyTwitterService.syncTwitterData(account.id);
+            logger.log(`[DataSyncScheduler] Twitter sync completed for account ${account.id}`);
+        }
+        catch (error) {
+            logger.error(`[DataSyncScheduler] Twitter sync error for account ${account.id}:`, error.message);
+            throw error;
+        }
     }
     /**
      * Map Instagram media type to database enum

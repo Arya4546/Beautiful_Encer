@@ -126,16 +126,7 @@ export const ErrorPage: React.FC<ErrorPageProps> = ({
           </div>
         </div>
 
-        {/* Help Text */}
-        <p className="text-center text-sm text-text-tertiary mt-6">
-          If the problem persists, please{' '}
-          <a
-            href="mailto:support@beautifulencer.com"
-            className="text-magenta hover:text-magenta-dark font-medium"
-          >
-            contact support
-          </a>
-        </p>
+  
       </div>
     </div>
   );

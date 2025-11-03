@@ -4,7 +4,7 @@ import { API_ENDPOINTS } from '../config/api.config';
 export interface SocialMediaAccount {
   id: string;
   userId: string;
-  platform: 'INSTAGRAM' | 'TIKTOK' | 'YOUTUBE';
+  platform: 'INSTAGRAM' | 'TIKTOK' | 'YOUTUBE' | 'TWITTER';
   platformUserId: string;
   platformUsername: string;
   displayName: string;
@@ -128,6 +128,27 @@ class SocialMediaService {
 
   async disconnectTikTok(accountId: string): Promise<any> {
     const response = await axios.delete(API_ENDPOINTS.SOCIAL_MEDIA.TIKTOK_DISCONNECT(accountId));
+    return response.data;
+  }
+
+  // Twitter/X methods
+  async connectTwitter(data: { username: string }): Promise<any> {
+    const response = await axios.post(API_ENDPOINTS.SOCIAL_MEDIA.TWITTER_CONNECT, data);
+    return response.data;
+  }
+
+  async syncTwitter(accountId: string): Promise<any> {
+    const response = await axios.post(API_ENDPOINTS.SOCIAL_MEDIA.TWITTER_SYNC(accountId));
+    return response.data;
+  }
+
+  async getTwitterData(accountId: string): Promise<any> {
+    const response = await axios.get(API_ENDPOINTS.SOCIAL_MEDIA.TWITTER_DATA(accountId));
+    return response.data;
+  }
+
+  async disconnectTwitter(accountId: string): Promise<any> {
+    const response = await axios.delete(API_ENDPOINTS.SOCIAL_MEDIA.TWITTER_DISCONNECT(accountId));
     return response.data;
   }
 

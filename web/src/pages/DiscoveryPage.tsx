@@ -253,56 +253,7 @@ export const DiscoveryPage: React.FC = () => {
 
       <div className="md:ml-64 pt-16">
         {/* Premium Welcome Section with Stats */}
-        <div className="bg-gradient-to-br from-magenta via-magenta-light to-purple text-white relative overflow-hidden">
-          {/* Decorative Background Elements */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
-          </div>
-          
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-              {/* Left Content */}
-              <div className="flex-1 text-center md:text-left">
-                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-4">
-                  <FiStar className="text-yellow-300" size={18} />
-                  <span className="text-sm font-semibold">
-                    {isSalon ? t('discovery.premium.findInfluencers', 'Find Premium Influencers') : t('discovery.premium.findSalons', 'Discover Top Salons')}
-                  </span>
-                </div>
-                
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight">
-                  {isSalon ? t('discovery.titleInfluencers') : t('discovery.title')}
-                </h1>
-                
-                <p className="text-lg md:text-xl text-white/90 max-w-2xl">
-                  {isSalon 
-                    ? t('discovery.subtitleInfluencers', 'Connect with talented nano and micro-influencers to grow your salon brand') 
-                    : t('discovery.subtitle', 'Find the perfect salons for your next collaboration')}
-                </p>
-              </div>
 
-              {/* Right Stats Cards */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 hover:bg-white/20 transition-all">
-                  <div className="flex items-center gap-2 mb-2">
-                    <FiUsers className="text-white" size={24} />
-                  </div>
-                  <p className="text-3xl font-bold mb-1">{totalCount > 0 ? totalCount : users.length}</p>
-                  <p className="text-sm text-white/80">{isSalon ? t('discovery.stats.influencers') : t('discovery.stats.salons')}</p>
-                </div>
-                
-                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 hover:bg-white/20 transition-all">
-                  <div className="flex items-center gap-2 mb-2">
-                    <FiTrendingUp className="text-white" size={24} />
-                  </div>
-                  <p className="text-3xl font-bold mb-1">{connectedCount}</p>
-                  <p className="text-sm text-white/80">{t('discovery.stats.connected')}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Filter Panel */}
         <FilterPanel

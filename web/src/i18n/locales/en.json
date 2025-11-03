@@ -843,6 +843,8 @@
     "subtitle": "Connect and manage your social media accounts",
     "influencerOnly": "Social media connections are only available for influencer accounts",
     "lastSynced": "Last Updated",
+    "viewDetails": "View Details",
+    "autoSync": "Automatically syncs",
     "instagram": {
       "description": "Connect your Instagram to showcase your influence",
       "notConnected": "Instagram Not Connected",
@@ -861,6 +863,12 @@
       "notConnected": "YouTube Not Connected",
       "notConnectedDesc": "Connect your YouTube channel to display your subscriber count, engagement rate, and recent videos",
       "connect": "Connect YouTube"
+    },
+    "twitter": {
+      "description": "Connect your Twitter/X to showcase your tweets",
+      "notConnected": "Twitter/X Not Connected",
+      "notConnectedDesc": "Connect your Twitter/X account to display your followers, engagement rate, and recent tweets",
+      "connect": "Connect Twitter"
     }
   },
   "tiktok": {
@@ -1035,6 +1043,57 @@
       "channelNotFoundDisconnect": "Channel not found",
       "disconnectServerError": "Server error during disconnect. Please try again",
       "disconnectNetworkError": "Network error. Please check your connection"
+    }
+  },
+  "twitter": {
+    "title": "Twitter/X",
+    "description": "Connect your Twitter/X to showcase your tweets",
+    "notConnected": "Twitter/X Not Connected",
+    "notConnectedDesc": "Connect your Twitter/X account to display your followers, engagement rate, and recent tweets",
+    "connect": "Connect Twitter",
+    "connected": "Twitter Connected",
+    "connectAccount": "Connect Twitter Account",
+    "manageAccount": "Manage Twitter Account",
+    "connectDescription": "Enter your Twitter/X username to connect your account and display your tweets, analytics, and engagement metrics.",
+    "usernameLabel": "Twitter Username",
+    "usernamePlaceholder": "username",
+    "usernameHint": "Enter your Twitter/X username (without @)",
+    "connecting": "Connecting...",
+    "syncing": "Syncing...",
+    "syncData": "Sync Data",
+    "disconnect": "Disconnect",
+    "disconnected": "Twitter account disconnected successfully!",
+    "synced": "Twitter data synchronized successfully!",
+    "alreadySynced": "Twitter data is already up to date",
+    "confirmDisconnect": "Are you sure you want to disconnect this Twitter account?",
+    "syncFailed": "Failed to sync Twitter data",
+    "disconnectFailed": "Failed to disconnect Twitter account",
+    "connectSuccess": "Twitter account connected successfully!",
+    "publicDataNote": "We only access publicly available information from your Twitter/X profile. No login required.",
+    "recentTweets": "Recent Tweets",
+    "topHashtags": "Top Hashtags",
+    "followers": "Followers",
+    "tweets": "Tweets",
+    "engagement": "Engagement",
+    "avgLikes": "Avg Likes",
+    "avgRetweets": "Avg Retweets",
+    "avgReplies": "Avg Replies",
+    "noTweets": "No tweets found",
+    "noHashtags": "No hashtags found in recent tweets",
+    "engagementRate": "Engagement Rate",
+    "overallEngagement": "Overall engagement",
+    "averageLikes": "Average Likes",
+    "averageRetweets": "Average Retweets",
+    "perTweet": "Per tweet",
+    "avgEngagement": "Avg Total",
+    "analyticsNote": "Analytics are calculated from your recent tweets and updated daily.",
+    "errors": {
+      "usernameRequired": "Twitter username is required",
+      "invalidUsername": "Username can only contain letters, numbers, and underscores",
+      "usernameLengthInvalid": "Username must be between 3 and 15 characters",
+      "accountNotFound": "Twitter account not found. Please check the username.",
+      "accountPrivate": "This Twitter account is private and cannot be connected.",
+      "storageFull": "Account connected but tweets could not be stored. Please contact support."
     }
   },
   "admin": {
