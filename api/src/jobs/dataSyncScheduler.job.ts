@@ -7,6 +7,8 @@ import apifyInstagramService from '../services/apify.instagram.service.js';
 import apifyTikTokService from '../services/apify.tiktok.service.js';
 // YouTube uses Apify scraping service
 import apifyYouTubeService from '../services/apify.youtube.service.js';
+// Twitter uses Apify scraping service
+import apifyTwitterService from '../services/apify.twitter.service.js';
 import tiktokService from '../services/tiktok.service.js';
 import logger from '../utils/logger.util.js';
 
@@ -98,6 +100,9 @@ class DataSyncSchedulerJob {
             successCount++;
           } else if (account.platform === SocialMediaPlatform.YOUTUBE) {
             await this.syncYouTubeData(account.influencerId, account);
+            successCount++;
+          } else if (account.platform === SocialMediaPlatform.TWITTER) {
+            await this.syncTwitterData(account.influencerId, account);
             successCount++;
           }
 
@@ -244,6 +249,23 @@ class DataSyncSchedulerJob {
       logger.log(`[DataSyncScheduler] YouTube sync completed for account ${account.id}`);
     } catch (error: any) {
       logger.error(`[DataSyncScheduler] YouTube sync error for account ${account.id}:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Sync Twitter data using Apify scraping
+   */
+  private async syncTwitterData(influencerId: string, account: any) {
+    try {
+      logger.log(`[DataSyncScheduler] Syncing Twitter account ${account.id} (@${account.platformUsername})`);
+
+      // Use the Twitter service to sync data
+      await apifyTwitterService.syncTwitterData(account.id);
+
+      logger.log(`[DataSyncScheduler] Twitter sync completed for account ${account.id}`);
+    } catch (error: any) {
+      logger.error(`[DataSyncScheduler] Twitter sync error for account ${account.id}:`, error.message);
       throw error;
     }
   }

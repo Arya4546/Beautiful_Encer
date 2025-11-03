@@ -11,7 +11,8 @@ import { getProxiedImageUrl } from '../utils/imageProxy';
 import { InstagramDataDisplay } from './InstagramDataDisplay';
 import { TikTokDataDisplay } from './TikTokDataDisplay';
 import { YoutubeDataDisplay } from './YoutubeDataDisplay';
-import { FaTiktok, FaYoutube } from 'react-icons/fa';
+import { TwitterDataDisplay } from './TwitterDataDisplay';
+import { FaTiktok, FaYoutube, FaTwitter } from 'react-icons/fa';
 
 interface ProfileModalProps {
   userId: string;
@@ -24,7 +25,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeView, setActiveView] = useState<'overview' | 'instagram' | 'tiktok' | 'youtube'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'instagram' | 'tiktok' | 'youtube' | 'twitter'>('overview');
   const navigate = useNavigate();
 
   const { connectionStatus, loading: connectionLoading, sendRequest, withdrawRequest, acceptRequest } = useConnectionStatus(userId);
@@ -218,6 +219,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
   const getYouTubeAccount = () => {
     const accounts = user?.influencer?.socialMediaAccounts || [];
     return accounts.find(acc => acc.platform.toUpperCase() === 'YOUTUBE');
+  };
+
+  const getTwitterAccount = () => {
+    const accounts = user?.influencer?.socialMediaAccounts || [];
+    return accounts.find(acc => acc.platform.toUpperCase() === 'TWITTER');
   };
 
   const formatNumber = (num: number | undefined | null): string => {
@@ -455,6 +461,11 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
                         <FaYoutube size={14} /> @{getYouTubeAccount()!.platformUsername}
                       </span>
                     )}
+                    {getTwitterAccount() && (
+                      <span className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-full">
+                        <FaTwitter size={14} /> @{getTwitterAccount()!.platformUsername}
+                      </span>
+                    )}
                   </div>
 
                   {(user.influencer?.categories && user.influencer.categories.length > 0) && (
@@ -542,6 +553,20 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
                       <FaYoutube size={20} />
                       <span className="hidden sm:inline">{t('youtube.details', 'YouTube Details')}</span>
                       <span className="sm:hidden">YT</span>
+                    </button>
+                  )}
+                  {getTwitterAccount() && (
+                    <button
+                      onClick={() => setActiveView('twitter')}
+                      className={`flex items-center gap-2 px-4 sm:px-6 py-3 font-semibold transition-all text-sm sm:text-base ${
+                        activeView === 'twitter'
+                          ? 'text-magenta border-b-2 border-magenta'
+                          : 'text-gray-500 hover:text-gray-700'
+                      }`}
+                    >
+                      <FaTwitter size={20} />
+                      <span className="hidden sm:inline">{t('twitter.title', 'Twitter/X')}</span>
+                      <span className="sm:hidden">X</span>
                     </button>
                   )}
                 </div>
@@ -659,6 +684,46 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
                             <p className="text-[10px] sm:text-sm text-pink-100 font-semibold mb-1">Avg Views</p>
                             <p className="text-xl sm:text-3xl font-bold text-white">
                               {formatNumber(youtubeMetadata?.averageViews || 0)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Twitter/X Stats Cards */}
+                  {getTwitterAccount() && (() => {
+                    const twitterAccount = getTwitterAccount()!;
+                    const twitterMetadata = parseMetadata(twitterAccount.metadata as any);
+                    return (
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          <FaTwitter className="text-blue-400" size={24} />
+                          Twitter/X Stats
+                        </h3>
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                          <div className="bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-blue-300">
+                            <p className="text-[10px] sm:text-sm text-blue-100 font-semibold mb-1">Followers</p>
+                            <p className="text-xl sm:text-3xl font-bold text-white">
+                              {formatNumber(twitterAccount.followersCount || 0)}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-blue-500">
+                            <p className="text-[10px] sm:text-sm text-blue-100 font-semibold mb-1">Tweets</p>
+                            <p className="text-xl sm:text-3xl font-bold text-white">
+                              {formatNumber(twitterAccount.postsCount || 0)}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-red-400">
+                            <p className="text-[10px] sm:text-sm text-red-100 font-semibold mb-1">Avg Likes</p>
+                            <p className="text-xl sm:text-3xl font-bold text-white">
+                              {formatNumber(twitterMetadata?.averageLikes || 0)}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl sm:rounded-2xl p-3 sm:p-6 border-2 border-green-400">
+                            <p className="text-[10px] sm:text-sm text-green-100 font-semibold mb-1">Avg Retweets</p>
+                            <p className="text-xl sm:text-3xl font-bold text-white">
+                              {formatNumber(twitterMetadata?.averageRetweets || 0)}
                             </p>
                           </div>
                         </div>
@@ -932,6 +997,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
                 <TikTokDataDisplay account={getTikTokAccount()} metadata={getTikTokAccount() ? parseMetadata(getTikTokAccount()!.metadata as any) : null} />
               ) : activeView === 'youtube' ? (
                 <YoutubeDataDisplay account={getYouTubeAccount()} metadata={getYouTubeAccount() ? parseMetadata(getYouTubeAccount()!.metadata as any) : null} />
+              ) : activeView === 'twitter' ? (
+                <TwitterDataDisplay account={getTwitterAccount()} metadata={getTwitterAccount() ? parseMetadata(getTwitterAccount()!.metadata as any) : null} />
               ) : null}
             </div>
           ) : (

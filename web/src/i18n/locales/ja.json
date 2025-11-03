@@ -842,6 +842,8 @@
     "subtitle": "ソーシャルメディアアカウントの連携と管理",
     "influencerOnly": "ソーシャルメディアの連携はインフルエンサーアカウントのみご利用いただけます",
     "lastSynced": "最終更新",
+    "viewDetails": "詳細を見る",
+    "autoSync": "自動同期",
     "instagram": {
       "description": "Instagramを連携して影響力をアピール",
       "notConnected": "Instagram未連携",
@@ -860,6 +862,12 @@
       "notConnected": "YouTube未連携",
       "notConnectedDesc": "YouTubeチャンネルを連携すると、登録者数、エンゲージメント率、最近の動画が表示されます",
       "connect": "YouTube連携"
+    },
+    "twitter": {
+      "description": "Twitter/Xを連携してツイートをアピール",
+      "notConnected": "Twitter/X未連携",
+      "notConnectedDesc": "Twitter/Xアカウントを連携すると、フォロワー数、エンゲージメント率、最近のツイートが表示されます",
+      "connect": "Twitter連携"
     }
   },
   "tiktok": {
@@ -1034,6 +1042,57 @@
       "channelNotFoundDisconnect": "チャンネルが見つかりません",
       "disconnectServerError": "連携解除中にサーバーエラーが発生しました。もう一度お試しください",
       "disconnectNetworkError": "ネットワークエラーです。接続を確認してください"
+    }
+  },
+  "twitter": {
+    "title": "Twitter/X",
+    "description": "Twitter/Xを連携してツイートをアピール",
+    "notConnected": "Twitter/X未連携",
+    "notConnectedDesc": "Twitter/Xアカウントを連携すると、フォロワー数、エンゲージメント率、最近のツイートが表示されます",
+    "connect": "Twitter連携",
+    "connected": "Twitter連携済み",
+    "connectAccount": "Twitterアカウント連携",
+    "manageAccount": "Twitterアカウント管理",
+    "connectDescription": "Twitter/Xのユーザー名を入力して、アカウントを連携し、ツイート、分析、エンゲージメント指標を表示します。",
+    "usernameLabel": "Twitterユーザー名",
+    "usernamePlaceholder": "ユーザー名",
+    "usernameHint": "Twitter/Xのユーザー名を入力してください（@なし）",
+    "connecting": "連携中...",
+    "syncing": "同期中...",
+    "syncData": "データ同期",
+    "disconnect": "連携解除",
+    "disconnected": "Twitterアカウントが正常に連携解除されました！",
+    "synced": "Twitterデータが正常に同期されました！",
+    "alreadySynced": "Twitterデータは最新です",
+    "confirmDisconnect": "このTwitterアカウントの連携を解除してもよろしいですか？",
+    "syncFailed": "Twitterデータの同期に失敗しました",
+    "disconnectFailed": "Twitterアカウントの連携解除に失敗しました",
+    "connectSuccess": "Twitterアカウントが正常に連携されました！",
+    "publicDataNote": "Twitter/Xプロフィールから公開情報のみにアクセスします。ログインは不要です。",
+    "recentTweets": "最近のツイート",
+    "topHashtags": "人気のハッシュタグ",
+    "followers": "フォロワー",
+    "tweets": "ツイート",
+    "engagement": "エンゲージメント",
+    "avgLikes": "平均いいね",
+    "avgRetweets": "平均リツイート",
+    "avgReplies": "平均返信",
+    "noTweets": "ツイートが見つかりません",
+    "noHashtags": "最近のツイートにハッシュタグが見つかりません",
+    "engagementRate": "エンゲージメント率",
+    "overallEngagement": "全体的なエンゲージメント",
+    "averageLikes": "平均いいね数",
+    "averageRetweets": "平均リツイート数",
+    "perTweet": "ツイートあたり",
+    "avgEngagement": "平均合計",
+    "analyticsNote": "分析は最近のツイートから計算され、毎日更新されます。",
+    "errors": {
+      "usernameRequired": "Twitterユーザー名が必要です",
+      "invalidUsername": "ユーザー名には英数字とアンダースコアのみ使用できます",
+      "usernameLengthInvalid": "ユーザー名は3文字以上15文字以内である必要があります",
+      "accountNotFound": "Twitterアカウントが見つかりません。ユーザー名を確認してください。",
+      "accountPrivate": "このTwitterアカウントは非公開のため連携できません。",
+      "storageFull": "アカウントは連携されましたが、ツイートを保存できませんでした。サポートにお問い合わせください。"
     }
   },
   "admin": {

@@ -48,6 +48,12 @@ export const API_ENDPOINTS = {
     YOUTUBE_DATA: (accountId: string) => `/social-media/youtube/${accountId}`,
     YOUTUBE_DISCONNECT: (accountId: string) => `/social-media/youtube/${accountId}`,
     
+    // Twitter/X endpoints (Apify public scraping)
+    TWITTER_CONNECT: '/social-media/twitter/connect',
+    TWITTER_SYNC: (accountId: string) => `/social-media/twitter/sync/${accountId}`,
+    TWITTER_DATA: (accountId: string) => `/social-media/twitter/${accountId}`,
+    TWITTER_DISCONNECT: (accountId: string) => `/social-media/twitter/${accountId}`,
+    
     // TikTok OAuth (for future connected accounts)
     TIKTOK_AUTH: '/social-media/tiktok/auth',
     

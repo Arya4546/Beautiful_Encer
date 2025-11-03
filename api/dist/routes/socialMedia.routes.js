@@ -89,6 +89,60 @@ router.get('/tiktok/callback', socialMediaController.tiktokCallback.bind(socialM
  */
 router.post('/tiktok/sync', protect, socialMediaLimiter, socialMediaController.syncAccount.bind(socialMediaController));
 // ===========================
+// YOUTUBE ROUTES (APIFY SCRAPING)
+// ===========================
+/**
+ * @route   POST /api/v1/social-media/youtube/connect
+ * @desc    Connect YouTube channel using channel handle (Apify scraping)
+ * @access  Protected (Influencer)
+ */
+router.post('/youtube/connect', protect, socialMediaController.connectYouTube.bind(socialMediaController));
+/**
+ * @route   POST /api/v1/social-media/youtube/sync
+ * @desc    Manually trigger YouTube data sync
+ * @access  Protected (Influencer) + Rate Limited
+ */
+router.post('/youtube/sync', protect, socialMediaLimiter, socialMediaController.syncYouTube.bind(socialMediaController));
+/**
+ * @route   GET /api/v1/social-media/youtube/:accountId
+ * @desc    Get YouTube account data
+ * @access  Protected (Influencer)
+ */
+router.get('/youtube/:accountId', protect, socialMediaController.getYouTubeData.bind(socialMediaController));
+/**
+ * @route   DELETE /api/v1/social-media/youtube/:accountId
+ * @desc    Disconnect YouTube channel
+ * @access  Protected (Influencer)
+ */
+router.delete('/youtube/:accountId', protect, socialMediaController.disconnectYouTube.bind(socialMediaController));
+// ===========================
+// TWITTER/X ROUTES (APIFY SCRAPING)
+// ===========================
+/**
+ * @route   POST /api/v1/social-media/twitter/connect
+ * @desc    Connect Twitter/X account using username (Apify scraping)
+ * @access  Protected (Influencer)
+ */
+router.post('/twitter/connect', protect, socialMediaController.connectTwitter.bind(socialMediaController));
+/**
+ * @route   POST /api/v1/social-media/twitter/sync/:accountId
+ * @desc    Manually trigger Twitter data sync
+ * @access  Protected (Influencer) + Rate Limited
+ */
+router.post('/twitter/sync/:accountId', protect, socialMediaLimiter, socialMediaController.syncTwitter.bind(socialMediaController));
+/**
+ * @route   GET /api/v1/social-media/twitter/:accountId
+ * @desc    Get Twitter account data with recent tweets
+ * @access  Protected (Influencer)
+ */
+router.get('/twitter/:accountId', protect, socialMediaController.getTwitterData.bind(socialMediaController));
+/**
+ * @route   DELETE /api/v1/social-media/twitter/:accountId
+ * @desc    Disconnect Twitter account
+ * @access  Protected (Influencer)
+ */
+router.delete('/twitter/:accountId', protect, socialMediaController.disconnectTwitter.bind(socialMediaController));
+// ===========================
 // GENERAL ROUTES
 // ===========================
 /**

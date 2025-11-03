@@ -207,6 +207,55 @@ router.delete(
 );
 
 // ===========================
+// TWITTER/X ROUTES (APIFY SCRAPING)
+// ===========================
+
+/**
+ * @route   POST /api/v1/social-media/twitter/connect
+ * @desc    Connect Twitter/X account using username (Apify scraping)
+ * @access  Protected (Influencer)
+ */
+router.post(
+  '/twitter/connect',
+  protect,
+  socialMediaController.connectTwitter.bind(socialMediaController)
+);
+
+/**
+ * @route   POST /api/v1/social-media/twitter/sync/:accountId
+ * @desc    Manually trigger Twitter data sync
+ * @access  Protected (Influencer) + Rate Limited
+ */
+router.post(
+  '/twitter/sync/:accountId',
+  protect,
+  socialMediaLimiter,
+  socialMediaController.syncTwitter.bind(socialMediaController)
+);
+
+/**
+ * @route   GET /api/v1/social-media/twitter/:accountId
+ * @desc    Get Twitter account data with recent tweets
+ * @access  Protected (Influencer)
+ */
+router.get(
+  '/twitter/:accountId',
+  protect,
+  socialMediaController.getTwitterData.bind(socialMediaController)
+);
+
+/**
+ * @route   DELETE /api/v1/social-media/twitter/:accountId
+ * @desc    Disconnect Twitter account
+ * @access  Protected (Influencer)
+ */
+router.delete(
+  '/twitter/:accountId',
+  protect,
+  socialMediaController.disconnectTwitter.bind(socialMediaController)
+);
+
+// ===========================
 // GENERAL ROUTES
 // ===========================
 
