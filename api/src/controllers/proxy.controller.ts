@@ -28,11 +28,25 @@ class ProxyController {
         return res.status(400).json({ error: 'Invalid image URL' });
       }
 
-      // Whitelist Instagram/Facebook CDN hostnames by suffix
+      // Whitelist Instagram/Facebook/Twitter/YouTube/TikTok CDN hostnames by suffix
       const allowedHostSuffixes = [
         'cdninstagram.com',
         'fbcdn.net',
         'instagram.com',
+        'twimg.com',           // Twitter images
+        'twitter.com',         // Twitter profile images
+        'pbs.twimg.com',       // Twitter photo CDN
+        'yt3.ggpht.com',       // YouTube profile pictures
+        'ytimg.com',           // YouTube thumbnails
+        'youtube.com',         // YouTube images
+        'i.ytimg.com',         // YouTube thumbnails CDN
+        'ggpht.com',           // Google photos CDN (YouTube)
+        'tiktokcdn.com',       // TikTok CDN
+        'tiktok.com',          // TikTok images
+        'ttwstatic.com',       // TikTok static assets
+        'musical.ly',          // TikTok (legacy domain)
+        'byteoversea.com',     // TikTok international CDN
+        'ibytedtos.com',       // TikTok object storage
       ];
       const hostname = target.hostname.toLowerCase();
       const isAllowed = allowedHostSuffixes.some(suffix => hostname === suffix || hostname.endsWith(`.${suffix}`));
@@ -57,8 +71,14 @@ class ProxyController {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
           'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
           'Accept-Language': 'en-US,en;q=0.9',
-          // Some CDNs require a referer; Instagram images commonly allow this
-          'Referer': 'https://www.instagram.com/',
+          // Dynamic referer based on hostname
+          'Referer': hostname.includes('twimg.com') || hostname.includes('twitter.com') 
+            ? 'https://twitter.com/' 
+            : hostname.includes('ytimg.com') || hostname.includes('ggpht.com') || hostname.includes('youtube.com')
+            ? 'https://www.youtube.com/'
+            : hostname.includes('tiktok') || hostname.includes('ttwstatic') || hostname.includes('bytedtos') || hostname.includes('musical.ly')
+            ? 'https://www.tiktok.com/'
+            : 'https://www.instagram.com/',
         },
       });
 

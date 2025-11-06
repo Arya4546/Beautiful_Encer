@@ -236,15 +236,58 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
 
   const getChartData = () => {
     const instagramAccount = getInstagramAccount();
-    const metadata = instagramAccount ? parseMetadata(instagramAccount.metadata as any) : null;
-    const recentPosts = metadata?.recentPosts || [];
+    const tiktokAccount = getTikTokAccount();
+    const youtubeAccount = getYouTubeAccount();
+    const twitterAccount = getTwitterAccount();
+    
+    const instagramMetadata = instagramAccount ? parseMetadata(instagramAccount.metadata as any) : null;
+    const tiktokMetadata = tiktokAccount ? parseMetadata(tiktokAccount.metadata as any) : null;
+    const youtubeMetadata = youtubeAccount ? parseMetadata(youtubeAccount.metadata as any) : null;
+    const twitterMetadata = twitterAccount ? parseMetadata(twitterAccount.metadata as any) : null;
+    
+    const recentPosts = instagramMetadata?.recentPosts || [];
+    // Fallback: build recentVideos from posts array if not in metadata
+    const recentVideos = youtubeMetadata?.recentVideos || 
+      ((youtubeAccount as any)?.posts?.map((post: any) => ({
+        id: post.platformPostId || '',
+        title: post.caption || '',
+        viewCount: post.viewsCount || 0,
+        likeCount: post.likesCount || 0,
+        commentCount: post.commentsCount || 0,
+      })) || []);
+    // Fallback: build recentTweets from posts array if not in metadata
+    const recentTweets = twitterMetadata?.recentTweets || 
+      ((twitterAccount as any)?.posts?.map((post: any) => ({
+        id: post.platformPostId || '',
+        text: post.caption || '',
+        likeCount: post.likesCount || 0,
+        retweetCount: post.sharesCount || 0,
+        replyCount: post.commentsCount || 0,
+        viewCount: post.viewsCount || 0,
+      })) || []);
 
-    // Post engagement over time
+    // Post engagement over time (Instagram)
     const postEngagementData = recentPosts.slice(0, 10).reverse().map((post: any, index: number) => ({
       name: `P${index + 1}`,
       likes: post.likesCount || 0,
       comments: post.commentsCount || 0,
       engagement: ((post.likesCount + post.commentsCount) / (instagramAccount?.followersCount || 1) * 100).toFixed(2)
+    }));
+
+    // YouTube video engagement over time
+    const youtubeEngagementData = recentVideos.slice(0, 10).reverse().map((video: any, index: number) => ({
+      name: `V${index + 1}`,
+      views: video.viewCount || 0,
+      likes: video.likeCount || 0,
+      comments: video.commentCount || 0,
+    }));
+
+    // Twitter tweet engagement over time
+    const twitterEngagementData = recentTweets.slice(0, 10).reverse().map((tweet: any, index: number) => ({
+      name: `T${index + 1}`,
+      likes: tweet.likeCount || 0,
+      retweets: tweet.retweetCount || 0,
+      replies: tweet.replyCount || 0,
     }));
 
     // Content type distribution
@@ -263,18 +306,20 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
     const engagementMetrics = [
       {
         name: 'Avg Likes',
-        value: metadata?.averageLikes || 0,
+        value: instagramMetadata?.averageLikes || 0,
         color: '#FF6384',
       },
       {
         name: 'Avg Comments',
-        value: metadata?.averageComments || 0,
+        value: instagramMetadata?.averageComments || 0,
         color: '#36A2EB',
       },
     ];
 
     return {
       postEngagementData,
+      youtubeEngagementData,
+      twitterEngagementData,
       contentTypeData,
       engagementMetrics,
     };
@@ -377,7 +422,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
     };
   };
 
-  const { postEngagementData, contentTypeData, engagementMetrics } = getChartData();
+  const { postEngagementData, youtubeEngagementData: youtubeChartData, twitterEngagementData, contentTypeData, engagementMetrics } = getChartData();
   const { videoEngagementData, tiktokEngagementMetrics, tiktokContentTypeData } = getTikTokChartData();
   const { youtubeEngagementData, youtubeEngagementMetrics, youtubeContentTypeData } = getYouTubeChartData();
   const instagramAccount = getInstagramAccount();
@@ -988,6 +1033,68 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
                           </ResponsiveContainer>
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Twitter/X Charts */}
+                  {twitterEngagementData.length > 0 && getTwitterAccount() && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Twitter Engagement Chart */}
+                      <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-soft border border-gray-200">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          <FaTwitter className="text-blue-400" size={20} />
+                          Twitter/X Tweet Engagement Trend
+                        </h3>
+                        <ResponsiveContainer width="100%" height={250}>
+                          <AreaChart data={twitterEngagementData}>
+                            <defs>
+                              <linearGradient id="colorTwitterLikes" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#E91E63" stopOpacity={0.8}/>
+                                <stop offset="95%" stopColor="#E91E63" stopOpacity={0.1}/>
+                              </linearGradient>
+                              <linearGradient id="colorTwitterRetweets" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#00C853" stopOpacity={0.8}/>
+                                <stop offset="95%" stopColor="#00C853" stopOpacity={0.1}/>
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                            <YAxis tick={{ fontSize: 12 }} />
+                            <Tooltip />
+                            <Area type="monotone" dataKey="likes" stroke="#E91E63" fillOpacity={1} fill="url(#colorTwitterLikes)" />
+                            <Area type="monotone" dataKey="retweets" stroke="#00C853" fillOpacity={1} fill="url(#colorTwitterRetweets)" />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      {/* Twitter Engagement Metrics */}
+                      <div className="bg-white rounded-3xl p-4 sm:p-6 shadow-soft border border-gray-200">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                          <FaTwitter className="text-blue-400" size={20} />
+                          Twitter/X Engagement Metrics
+                        </h3>
+                        <ResponsiveContainer width="100%" height={250}>
+                          <BarChart data={[
+                            { name: 'Avg Likes', value: parseMetadata(getTwitterAccount()?.metadata as any)?.averageLikes || 0, color: '#E91E63' },
+                            { name: 'Avg Retweets', value: parseMetadata(getTwitterAccount()?.metadata as any)?.averageRetweets || 0, color: '#00C853' },
+                            { name: 'Avg Replies', value: parseMetadata(getTwitterAccount()?.metadata as any)?.averageReplies || 0, color: '#1DA1F2' },
+                          ]}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                            <YAxis tick={{ fontSize: 12 }} />
+                            <Tooltip />
+                            <Bar dataKey="value" radius={[10, 10, 0, 0]}>
+                              {[
+                                { color: '#E91E63' },
+                                { color: '#00C853' },
+                                { color: '#1DA1F2' },
+                              ].map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
                     </div>
                   )}
                 </div>
