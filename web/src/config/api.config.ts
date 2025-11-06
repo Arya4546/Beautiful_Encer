@@ -5,7 +5,7 @@
 
 export const API_CONFIG = {
   BASE_URL: import.meta.env.VITE_API_BASE_URL ,
-  TIMEOUT: 120000, // 120 seconds (2 minutes) - Apify scraping can take time
+  TIMEOUT: 180000, // 180 seconds (3 minutes) - Twitter scraping can take longer
 } as const;
 
 export const API_ENDPOINTS = {

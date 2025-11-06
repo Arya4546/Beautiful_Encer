@@ -83,10 +83,16 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
     setLoading(true);
     setError(null);
 
+    // Show loading toast
+    const loadingToast = showToast.loading(t('twitter.scraping') || 'Scraping Twitter data... This may take 1-2 minutes.');
+
     try {
       const response = await axiosInstance.post(API_ENDPOINTS.SOCIAL_MEDIA.TWITTER_CONNECT, {
         username: trimmedUsername,
       });
+
+      // Dismiss loading toast
+      showToast.dismiss(loadingToast);
 
       if (!response.data || !response.data.account) {
         throw new Error('Invalid response from server');
@@ -102,6 +108,9 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
       }, 1500);
 
     } catch (err: any) {
+      // Dismiss loading toast on error
+      showToast.dismiss(loadingToast);
+      
       console.error('Twitter connection error:', err);
       
       const errorMessage = err.response?.data?.message || err.message || 'Failed to connect Twitter account';
@@ -130,8 +139,14 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
     setSyncing(true);
     setError(null);
 
+    // Show loading toast
+    const loadingToast = showToast.loading(t('twitter.syncing') || 'Syncing Twitter data... This may take 1-2 minutes.');
+
     try {
       const response = await axiosInstance.post(API_ENDPOINTS.SOCIAL_MEDIA.TWITTER_SYNC(accountData.id));
+
+      // Dismiss loading toast
+      showToast.dismiss(loadingToast);
 
       if (response.data && response.data.account) {
         setAccountData(response.data.account);
@@ -142,6 +157,9 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
       if (onSuccess) onSuccess();
 
     } catch (err: any) {
+      // Dismiss loading toast on error
+      showToast.dismiss(loadingToast);
+      
       console.error('Twitter sync error:', err);
       
       const errorMessage = err.response?.data?.message || err.message || 'Failed to sync Twitter data';
