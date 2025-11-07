@@ -136,8 +136,14 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
   const getConnectionButton = () => {
     if (connectionLoading) {
       return (
-        <button disabled className="px-6 py-3 bg-gray-100 rounded-xl cursor-not-allowed flex items-center gap-2">
-          <div className="animate-spin rounded-full h-5 w-5 border-2 border-magenta border-t-transparent"></div>
+        <button 
+          disabled 
+          className="px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          style={{
+            background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
+          }}
+        >
+          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
           <span>Loading...</span>
         </button>
       );
@@ -147,13 +153,22 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
       case 'connected':
         return (
           <div className="flex gap-3 flex-wrap">
-            <button disabled className="px-6 py-3 bg-green-500 text-white rounded-xl cursor-default flex items-center gap-2">
+            <button 
+              disabled 
+              className="px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 disabled:cursor-default flex items-center gap-2"
+              style={{
+                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
+              }}
+            >
               <FiUsers size={20} />
               {t('common.connected')}
             </button>
             <button 
               onClick={handleStartChat}
-              className="px-6 py-3 bg-gradient-to-r from-magenta to-magenta-dark text-white rounded-xl hover:shadow-large transition-all flex items-center gap-2"
+              className="px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl flex items-center gap-2"
+              style={{
+                background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
+              }}
             >
               <FiMessageCircle size={20} />
               {t('common.message')}
@@ -164,7 +179,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
         return (
           <button 
             onClick={handleConnectionAction} 
-            className="px-6 py-3 bg-amber-500 hover:bg-red-500 text-white rounded-xl transition-colors flex items-center gap-2"
+            className="px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl flex items-center gap-2"
+            style={{
+              background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)'
+            }}
           >
             <FiActivity size={20} />
             {t('common.cancelRequest')}
@@ -174,7 +192,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
         return (
           <button 
             onClick={handleConnectionAction} 
-            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-colors flex items-center gap-2"
+            className="px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl flex items-center gap-2"
+            style={{
+              background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)'
+            }}
           >
             <FiUsers size={20} />
             {t('common.acceptRequest')}
@@ -184,7 +205,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
         return (
           <button 
             onClick={handleConnectionAction} 
-            className="px-6 py-3 bg-gradient-to-r from-magenta to-magenta-dark text-white rounded-xl hover:shadow-large transition-all flex items-center gap-2"
+            className="px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl flex items-center gap-2"
+            style={{
+              background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
+            }}
           >
             <FiUsers size={20} />
             {t('common.sendConnectionRequest')}
@@ -450,7 +474,13 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
         ) : error ? (
           <div className="flex flex-col justify-center items-center py-20 px-4">
             <p className="text-red-500 text-lg mb-4">{error}</p>
-            <button onClick={fetchProfile} className="px-6 py-3 bg-magenta text-white rounded-xl hover:bg-magenta-dark transition-colors">
+            <button 
+              onClick={fetchProfile} 
+              className="px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
+              style={{
+                background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
+              }}
+            >
               Retry
             </button>
           </div>

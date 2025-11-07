@@ -154,6 +154,14 @@ export const adminService = {
     const response = await axiosInstance.put('/admin/password', data);
     return response.data;
   },
+
+  /**
+   * Trigger manual social media data sync for all accounts
+   */
+  triggerSocialMediaSync: async () => {
+    const response = await axiosInstance.post(API_ENDPOINTS.ADMIN.SYNC_SOCIAL_MEDIA);
+    return response.data;
+  },
 };
 
 export default adminService;

@@ -107,4 +107,11 @@ router.put('/profile', adminController.updateAdminProfile.bind(adminController))
  */
 router.put('/password', adminController.updateAdminPassword.bind(adminController));
 
+/**
+ * @route   POST /api/v1/admin/sync-social-media
+ * @desc    Manually trigger social media data sync for all accounts
+ * @access  Admin
+ */
+router.post('/sync-social-media', adminController.triggerDataSync.bind(adminController));
+
 export default router;

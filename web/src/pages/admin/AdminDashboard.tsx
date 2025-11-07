@@ -9,6 +9,128 @@ import { showToast } from '../../utils/toast';
 
 const COLORS = ['#e91e63', '#10b981', '#f59e0b'];
 
+interface SyncResult {
+  success: number;
+  failed: number;
+  failures: Array<{
+    accountId: string;
+    platform: string;
+    error: string;
+  }>;
+}
+
+const SocialMediaSyncControl: React.FC = () => {
+  const { t } = useTranslation();
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
+
+  const handleSyncTrigger = async () => {
+    try {
+      setSyncLoading(true);
+      setSyncError(null);
+      setSyncResult(null);
+
+      const result = await adminService.triggerSocialMediaSync();
+      setSyncResult(result);
+
+      if (result.failed === 0) {
+        showToast.success(`Successfully synced ${result.success} accounts`);
+      } else {
+        showToast.success(`Synced ${result.success} accounts (${result.failed} failed - see details below)`);
+      }
+    } catch (error: any) {
+      const errorMsg = error.response?.data?.message || 'Failed to trigger sync';
+      setSyncError(errorMsg);
+      showToast.error(errorMsg);
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-md p-6 border border-pink-100">
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-gray-800 mb-2">Social Media Data Sync</h2>
+        <p className="text-sm text-gray-600">
+          Manually trigger data synchronization for all social media accounts
+        </p>
+      </div>
+
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex-1">
+          <div className="text-sm text-gray-500 mb-2">
+            This will sync data for Instagram, TikTok, YouTube, and X accounts that haven't been updated in the last 7 days.
+          </div>
+          {syncResult && (
+            <div className="mt-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="w-5 h-5 text-green-500" />
+                <span className="font-semibold text-gray-800">Sync Complete</span>
+              </div>
+              <div className="text-sm space-y-1">
+                <div className="text-green-600">✓ Successfully synced: {syncResult.success} accounts</div>
+                {syncResult.failed > 0 && (
+                  <div className="text-amber-600">⚠ Failed: {syncResult.failed} accounts</div>
+                )}
+              </div>
+              {syncResult.failures && syncResult.failures.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  <div className="text-xs font-semibold text-gray-700">Failures:</div>
+                  {syncResult.failures.map((failure, index) => (
+                    <div key={index} className="text-xs bg-red-50 p-2 rounded border border-red-200">
+                      <div className="font-semibold text-red-700">{failure.platform} - {failure.accountId}</div>
+                      <div className="text-red-600">{failure.error}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {syncError && (
+            <div className="mt-3 p-4 bg-red-50 rounded-lg border border-red-200">
+              <div className="flex items-center gap-2 mb-1">
+                <UserX className="w-5 h-5 text-red-500" />
+                <span className="font-semibold text-red-700">Sync Failed</span>
+              </div>
+              <div className="text-sm text-red-600">{syncError}</div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex-shrink-0">
+          <button
+            onClick={handleSyncTrigger}
+            disabled={syncLoading}
+            className="px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed w-full lg:w-auto"
+            style={{
+              background: syncLoading 
+                ? 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)' 
+                : 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)',
+              opacity: syncLoading ? 0.7 : 1
+            }}
+          >
+            {syncLoading ? (
+              <div className="flex items-center gap-2 justify-center">
+                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Syncing...</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 justify-center">
+                <Share2 className="w-5 h-5" />
+                <span>Trigger Sync</span>
+              </div>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const AdminDashboard: React.FC = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
@@ -203,6 +325,9 @@ export const AdminDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Social Media Sync Control */}
+        <SocialMediaSyncControl />
       </div>
     </AdminLayout>
   );

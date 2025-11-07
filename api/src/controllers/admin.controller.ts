@@ -3,6 +3,7 @@ import { prisma } from '../lib/prisma.js';
 import { Role, ActivityAction } from '@prisma/client';
 import adminService from '../services/admin.service.js';
 import bcrypt from 'bcryptjs';
+import dataSyncSchedulerJob from '../jobs/dataSyncScheduler.job.js';
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -1026,6 +1027,31 @@ class AdminController {
       console.error('[AdminController.updateUser] Error:', error);
       return res.status(500).json({ 
         error: 'Failed to update user',
+        message: error.message 
+      });
+    }
+  }
+
+  /**
+   * Manually trigger social media data sync for all accounts
+   * Admin only endpoint to force sync regardless of last sync time
+   */
+  async triggerDataSync(req: AuthenticatedRequest, res: Response) {
+    try {
+      console.log('[AdminController.triggerDataSync] Manual sync triggered by admin:', req.user?.userId);
+
+      // Trigger the sync job
+      const result = await dataSyncSchedulerJob.triggerManualSync();
+
+      return res.status(200).json({
+        success: true,
+        message: 'Data sync completed',
+        data: result,
+      });
+    } catch (error: any) {
+      console.error('[AdminController.triggerDataSync] Error:', error);
+      return res.status(500).json({ 
+        error: 'Failed to trigger data sync',
         message: error.message 
       });
     }

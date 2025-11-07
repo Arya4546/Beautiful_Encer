@@ -444,10 +444,16 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
   const getActionButton = () => {
     if (loading) {
       return (
-        <button disabled className="w-full px-6 py-3 bg-gray-100 rounded-xl cursor-not-allowed">
+        <button 
+          disabled 
+          className="w-full px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
+          }}
+        >
           <div className="flex items-center justify-center gap-2">
-            <div className="animate-spin rounded-full h-5 w-5 border-2 border-magenta border-t-transparent"></div>
-            <span className="text-sm font-semibold text-gray-400">{t('discovery.card.processing')}</span>
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+            <span>{t('discovery.card.processing')}</span>
           </div>
         </button>
       );
@@ -456,10 +462,16 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
     switch (connectionStatus.status) {
       case 'connected':
         return (
-          <button disabled className="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl cursor-default shadow-soft border border-green-400">
+          <button 
+            disabled 
+            className="w-full px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 disabled:cursor-default"
+            style={{
+              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
+            }}
+          >
             <div className="flex items-center justify-center gap-2">
               <FiCheck size={20} className="text-white" />
-              <span className="text-sm font-bold text-white">{t('discovery.card.connected')}</span>
+              <span>{t('discovery.card.connected')}</span>
             </div>
           </button>
         );
@@ -467,11 +479,14 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
         return (
           <button 
             onClick={handleConnectionAction} 
-            className="w-full px-6 py-3 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-red-500 hover:to-red-600 rounded-xl transition-all shadow-soft hover:shadow-medium border border-amber-300 hover:border-red-400"
+            className="w-full px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
+            style={{
+              background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)'
+            }}
           >
             <div className="flex items-center justify-center gap-2">
               <FiClock size={20} className="text-white" />
-              <span className="text-sm font-bold text-white">{t('discovery.card.pending')}</span>
+              <span>{t('discovery.card.pending')}</span>
             </div>
           </button>
         );
@@ -479,11 +494,14 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
         return (
           <button 
             onClick={handleConnectionAction} 
-            className="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-xl transition-all shadow-soft hover:shadow-medium border border-blue-400"
+            className="w-full px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
+            style={{
+              background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)'
+            }}
           >
             <div className="flex items-center justify-center gap-2">
               <FiUserPlus size={20} className="text-white" />
-              <span className="text-sm font-bold text-white">{t('discovery.card.accept')}</span>
+              <span>{t('discovery.card.accept')}</span>
             </div>
           </button>
         );
@@ -491,11 +509,14 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
         return (
           <button 
             onClick={handleConnectionAction} 
-            className="w-full px-6 py-3 bg-gradient-to-r from-magenta via-magenta-light to-purple hover:from-magenta-dark hover:via-magenta hover:to-purple-dark rounded-xl transition-all shadow-soft hover:shadow-large border border-magenta/30"
+            className="w-full px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
+            style={{
+              background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
+            }}
           >
             <div className="flex items-center justify-center gap-2">
               <FiUserPlus size={20} className="text-white" />
-              <span className="text-sm font-bold text-white">{t('discovery.card.connect')}</span>
+              <span>{t('discovery.card.connect')}</span>
             </div>
           </button>
         );
@@ -634,11 +655,14 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
           {/* View Profile Button */}
           <button 
             onClick={onViewProfile}
-            className="flex-1 md:flex-initial px-6 py-3 bg-gradient-to-r from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 rounded-xl transition-all group/view shadow-soft hover:shadow-medium border border-gray-200"
+            className="flex-1 md:flex-initial px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
+            style={{
+              background: 'linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%)'
+            }}
           >
             <div className="flex items-center justify-center gap-2">
-              <FiEye size={20} className="text-text-secondary group-hover/view:text-magenta transition-colors" />
-              <span className="text-sm font-semibold text-text-secondary group-hover/view:text-magenta transition-colors">
+              <FiEye size={20} className="text-white" />
+              <span>
                 {t('discovery.card.viewProfile')}
               </span>
             </div>
