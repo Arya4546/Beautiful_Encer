@@ -80,5 +80,6 @@ export const API_ENDPOINTS = {
     CONNECTIONS: '/admin/connections',
     DELETE_CONNECTION: (connectionId: string) => `/admin/connections/${connectionId}`,
     ACTIVITY_LOGS: '/admin/activity-logs',
+    SYNC_SOCIAL_MEDIA: '/admin/sync-social-media',
   },
 } as const;
