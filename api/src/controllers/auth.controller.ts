@@ -217,6 +217,9 @@ class AuthController {
       return res.status(201).json({
         message: 'Salon registered successfully. Please check your email for an OTP to verify your account.',
         userId: user.id,
+        salonId: user.salon?.id,
+        email: user.email,
+        requiresPayment: true,
       });
     } catch (error: any) {
       if (error.code === 'P2002') {
@@ -278,6 +281,22 @@ class AuthController {
           message: 'Your email is not verified. Please verify using the OTP sent to your email.',
           email,
         });
+      }
+
+      // Check if salon has completed payment (salons only)
+      if (user.role === 'SALON' && user.salon) {
+        console.log(`[AuthController.login] Checking payment status for salon ${user.salon.id}`);
+        console.log(`[AuthController.login] paymentCompleted: ${user.salon.paymentCompleted}`);
+        
+        if (!user.salon.paymentCompleted) {
+          return res.status(403).json({
+            error: 'PaymentRequired',
+            code: 'PAYMENT_REQUIRED',
+            message: 'Please complete payment to access your salon account.',
+            salonId: user.salon.id,
+            email: user.email,
+          });
+        }
       }
 
       const { accessToken, refreshToken } = generateTokens({

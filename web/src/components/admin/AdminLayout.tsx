@@ -9,7 +9,9 @@ import {
   Menu, 
   X, 
   LogOut,
-  UserCircle
+  UserCircle,
+  Briefcase,
+  CreditCard
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { LanguageSwitcher } from '../LanguageSwitcher';
@@ -29,6 +31,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { path: '/admin/dashboard', icon: LayoutDashboard, label: t('admin.nav.dashboard') },
     { path: '/admin/users', icon: Users, label: t('admin.nav.users') },
     { path: '/admin/connections', icon: Network, label: t('admin.nav.connections') },
+    { path: '/admin/projects', icon: Briefcase, label: t('admin.nav.projects') },
+    { path: '/admin/payments', icon: CreditCard, label: t('admin.nav.payments') },
     { path: '/admin/activity-logs', icon: Activity, label: t('admin.nav.activityLogs') },
   ];
 

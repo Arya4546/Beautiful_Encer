@@ -76,6 +76,11 @@ export const LoginPage: React.FC = () => {
         const email = error?.response?.data?.email || data.email;
         showToast.error(t('auth.verifyOtp.title'));
         navigate('/verify-otp', { state: { email } });
+      } else if (code === 'PAYMENT_REQUIRED') {
+        const salonId = error?.response?.data?.salonId;
+        const email = error?.response?.data?.email || data.email;
+        showToast.error(error?.response?.data?.message || 'Payment required to access salon account');
+        navigate('/payment/checkout', { state: { salonId, email } });
       } else if (code === 'TERMS_NOT_ACCEPTED') {
         showToast.error(error?.response?.data?.message || t('toast.error.loginFailed'));
       } else {
@@ -226,10 +231,7 @@ export const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 rounded-xl text-white text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
-              }}
+              className="w-full py-4 rounded-xl text-white text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl mt-6 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">

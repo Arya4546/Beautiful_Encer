@@ -16,18 +16,33 @@ export const VerifyOtpPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
+  const autoResendOtp = location.state?.autoResendOtp;
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
+  const [hasCheckedEmail, setHasCheckedEmail] = useState(false);
+  const [hasAutoResent, setHasAutoResent] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    if (!email) {
-      showToast.error('Email not found. Please sign up again.');
-      navigate('/signup');
+    // Only check once to prevent multiple toasts
+    if (!hasCheckedEmail) {
+      if (!email) {
+        showToast.error('Email not found. Please sign up again.');
+        navigate('/signup');
+      }
+      setHasCheckedEmail(true);
     }
-  }, [email, navigate]);
+  }, [email, navigate, hasCheckedEmail]);
+
+  // Auto-resend OTP when coming from payment success page
+  useEffect(() => {
+    if (email && autoResendOtp && !hasAutoResent) {
+      setHasAutoResent(true);
+      handleResendOtp(true); // silent = true (no toast)
+    }
+  }, [email, autoResendOtp, hasAutoResent]);
 
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) {
@@ -71,6 +86,26 @@ export const VerifyOtpPage: React.FC = () => {
     // Focus last filled input
     const lastIndex = Math.min(pastedData.length, 5);
     inputRefs.current[lastIndex]?.focus();
+  };
+
+  // Resend OTP handler - supports both manual and auto resend
+  const handleResendOtp = async (silent: boolean = false) => {
+    if (!email || isResending) return;
+    
+    try {
+      setIsResending(true);
+      await authService.resendOtp(email);
+      if (!silent) {
+        showToast.success(t('toast.success.otpSent'));
+      }
+    } catch (err: any) {
+      if (!silent) {
+        showToast.error(err?.response?.data?.error || t('toast.error.somethingWrong'));
+      }
+      console.error('[VerifyOtpPage.handleResendOtp] Error:', err);
+    } finally {
+      setIsResending(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -226,18 +261,7 @@ export const VerifyOtpPage: React.FC = () => {
                   className="font-semibold hover:underline transition-colors"
                   style={{ color: '#ec4899' }}
                   disabled={isResending}
-                  onClick={async () => {
-                    if (!email) return;
-                    try {
-                      setIsResending(true);
-                      await authService.resendOtp(email);
-                      showToast.success(t('toast.success.otpSent'));
-                    } catch (err: any) {
-                      showToast.error(err?.response?.data?.error || t('toast.error.somethingWrong'));
-                    } finally {
-                      setIsResending(false);
-                    }
-                  }}
+                  onClick={() => handleResendOtp(false)}
                 >
                   {isResending ? t('common.loading') : t('auth.verifyOtp.resendLink')}
                 </button>

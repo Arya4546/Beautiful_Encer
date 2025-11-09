@@ -62,10 +62,21 @@ export const SignupPage: React.FC = () => {
           ? await authService.influencerSignup({ ...signupData, acceptTerms: true })
           : await authService.salonSignup({ ...signupData, acceptTerms: true });
 
-      showToast.success(response.message);
-      
-      // Navigate to OTP verification with email
-      navigate('/verify-otp', { state: { email: data.email } });
+      // For salons, redirect to payment without showing OTP message
+      if (selectedRole === 'salon' && response.requiresPayment) {
+        // Don't show the OTP message for salons yet
+        showToast.success('Account created! Please complete payment to continue.');
+        navigate('/payment/checkout', { 
+          state: { 
+            salonId: response.salonId,
+            email: data.email 
+          } 
+        });
+      } else {
+        // For influencers, show OTP message and go to verification
+        showToast.success(response.message);
+        navigate('/verify-otp', { state: { email: data.email } });
+      }
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error || t('toast.error.signupFailed');
@@ -275,7 +286,7 @@ export const SignupPage: React.FC = () => {
           </div>
 
           {/* Scrollable Form Content */}
-          <div className="px-8 pb-10 sm:px-12 sm:pb-12 overflow-y-auto flex-1">
+          <div className="px-8 pb-10 sm:px-12 sm:pb-12 overflow-y-auto flex-1 scrollbar-hide">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {/* Name */}
               <div>
@@ -425,10 +436,7 @@ export const SignupPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-4 rounded-xl text-white text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
-                }}
+                className="w-full py-4 rounded-xl text-white text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl mt-6 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">

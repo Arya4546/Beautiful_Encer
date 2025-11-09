@@ -15,11 +15,13 @@ export interface User {
   updatedAt: string;
   hasCompletedOnboarding?: boolean;
   influencer?: {
+    id?: string;
     profilePic?: string;
     bio?: string;
     categories?: string[];
   };
   salon?: {
+    id?: string;
     businessName?: string;
     profilePic?: string;
     description?: string;
@@ -116,6 +118,9 @@ export interface SignupRequest {
 export interface SignupResponse {
   message: string;
   userId: string;
+  salonId?: string; // Only for salon signups
+  email?: string; // Email for payment flow
+  requiresPayment?: boolean; // Indicates if payment is required
 }
 
 export interface VerifyOtpRequest {

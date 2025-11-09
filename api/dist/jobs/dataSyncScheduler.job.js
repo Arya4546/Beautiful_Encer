@@ -43,6 +43,38 @@ class DataSyncSchedulerJob {
             await this.syncAllAccounts();
         });
         logger.log('[DataSyncScheduler] Initialized - will run daily at 3:00 AM');
+        // Optional: Check if any accounts need immediate syncing on startup
+        // This handles cases where server was down during scheduled sync time
+        this.checkAndSyncOnStartup();
+    }
+    /**
+     * Check if any accounts need syncing on server startup
+     * This handles cases where the server was restarted and missed the scheduled sync
+     */
+    async checkAndSyncOnStartup() {
+        try {
+            // Wait 10 seconds after server starts before checking
+            await this.delay(10000);
+            const accountsNeedingSync = await prisma.socialMediaAccount.count({
+                where: {
+                    isActive: true,
+                    OR: [
+                        { lastSyncedAt: null },
+                        { lastSyncedAt: { lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
+                    ],
+                },
+            });
+            if (accountsNeedingSync > 0) {
+                logger.log(`[DataSyncScheduler] Found ${accountsNeedingSync} accounts needing sync on startup. Starting sync...`);
+                await this.syncAllAccounts();
+            }
+            else {
+                logger.log('[DataSyncScheduler] No accounts need syncing at startup.');
+            }
+        }
+        catch (error) {
+            logger.error('[DataSyncScheduler] Startup sync check failed:', error.message);
+        }
     }
     /**
      * Sync all active social media accounts
@@ -61,9 +93,10 @@ class DataSyncSchedulerJob {
                     isActive: true,
                     // Only sync if last sync was more than 7 days ago (matches Apify cache duration)
                     // This reduces Apify API costs by respecting the cache window
+                    // Using 'lt' (less than) instead of 'lte' to sync at exactly 7 days, not 8 days
                     OR: [
                         { lastSyncedAt: null },
-                        { lastSyncedAt: { lte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
+                        { lastSyncedAt: { lt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
                     ],
                 },
                 include: {
