@@ -51,6 +51,9 @@ model Influencer {
   user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId            String              @unique
   socialMediaAccounts SocialMediaAccount[]
+  
+  // Projects received from salons
+  projectsReceived Project[]           @relation("ProjectInfluencer")
 }
 
 model Salon {
@@ -78,11 +81,20 @@ model Salon {
   tiktokHandle        String?
   facebookPage        String?
   
+  // Payment and subscription
+  paymentCompleted    Boolean      @default(false)
+  stripeCustomerId    String?      @unique
+  
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @unique
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String         @unique
+  subscriptions Subscription[]
+  payments      Payment[]
+  
+  // Projects sent to influencers
+  projectsSent  Project[]      @relation("ProjectSalon")
 }
 
 model Otp {
@@ -177,6 +189,50 @@ model ConnectionRequest {
   @@index([senderId])
   @@index([receiverId])
   @@index([status])
+}
+
+// Project Proposal System
+model Project {
+  id              String          @id @default(uuid())
+  
+  // Basic Information
+  title           String          // Project name/title
+  projectType     ProjectType     // Type of project (see enum below)
+  description     String          @db.Text // Detailed project description
+  
+  // Campaign Details
+  startDate       DateTime        // Project start date
+  endDate         DateTime        // Project end date
+  budget          Decimal         @db.Decimal(10, 2) // Budget in JPY
+  deliverables    String[]        // List of deliverables (e.g., "3 Instagram posts", "1 TikTok video")
+  requirements    String?         @db.Text // Special requirements or notes
+  
+  // Location & Category
+  location        String?         // Project location (if applicable)
+  category        String?         // Project category (beauty, fashion, etc.)
+  
+  // Status & Tracking
+  status          ProjectStatus   @default(PENDING)
+  proposedAt      DateTime        @default(now())
+  respondedAt     DateTime?       // When influencer accepted/rejected
+  completedAt     DateTime?       // When project was marked complete
+  
+  // Response
+  rejectionReason String?         @db.Text // Reason if rejected
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  salonId         String
+  salon           Salon           @relation("ProjectSalon", fields: [salonId], references: [id], onDelete: Cascade)
+  
+  influencerId    String
+  influencer      Influencer      @relation("ProjectInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
+  
+  @@index([salonId])
+  @@index([influencerId])
+  @@index([proposedAt])
 }
 
 // Chat system models
@@ -297,6 +353,78 @@ model ActivityLog {
   @@index([createdAt])
 }
 
+model Payment {
+  id                  String          @id @default(uuid())
+  
+  // Stripe references
+  stripePaymentId     String          @unique  // Stripe PaymentIntent ID
+  stripeSessionId     String?         @unique  // Stripe Checkout Session ID
+  
+  // Payment details
+  amount              Int                      // Amount in cents
+  currency            String          @default("usd")
+  status              PaymentStatus   @default(PENDING)
+  
+  // Salon reference
+  salonId             String
+  salon               Salon           @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  
+  // Subscription reference (if applicable)
+  subscriptionId      String?
+  subscription        Subscription?   @relation(fields: [subscriptionId], references: [id])
+  
+  // Payment metadata
+  description         String?
+  metadata            Json?           // Additional Stripe metadata
+  
+  // Timestamps
+  paidAt              DateTime?
+  refundedAt          DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  
+  @@index([salonId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Subscription {
+  id                    String              @id @default(uuid())
+  
+  // Stripe references
+  stripeSubscriptionId  String              @unique  // Stripe Subscription ID
+  stripeCustomerId      String                       // Stripe Customer ID
+  stripePriceId         String?                      // Stripe Price ID
+  
+  // Subscription details
+  plan                  SubscriptionPlan
+  status                SubscriptionStatus  @default(ACTIVE)
+  
+  // Salon reference
+  salonId               String
+  salon                 Salon               @relation(fields: [salonId], references: [id], onDelete: Cascade)
+  
+  // Subscription periods
+  currentPeriodStart    DateTime
+  currentPeriodEnd      DateTime
+  cancelAtPeriodEnd     Boolean             @default(false)
+  canceledAt            DateTime?
+  
+  // Trial period (optional)
+  trialStart            DateTime?
+  trialEnd              DateTime?
+  
+  // Timestamps
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  
+  payments              Payment[]
+  
+  @@index([salonId])
+  @@index([status])
+  @@index([currentPeriodEnd])
+}
+
 enum NotificationType {
   CONNECTION_REQUEST
   CONNECTION_ACCEPTED
@@ -305,6 +433,11 @@ enum NotificationType {
   MESSAGE_REPLY
   PROFILE_VIEW
   SYSTEM
+  PROJECT_RECEIVED
+  PROJECT_ACCEPTED
+  PROJECT_REJECTED
+  PROJECT_CANCELLED
+  PROJECT_COMPLETED
 }
 
 enum ActivityAction {
@@ -357,4 +490,47 @@ enum MessageType {
   TEXT
   IMAGE
   FILE
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  EXPIRED
+  TRIALING
+}
+
+enum SubscriptionPlan {
+  MONTHLY
+  YEARLY
+}
+
+enum ProjectType {
+  SPONSORED_POST
+  PRODUCT_REVIEW
+  BRAND_AMBASSADOR
+  EVENT_COVERAGE
+  TUTORIAL_VIDEO
+  UNBOXING
+  GIVEAWAY
+  COLLABORATION
+  STORE_VISIT
+  OTHER
+}
+
+enum ProjectStatus {
+  PENDING         // Waiting for influencer response
+  ACCEPTED        // Influencer accepted
+  REJECTED        // Influencer rejected
+  IN_PROGRESS     // Project is ongoing
+  COMPLETED       // Project completed
+  CANCELLED       // Project cancelled by salon
 }

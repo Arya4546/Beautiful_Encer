@@ -82,4 +82,10 @@ export const API_ENDPOINTS = {
     ACTIVITY_LOGS: '/admin/activity-logs',
     SYNC_SOCIAL_MEDIA: '/admin/sync-social-media',
   },
+  // Payment endpoints
+  PAYMENT: {
+    CREATE_CHECKOUT_SESSION: '/payment/create-checkout-session',
+    VERIFY_SESSION: (sessionId: string) => `/payment/verify-session/${sessionId}`,
+    SUBSCRIPTION_STATUS: (salonId: string) => `/payment/subscription-status/${salonId}`,
+  },
 } as const;

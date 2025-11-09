@@ -2,6 +2,7 @@ import { prisma } from '../lib/prisma.js';
 import { Role, ActivityAction } from '@prisma/client';
 import adminService from '../services/admin.service.js';
 import bcrypt from 'bcryptjs';
+import dataSyncSchedulerJob from '../jobs/dataSyncScheduler.job.js';
 class AdminController {
     /**
      * Get dashboard statistics and charts data
@@ -898,6 +899,594 @@ class AdminController {
             console.error('[AdminController.updateUser] Error:', error);
             return res.status(500).json({
                 error: 'Failed to update user',
+                message: error.message
+            });
+        }
+    }
+    /**
+     * Manually trigger social media data sync for all accounts
+     * Admin only endpoint to force sync regardless of last sync time
+     */
+    async triggerDataSync(req, res) {
+        try {
+            console.log('[AdminController.triggerDataSync] Manual sync triggered by admin:', req.user?.userId);
+            // Trigger the sync job
+            const result = await dataSyncSchedulerJob.triggerManualSync();
+            return res.status(200).json({
+                success: true,
+                message: 'Data sync completed',
+                data: result,
+            });
+        }
+        catch (error) {
+            console.error('[AdminController.triggerDataSync] Error:', error);
+            return res.status(500).json({
+                error: 'Failed to trigger data sync',
+                message: error.message
+            });
+        }
+    }
+    /**
+     * Get project statistics for admin dashboard
+     */
+    async getProjectStats(req, res) {
+        try {
+            const { startDate, endDate } = req.query;
+            // Build date filter
+            const dateFilter = startDate && endDate ? {
+                proposedAt: {
+                    gte: new Date(startDate),
+                    lte: new Date(endDate),
+                }
+            } : {};
+            // Get overall statistics
+            const [totalProjects, pendingProjects, acceptedProjects, rejectedProjects, inProgressProjects, completedProjects, cancelledProjects, totalBudget, completedBudget, projectsByType, recentProjects, topSalons, topInfluencers,] = await Promise.all([
+                // Total counts
+                prisma.project.count({ where: dateFilter }),
+                prisma.project.count({ where: { ...dateFilter, status: 'PENDING' } }),
+                prisma.project.count({ where: { ...dateFilter, status: 'ACCEPTED' } }),
+                prisma.project.count({ where: { ...dateFilter, status: 'REJECTED' } }),
+                prisma.project.count({ where: { ...dateFilter, status: 'IN_PROGRESS' } }),
+                prisma.project.count({ where: { ...dateFilter, status: 'COMPLETED' } }),
+                prisma.project.count({ where: { ...dateFilter, status: 'CANCELLED' } }),
+                // Budget totals
+                prisma.project.aggregate({
+                    where: dateFilter,
+                    _sum: { budget: true }
+                }),
+                prisma.project.aggregate({
+                    where: { ...dateFilter, status: 'COMPLETED' },
+                    _sum: { budget: true }
+                }),
+                // Projects by type
+                prisma.project.groupBy({
+                    by: ['projectType'],
+                    where: dateFilter,
+                    _count: { id: true },
+                    _sum: { budget: true }
+                }),
+                // Recent projects
+                prisma.project.findMany({
+                    where: dateFilter,
+                    include: {
+                        salon: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        email: true
+                                    }
+                                }
+                            }
+                        },
+                        influencer: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        email: true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    orderBy: { proposedAt: 'desc' },
+                    take: 10
+                }),
+                // Top salons by projects
+                prisma.project.groupBy({
+                    by: ['salonId'],
+                    where: dateFilter,
+                    _count: { id: true },
+                    _sum: { budget: true },
+                    orderBy: { _count: { id: 'desc' } },
+                    take: 5
+                }),
+                // Top influencers by completed projects
+                prisma.project.groupBy({
+                    by: ['influencerId'],
+                    where: { ...dateFilter, status: 'COMPLETED' },
+                    _count: { id: true },
+                    _sum: { budget: true },
+                    orderBy: { _count: { id: 'desc' } },
+                    take: 5
+                }),
+            ]);
+            // Fetch salon details for top salons
+            const salonDetails = await prisma.salon.findMany({
+                where: {
+                    id: { in: topSalons.map(s => s.salonId) }
+                },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            email: true
+                        }
+                    }
+                }
+            });
+            // Fetch influencer details for top influencers
+            const influencerDetails = await prisma.influencer.findMany({
+                where: {
+                    id: { in: topInfluencers.map(i => i.influencerId) }
+                },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true
+                        }
+                    }
+                }
+            });
+            // Map salon and influencer details
+            const topSalonsWithDetails = topSalons.map(salon => {
+                const details = salonDetails.find(s => s.id === salon.salonId);
+                return {
+                    id: salon.salonId,
+                    businessName: details?.businessName || 'Unknown',
+                    email: details?.user.email,
+                    projectCount: salon._count.id,
+                    totalBudget: salon._sum.budget || 0
+                };
+            });
+            const topInfluencersWithDetails = topInfluencers.map(influencer => {
+                const details = influencerDetails.find(i => i.id === influencer.influencerId);
+                return {
+                    id: influencer.influencerId,
+                    name: details?.user.name || 'Unknown',
+                    email: details?.user.email,
+                    completedProjects: influencer._count.id,
+                    totalEarnings: influencer._sum.budget || 0
+                };
+            });
+            // Calculate acceptance rate
+            const acceptanceRate = totalProjects > 0
+                ? ((acceptedProjects + inProgressProjects + completedProjects) / totalProjects * 100).toFixed(2)
+                : '0';
+            // Calculate completion rate
+            const completionRate = acceptedProjects > 0
+                ? (completedProjects / (acceptedProjects + inProgressProjects + completedProjects) * 100).toFixed(2)
+                : '0';
+            return res.status(200).json({
+                success: true,
+                data: {
+                    overview: {
+                        totalProjects,
+                        totalBudget: totalBudget._sum.budget || 0,
+                        completedBudget: completedBudget._sum.budget || 0,
+                        acceptanceRate: parseFloat(acceptanceRate),
+                        completionRate: parseFloat(completionRate),
+                    },
+                    statusBreakdown: {
+                        pending: pendingProjects,
+                        accepted: acceptedProjects,
+                        rejected: rejectedProjects,
+                        inProgress: inProgressProjects,
+                        completed: completedProjects,
+                        cancelled: cancelledProjects,
+                    },
+                    projectsByType: projectsByType.map(type => ({
+                        type: type.projectType,
+                        count: type._count.id,
+                        totalBudget: type._sum.budget || 0
+                    })),
+                    recentProjects: recentProjects.map(project => ({
+                        id: project.id,
+                        title: project.title,
+                        projectType: project.projectType,
+                        status: project.status,
+                        budget: project.budget,
+                        proposedAt: project.proposedAt,
+                        salon: {
+                            id: project.salon.id,
+                            businessName: project.salon.businessName,
+                            email: project.salon.user.email
+                        },
+                        influencer: {
+                            id: project.influencer.id,
+                            name: project.influencer.user.name,
+                            email: project.influencer.user.email
+                        }
+                    })),
+                    topSalons: topSalonsWithDetails,
+                    topInfluencers: topInfluencersWithDetails,
+                }
+            });
+        }
+        catch (error) {
+            console.error('[AdminController.getProjectStats] Error:', error);
+            return res.status(500).json({
+                error: 'Failed to fetch project statistics',
+                message: error.message
+            });
+        }
+    }
+    /**
+     * Get all projects with pagination and filters
+     */
+    async getProjects(req, res) {
+        try {
+            const { page = '1', limit = '20', status, projectType, salonId, influencerId, search, startDate, endDate, sortBy = 'proposedAt', sortOrder = 'desc' } = req.query;
+            const pageNum = parseInt(page);
+            const limitNum = parseInt(limit);
+            const skip = (pageNum - 1) * limitNum;
+            // Build filters
+            const where = {};
+            if (status)
+                where.status = status;
+            if (projectType)
+                where.projectType = projectType;
+            if (salonId)
+                where.salonId = salonId;
+            if (influencerId)
+                where.influencerId = influencerId;
+            if (startDate && endDate) {
+                where.proposedAt = {
+                    gte: new Date(startDate),
+                    lte: new Date(endDate)
+                };
+            }
+            if (search) {
+                where.OR = [
+                    { title: { contains: search, mode: 'insensitive' } },
+                    { description: { contains: search, mode: 'insensitive' } },
+                ];
+            }
+            const [projects, total] = await Promise.all([
+                prisma.project.findMany({
+                    where,
+                    include: {
+                        salon: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        email: true
+                                    }
+                                }
+                            }
+                        },
+                        influencer: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        email: true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    orderBy: { [sortBy]: sortOrder },
+                    skip,
+                    take: limitNum
+                }),
+                prisma.project.count({ where })
+            ]);
+            return res.status(200).json({
+                success: true,
+                data: {
+                    projects: projects.map(project => ({
+                        id: project.id,
+                        title: project.title,
+                        projectType: project.projectType,
+                        status: project.status,
+                        budget: project.budget,
+                        startDate: project.startDate,
+                        endDate: project.endDate,
+                        proposedAt: project.proposedAt,
+                        respondedAt: project.respondedAt,
+                        completedAt: project.completedAt,
+                        salon: {
+                            id: project.salon.id,
+                            businessName: project.salon.businessName,
+                            email: project.salon.user.email
+                        },
+                        influencer: {
+                            id: project.influencer.id,
+                            name: project.influencer.user.name,
+                            email: project.influencer.user.email
+                        }
+                    })),
+                    pagination: {
+                        page: pageNum,
+                        limit: limitNum,
+                        total,
+                        totalPages: Math.ceil(total / limitNum)
+                    }
+                }
+            });
+        }
+        catch (error) {
+            console.error('[AdminController.getProjects] Error:', error);
+            return res.status(500).json({
+                error: 'Failed to fetch projects',
+                message: error.message
+            });
+        }
+    }
+    /**
+     * Get payment statistics for admin dashboard
+     */
+    async getPaymentStats(req, res) {
+        try {
+            const { startDate, endDate } = req.query;
+            // Build date filter
+            const dateFilter = startDate && endDate ? {
+                createdAt: {
+                    gte: new Date(startDate),
+                    lte: new Date(endDate),
+                }
+            } : {};
+            // Get payment statistics
+            const [totalPayments, successfulPayments, failedPayments, pendingPayments, totalRevenue, revenueByPlan, recentPayments, monthlyRevenue, topSpenders,] = await Promise.all([
+                // Total counts
+                prisma.payment.count({ where: dateFilter }),
+                prisma.payment.count({ where: { ...dateFilter, status: 'COMPLETED' } }),
+                prisma.payment.count({ where: { ...dateFilter, status: 'FAILED' } }),
+                prisma.payment.count({ where: { ...dateFilter, status: 'PENDING' } }),
+                // Revenue
+                prisma.payment.aggregate({
+                    where: { ...dateFilter, status: 'COMPLETED' },
+                    _sum: { amount: true }
+                }),
+                // Revenue by plan (via subscription)
+                prisma.payment.groupBy({
+                    by: ['subscriptionId'],
+                    where: { ...dateFilter, status: 'COMPLETED', subscriptionId: { not: null } },
+                    _count: { _all: true },
+                    _sum: { amount: true }
+                }),
+                // Recent payments
+                prisma.payment.findMany({
+                    where: dateFilter,
+                    include: {
+                        salon: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        email: true,
+                                        role: true
+                                    }
+                                }
+                            }
+                        },
+                        subscription: {
+                            select: {
+                                plan: true
+                            }
+                        }
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    take: 10
+                }),
+                // Monthly revenue (last 12 months)
+                prisma.$queryRaw `
+          SELECT 
+            TO_CHAR(DATE_TRUNC('month', "createdAt"), 'YYYY-MM') as month,
+            COUNT(*)::int as count,
+            SUM(amount)::float as revenue
+          FROM "Payment"
+          WHERE status = 'COMPLETED'
+            AND "createdAt" >= NOW() - INTERVAL '12 months'
+          GROUP BY DATE_TRUNC('month', "createdAt")
+          ORDER BY month DESC
+        `,
+                // Top spenders (by salon)
+                prisma.payment.groupBy({
+                    by: ['salonId'],
+                    where: { ...dateFilter, status: 'COMPLETED' },
+                    _sum: { amount: true },
+                    _count: { _all: true },
+                    orderBy: { _sum: { amount: 'desc' } },
+                    take: 10
+                }),
+            ]);
+            // Fetch salon details for top spenders
+            const salonDetails = await prisma.salon.findMany({
+                where: {
+                    id: { in: topSpenders.map(s => s.salonId) }
+                },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            role: true
+                        }
+                    }
+                }
+            });
+            // Fetch subscription details for revenue by plan
+            const subscriptions = await prisma.subscription.findMany({
+                where: {
+                    id: { in: revenueByPlan.map(r => r.subscriptionId).filter(Boolean) }
+                },
+                select: {
+                    id: true,
+                    plan: true
+                }
+            });
+            // Map revenue by plan
+            const revenueByPlanWithDetails = revenueByPlan.map(item => {
+                const sub = subscriptions.find(s => s.id === item.subscriptionId);
+                return {
+                    plan: sub?.plan || 'UNKNOWN',
+                    count: item._count?._all || 0,
+                    revenue: item._sum?.amount || 0
+                };
+            });
+            const topSpendersWithDetails = topSpenders.map(spender => {
+                const salon = salonDetails.find(s => s.id === spender.salonId);
+                return {
+                    salonId: spender.salonId,
+                    businessName: salon?.businessName || 'Unknown',
+                    email: salon?.user.email,
+                    totalSpent: spender._sum?.amount || 0,
+                    paymentCount: spender._count?._all || 0
+                };
+            });
+            // Calculate success rate
+            const successRate = totalPayments > 0
+                ? (successfulPayments / totalPayments * 100).toFixed(2)
+                : '0';
+            return res.status(200).json({
+                success: true,
+                data: {
+                    overview: {
+                        totalPayments,
+                        successfulPayments,
+                        failedPayments,
+                        pendingPayments,
+                        totalRevenue: totalRevenue._sum?.amount || 0,
+                        successRate: parseFloat(successRate),
+                    },
+                    revenueByPlan: revenueByPlanWithDetails,
+                    recentPayments: recentPayments.map(payment => ({
+                        id: payment.id,
+                        amount: payment.amount,
+                        currency: payment.currency,
+                        status: payment.status,
+                        subscriptionPlan: payment.subscription?.plan || null,
+                        createdAt: payment.createdAt,
+                        paidAt: payment.paidAt,
+                        salon: {
+                            id: payment.salon.id,
+                            businessName: payment.salon.businessName,
+                            email: payment.salon.user.email,
+                        }
+                    })),
+                    monthlyRevenue,
+                    topSpenders: topSpendersWithDetails,
+                }
+            });
+        }
+        catch (error) {
+            console.error('[AdminController.getPaymentStats] Error:', error);
+            return res.status(500).json({
+                error: 'Failed to fetch payment statistics',
+                message: error.message
+            });
+        }
+    }
+    /**
+     * Get all payments with pagination and filters
+     */
+    async getPayments(req, res) {
+        try {
+            const { page = '1', limit = '20', status, subscriptionPlan, salonId, startDate, endDate, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+            const pageNum = parseInt(page);
+            const limitNum = parseInt(limit);
+            const skip = (pageNum - 1) * limitNum;
+            // Build filters
+            const where = {};
+            if (status)
+                where.status = status;
+            if (salonId)
+                where.salonId = salonId;
+            // Filter by subscription plan
+            if (subscriptionPlan) {
+                where.subscription = {
+                    plan: subscriptionPlan
+                };
+            }
+            if (startDate && endDate) {
+                where.createdAt = {
+                    gte: new Date(startDate),
+                    lte: new Date(endDate)
+                };
+            }
+            const [payments, total] = await Promise.all([
+                prisma.payment.findMany({
+                    where,
+                    include: {
+                        salon: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        email: true,
+                                        role: true
+                                    }
+                                }
+                            }
+                        },
+                        subscription: {
+                            select: {
+                                plan: true
+                            }
+                        }
+                    },
+                    orderBy: { [sortBy]: sortOrder },
+                    skip,
+                    take: limitNum
+                }),
+                prisma.payment.count({ where })
+            ]);
+            return res.status(200).json({
+                success: true,
+                data: {
+                    payments: payments.map(payment => ({
+                        id: payment.id,
+                        amount: payment.amount,
+                        currency: payment.currency,
+                        status: payment.status,
+                        subscriptionPlan: payment.subscription?.plan || null,
+                        stripePaymentId: payment.stripePaymentId,
+                        stripeSessionId: payment.stripeSessionId,
+                        paidAt: payment.paidAt,
+                        refundedAt: payment.refundedAt,
+                        createdAt: payment.createdAt,
+                        updatedAt: payment.updatedAt,
+                        salon: {
+                            id: payment.salon.id,
+                            businessName: payment.salon.businessName,
+                            email: payment.salon.user.email,
+                        }
+                    })),
+                    pagination: {
+                        page: pageNum,
+                        limit: limitNum,
+                        total,
+                        totalPages: Math.ceil(total / limitNum)
+                    }
+                }
+            });
+        }
+        catch (error) {
+            console.error('[AdminController.getPayments] Error:', error);
+            return res.status(500).json({
+                error: 'Failed to fetch payments',
                 message: error.message
             });
         }

@@ -12,8 +12,11 @@ import chatRoutes from './routes/chat.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import proxyRoutes from './routes/proxy.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
+import projectRoutes from './routes/project.routes.js';
 import chatController from './controllers/chat.controller.js';
 import notificationController from './controllers/notification.controller.js';
+import projectController from './controllers/project.controller.js';
 import { generalLimiter } from './middlewares/rateLimiter.middleware.js';
 import tokenRefreshJob from './jobs/tokenRefresh.job.js';
 import dataSyncSchedulerJob from './jobs/dataSyncScheduler.job.js';
@@ -44,6 +47,11 @@ const io = new SocketServer(httpServer, {
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
+
+// Stripe webhook requires raw body, so we need to handle it before express.json()
+app.use('/api/v1/payment/webhook', express.raw({ type: 'application/json' }));
+
+// Parse JSON for all other routes
 app.use(express.json());
 
 // Behind a proxy (Render/NGINX) to trust X-Forwarded-* headers for rate limit & IP detection
@@ -55,6 +63,7 @@ app.use(generalLimiter);
 // Set Socket.IO instance in controllers
 chatController.setSocketIO(io);
 notificationController.setSocketIO(io);
+projectController.setSocketIO(io);
 
 // Socket.IO authentication and connection handling
 io.use((socket, next) => {
@@ -127,10 +136,12 @@ app.use('/api/v1/social-media', socialMediaRoutes);
 app.use('/api/v1/discovery', discoveryRoutes);
 app.use('/api/v1/connections', connectionRoutes);
 app.use('/api/v1/profile', profileRoutes);
+app.use('/api/v1/payment', paymentRoutes);
 app.use('/api/v1/chat', chatRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/proxy', proxyRoutes); // Image proxy for CORS issues
 app.use('/api/v1/admin', adminRoutes); // Admin panel routes
+app.use('/api/v1/projects', projectRoutes); // Project proposal routes
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {

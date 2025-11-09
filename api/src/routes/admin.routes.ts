@@ -114,4 +114,32 @@ router.put('/password', adminController.updateAdminPassword.bind(adminController
  */
 router.post('/sync-social-media', adminController.triggerDataSync.bind(adminController));
 
+/**
+ * @route   GET /api/v1/admin/projects/stats
+ * @desc    Get project statistics
+ * @access  Admin
+ */
+router.get('/projects/stats', adminController.getProjectStats.bind(adminController));
+
+/**
+ * @route   GET /api/v1/admin/projects
+ * @desc    Get all projects with pagination and filters
+ * @access  Admin
+ */
+router.get('/projects', adminController.getProjects.bind(adminController));
+
+/**
+ * @route   GET /api/v1/admin/payments/stats
+ * @desc    Get payment statistics
+ * @access  Admin
+ */
+router.get('/payments/stats', adminController.getPaymentStats.bind(adminController));
+
+/**
+ * @route   GET /api/v1/admin/payments
+ * @desc    Get all payments with pagination and filters
+ * @access  Admin
+ */
+router.get('/payments', adminController.getPayments.bind(adminController));
+
 export default router;

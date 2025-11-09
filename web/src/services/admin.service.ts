@@ -162,6 +162,66 @@ export const adminService = {
     const response = await axiosInstance.post(API_ENDPOINTS.ADMIN.SYNC_SOCIAL_MEDIA);
     return response.data;
   },
+
+  /**
+   * Get project statistics
+   */
+  getProjectStats: async (startDate?: string, endDate?: string) => {
+    const params: any = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    const response = await axiosInstance.get('/admin/projects/stats', { params });
+    return response.data;
+  },
+
+  /**
+   * Get all projects with pagination and filters
+   */
+  getProjects: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    projectType?: string;
+    salonId?: string;
+    influencerId?: string;
+    search?: string;
+    startDate?: string;
+    endDate?: string;
+    sortBy?: string;
+    sortOrder?: string;
+  }) => {
+    const response = await axiosInstance.get('/admin/projects', { params });
+    return response.data;
+  },
+
+  /**
+   * Get payment statistics
+   */
+  getPaymentStats: async (startDate?: string, endDate?: string) => {
+    const params: any = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    const response = await axiosInstance.get('/admin/payments/stats', { params });
+    return response.data;
+  },
+
+  /**
+   * Get all payments with pagination and filters
+   */
+  getPayments: async (params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    subscriptionPlan?: string;
+    userId?: string;
+    startDate?: string;
+    endDate?: string;
+    sortBy?: string;
+    sortOrder?: string;
+  }) => {
+    const response = await axiosInstance.get('/admin/payments', { params });
+    return response.data;
+  },
 };
 
 export default adminService;

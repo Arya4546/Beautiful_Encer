@@ -11,13 +11,13 @@ class ApifyTwitterService {
             throw new Error('APIFY_API_TOKEN is not set in environment variables');
         }
         this.client = new ApifyClient({ token: apiToken });
-        // Using mikhaiylenko/twitter-scraper - Free actor
-        this.actorId = process.env.APIFY_TWITTER_ACTOR_ID || 'mikhaiylenko/twitter-scraper';
+        // Using epctex/twitter-profile-scraper - Paid actor with reliable data
+        this.actorId = process.env.APIFY_TWITTER_ACTOR_ID || 'epctex/twitter-profile-scraper';
         logger.log('[ApifyTwitterService] Initialized with actor:', this.actorId);
     }
     /**
      * Scrape Twitter/X profile and recent tweets
-     * Using mikhaiylenko/twitter-scraper
+     * Using epctex/twitter-profile-scraper - Paid actor with reliable data extraction
      */
     async scrapeTwitterProfile(username) {
         try {
@@ -27,9 +27,12 @@ class ApifyTwitterService {
             // Try to use Apify actor
             try {
                 const run = await this.client.actor(this.actorId).call({
-                    searchTerms: [cleanUsername],
+                    startUrls: [`https://twitter.com/${cleanUsername}`],
                     maxTweets: this.MAX_TWEETS,
-                    mode: 'user',
+                    includeUnavailableVideos: false,
+                    proxy: {
+                        useApifyProxy: true,
+                    },
                 });
                 logger.log(`[ApifyTwitterService] Actor run completed with status: ${run.status}`);
                 logger.log(`[ApifyTwitterService] Run ID: ${run.id}`);
@@ -37,8 +40,6 @@ class ApifyTwitterService {
                 if (run.status === 'FAILED' || run.status === 'ABORTED' || run.status === 'TIMED-OUT') {
                     throw new Error(`Actor run failed with status: ${run.status}`);
                 }
-                // Wait a bit for dataset to be ready
-                await new Promise(resolve => setTimeout(resolve, 2000));
                 logger.log(`[ApifyTwitterService] Fetching dataset...`);
                 // Fetch results from dataset
                 const { items } = await this.client.dataset(run.defaultDatasetId).listItems();
@@ -56,38 +57,48 @@ class ApifyTwitterService {
                 }
                 // Log first item structure for debugging
                 logger.log(`[ApifyTwitterService] First item keys:`, Object.keys(items[0] || {}));
-                // apidojo/twitter-user-scraper returns data in specific format
-                // Check multiple possible structures
+                // epctex/twitter-profile-scraper returns tweets as separate items
+                // Each item has: { user: {...}, full_text, created_at, retweet_count, etc. }
                 let user = null;
                 let tweetsArray = [];
-                // Try to find user profile data
                 const firstItem = items[0];
-                // Structure 1: Direct user object with timeline
-                if (firstItem.timeline || firstItem.tweets) {
-                    user = firstItem;
-                    tweetsArray = (firstItem.timeline || firstItem.tweets || []);
-                }
-                // Structure 2: User in nested property
-                else if (firstItem.user) {
+                // Structure 1: epctex format - each item is a tweet with nested user object
+                if (firstItem.user) {
                     user = firstItem.user;
+                    tweetsArray = items; // All items are tweets
+                    logger.log(`[ApifyTwitterService] Using epctex format - tweets with nested user`);
+                }
+                // Structure 2: epctex format with author and tweets
+                else if (firstItem.author) {
+                    user = firstItem.author;
                     tweetsArray = (firstItem.tweets || []);
+                    logger.log(`[ApifyTwitterService] Using epctex format with author`);
                 }
-                // Structure 3: All items are tweets with author info
-                else if (firstItem.author || firstItem.user_info) {
-                    user = firstItem.author || firstItem.user_info;
-                    tweetsArray = items;
+                // Structure 3: Direct user object with tweets array
+                else if (firstItem.tweets && Array.isArray(firstItem.tweets)) {
+                    user = firstItem;
+                    tweetsArray = firstItem.tweets;
+                    logger.log(`[ApifyTwitterService] Using direct format with tweets array`);
                 }
-                // Structure 4: Flat structure
+                // Structure 4: User data with screen_name/username
+                else if (firstItem.screen_name || firstItem.username) {
+                    user = firstItem;
+                    // Rest of items might be tweets, or tweets might be empty
+                    tweetsArray = items.slice(1).filter((item) => item.id_str || item.id);
+                    logger.log(`[ApifyTwitterService] Using flat format`);
+                }
+                // Structure 5: Fallback - treat first item as user
                 else {
                     user = firstItem;
-                    // Remaining items might be tweets
-                    tweetsArray = items.slice(1);
+                    tweetsArray = [];
+                    logger.log(`[ApifyTwitterService] Using fallback format`);
                 }
                 if (!user) {
                     logger.error(`[ApifyTwitterService] Could not find user data in response`);
                     throw new Error(`Could not extract profile data for @${cleanUsername}`);
                 }
                 logger.log(`[ApifyTwitterService] User found:`, user.screen_name || user.username || user.name);
+                logger.log(`[ApifyTwitterService] User details - followers: ${user.followers_count}, following: ${user.friends_count}, tweets: ${user.statuses_count}`);
                 logger.log(`[ApifyTwitterService] Processing ${tweetsArray.length} potential tweets`);
                 // Process tweets - filter and map
                 const tweets = [];
@@ -412,13 +423,13 @@ class ApifyTwitterService {
             }
             // Format tweets for frontend
             const recentTweets = account.posts.map(post => ({
-                id: post.platformPostId,
+                id: post.platformPostId || '',
                 text: post.caption || '',
-                url: post.mediaUrl || '',
+                url: post.mediaUrl || `https://twitter.com/${account.platformUsername}/status/${post.platformPostId}`,
                 thumbnailUrl: post.thumbnailUrl || '',
                 thumbnail: post.thumbnailUrl || '',
                 mediaUrls: post.metadata?.mediaUrls || [],
-                publishedAt: post.postedAt.toISOString(),
+                publishedAt: post.postedAt?.toISOString() || new Date().toISOString(),
                 likeCount: post.likesCount || 0,
                 retweetCount: post.sharesCount || 0,
                 replyCount: post.commentsCount || 0,
@@ -426,10 +437,24 @@ class ApifyTwitterService {
                 quoteCount: post.metadata?.quoteCount || 0,
             }));
             // Enhance metadata with tweets
+            const topHashtags = this.extractHashtags(recentTweets.map(tweet => ({
+                id: tweet.id,
+                text: tweet.text,
+                createdAt: tweet.publishedAt,
+                url: tweet.url,
+                mediaUrls: tweet.mediaUrls,
+                retweetCount: tweet.retweetCount,
+                replyCount: tweet.replyCount,
+                likeCount: tweet.likeCount,
+                quoteCount: tweet.quoteCount || 0,
+                viewCount: tweet.viewCount,
+                isRetweet: false,
+            })));
             const metadata = {
                 ...account.metadata,
                 recentTweets,
                 recentPosts: recentTweets,
+                topHashtags,
             };
             return {
                 account: {

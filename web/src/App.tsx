@@ -22,6 +22,15 @@ import SocialMediaPage from "./pages/SocialMediaPage";
 import { NotFoundPage } from "./pages/ErrorPage";
 import TermsPage from "./pages/legal/TermsPage";
 import PrivacyPolicyPage from "./pages/legal/PrivacyPolicyPage";
+import PaymentCheckout from "./pages/PaymentCheckout";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
+
+// Project Pages
+import ProjectCreate from "./pages/salon/ProjectCreate";
+import ProjectList from "./pages/salon/ProjectList";
+import ProjectInvitations from "./pages/influencer/ProjectInvitations";
+import ProjectDetails from "./pages/ProjectDetails";
 
 // Admin Pages
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
@@ -29,6 +38,8 @@ import { AdminUsers } from "./pages/admin/AdminUsers";
 import { AdminConnections } from "./pages/admin/AdminConnections";
 import { AdminActivityLogs } from "./pages/admin/AdminActivityLogs";
 import { AdminProfilePage } from "./pages/admin/AdminProfilePage";
+import AdminProjects from "./pages/admin/AdminProjects";
+import AdminPayments from "./pages/admin/AdminPayments";
 
 // Route Protection
 import { ProtectedRoute, PublicRoute, OnboardingRoute } from "./components/RouteProtection";
@@ -95,6 +106,11 @@ const App: React.FC = () => {
         <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
         <Route path="/verify-forgot-otp" element={<PublicRoute><VerifyForgotOTPPage /></PublicRoute>} />
         <Route path="/reset-password" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
+        
+        {/* Payment Routes - Public (accessed during signup) */}
+        <Route path="/payment/checkout" element={<PaymentCheckout />} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/cancel" element={<PaymentCancel />} />
 
         {/* Onboarding Routes - Only accessible after signup, before onboarding completion */}
         <Route 
@@ -119,6 +135,29 @@ const App: React.FC = () => {
           path="/chat" 
           element={<ProtectedRoute><ChatPage /></ProtectedRoute>} 
         />
+        
+        {/* Project Routes */}
+        <Route 
+          path="/salon/projects" 
+          element={<ProtectedRoute><ProjectList /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/salon/projects/create" 
+          element={<ProtectedRoute><ProjectCreate /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/salon/projects/:id" 
+          element={<ProtectedRoute><ProjectDetails /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/influencer/projects" 
+          element={<ProtectedRoute><ProjectInvitations /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/projects/:id" 
+          element={<ProtectedRoute><ProjectDetails /></ProtectedRoute>} 
+        />
+        
         <Route 
           path="/notifications" 
           element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} 
@@ -148,6 +187,14 @@ const App: React.FC = () => {
         <Route 
           path="/admin/connections" 
           element={<ProtectedRoute><AdminConnections /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/admin/projects" 
+          element={<ProtectedRoute><AdminProjects /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/admin/payments" 
+          element={<ProtectedRoute><AdminPayments /></ProtectedRoute>} 
         />
         <Route 
           path="/admin/activity-logs" 

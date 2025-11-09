@@ -106,16 +106,25 @@ const getEmailTemplate = (title, message, otp, purpose) => {
 export const sendOtpEmail = async (to, otp) => {
     const html = getEmailTemplate('Email Verification', 'Thank you for signing up with Beautiful Encer! To complete your registration, please verify your email address using the OTP code below:', otp, 'verification');
     try {
-        await tranEmailApi.sendTransacEmail({
+        logger.log(`📧 [Email Service] Sending OTP email to: ${to}`);
+        logger.log(`📧 [Email Service] OTP Code: ${otp}`);
+        const result = await tranEmailApi.sendTransacEmail({
             sender: { email: "singharya9693@gmail.com", name: "Beautiful Encer" },
             to: [{ email: to }],
             subject: "✨ Beautiful Encer - Verify Your Email",
             htmlContent: html,
         });
-        logger.log(`✅ OTP email sent to ${to}`);
+        logger.log(`✅ OTP email sent successfully to ${to}`);
+        logger.log(`✅ Message ID: ${result.messageId}`);
+        return result;
     }
     catch (error) {
         logger.error("❌ Failed to send OTP email:", error);
+        logger.error("❌ Error details:", {
+            message: error.message,
+            response: error.response?.text || error.response?.body,
+            code: error.code
+        });
         throw new Error("Failed to send OTP email.");
     }
 };
@@ -125,16 +134,25 @@ export const sendOtpEmail = async (to, otp) => {
 export const sendPasswordResetOtpEmail = async (to, otp) => {
     const html = getEmailTemplate('Password Reset Request', 'We received a request to reset your password. Use the OTP code below to proceed with resetting your password:', otp, 'password reset');
     try {
-        await tranEmailApi.sendTransacEmail({
+        logger.log(`🔐 [Email Service] Sending password reset OTP to: ${to}`);
+        logger.log(`🔐 [Email Service] OTP Code: ${otp}`);
+        const result = await tranEmailApi.sendTransacEmail({
             sender: { email: "singharya9693@gmail.com", name: "Beautiful Encer" },
             to: [{ email: to }],
             subject: "🔐 Beautiful Encer - Reset Your Password",
             htmlContent: html,
         });
-        logger.log(`✅ Password reset OTP email sent to ${to}`);
+        logger.log(`✅ Password reset OTP email sent successfully to ${to}`);
+        logger.log(`✅ Message ID: ${result.messageId}`);
+        return result;
     }
     catch (error) {
         logger.error("❌ Failed to send password reset OTP email:", error);
+        logger.error("❌ Error details:", {
+            message: error.message,
+            response: error.response?.text || error.response?.body,
+            code: error.code
+        });
         throw new Error("Failed to send password reset OTP email.");
     }
 };
