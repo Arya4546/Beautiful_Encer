@@ -58,6 +58,25 @@ export const authService = {
   },
 
   /**
+   * Check user status (email verification, payment, onboarding)
+   */
+  checkStatus: async (email: string): Promise<{
+    exists: boolean;
+    role?: 'INFLUENCER' | 'SALON';
+    emailVerified?: boolean;
+    paymentCompleted?: boolean;
+    hasOnboarded?: boolean;
+    termsAccepted?: boolean;
+    salonId?: string;
+    userId?: string;
+  }> => {
+    const response = await axiosInstance.get(
+      `${API_ENDPOINTS.AUTH.CHECK_STATUS}?email=${encodeURIComponent(email)}`
+    );
+    return response.data;
+  },
+
+  /**
    * Login
    */
   login: async (data: LoginRequest): Promise<LoginResponse> => {

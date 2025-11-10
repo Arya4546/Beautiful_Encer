@@ -15,6 +15,7 @@ export const API_ENDPOINTS = {
     SALON_SIGNUP: '/auth/signup/salon',
     VERIFY_OTP: '/auth/verify-otp',
     RESEND_OTP: '/auth/resend-otp',
+    CHECK_STATUS: '/auth/check-status',
     LOGIN: '/auth/login',
     FORGOT_PASSWORD: '/auth/forgot-password',
     VERIFY_FORGOT_OTP: '/auth/verify-forgot-otp',
