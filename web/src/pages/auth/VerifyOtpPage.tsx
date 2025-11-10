@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { showToast } from '../../utils/toast';
 import { FiArrowLeft } from 'react-icons/fi';
 import { authService } from '../../services/auth.service';
+import { validateOTP } from '../../utils/validation';
 
 export const VerifyOtpPage: React.FC = () => {
   const { t } = useTranslation();
@@ -112,8 +113,16 @@ export const VerifyOtpPage: React.FC = () => {
     e.preventDefault();
 
     const otpString = otp.join('');
-    if (otpString.length !== 6) {
-      showToast.error(t('auth.validation.otpRequired'));
+    
+    // Client-side validation
+    const otpValidation = validateOTP(otpString);
+    if (!otpValidation.valid) {
+      showToast.error(otpValidation.error || t('auth.validation.otpRequired'));
+      return;
+    }
+
+    // Prevent duplicate submissions
+    if (isLoading) {
       return;
     }
 
@@ -127,17 +136,32 @@ export const VerifyOtpPage: React.FC = () => {
 
       showToast.success(response.message);
       
-      // Navigate to login
-      navigate('/login', { 
-        state: { 
-          message: t('toast.success.otpVerified'),
-          email 
-        } 
-      });
+      // NEW FLOW: Check if user needs to complete payment (salon)
+      if (response.requiresPayment && response.salonId) {
+        // Salon needs to complete payment
+        navigate('/payment/checkout', { 
+          state: { 
+            salonId: response.salonId,
+            email 
+          } 
+        });
+      } else {
+        // Influencer or already paid - go to login
+        navigate('/login', { 
+          state: { 
+            message: t('toast.success.otpVerified'),
+            email 
+          } 
+        });
+      }
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.error || t('toast.error.otpFailed');
-      showToast.error(errorMessage);
+      // Handle specific error codes
+      if (error.response?.data?.code === 'RATE_LIMIT_EXCEEDED') {
+        showToast.error(error.response.data.message || 'Too many attempts. Please try again later.');
+      } else {
+        const errorMessage = error.response?.data?.error || t('toast.error.otpFailed');
+        showToast.error(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }

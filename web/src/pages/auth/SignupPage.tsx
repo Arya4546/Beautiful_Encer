@@ -14,6 +14,8 @@ import { AuthLayout } from '../../components/layout/AuthLayout';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { authService } from '../../services/auth.service';
+import { PasswordStrengthIndicator } from '../../components/auth/PasswordStrengthIndicator';
+import { validateEmail, validatePassword, validateName, validatePhoneNumber } from '../../utils/validation';
 import type { SignupRequest } from '../../types';
 
 type UserRole = 'influencer' | 'salon';
@@ -52,6 +54,44 @@ export const SignupPage: React.FC = () => {
       return;
     }
 
+    // Client-side validation before API call
+    const nameValidation = validateName(data.name);
+    if (!nameValidation.valid) {
+      showToast.error(nameValidation.error!);
+      return;
+    }
+
+    const emailValidation = validateEmail(data.email);
+    if (!emailValidation.valid) {
+      showToast.error(emailValidation.error!);
+      return;
+    }
+
+    const passwordValidation = validatePassword(data.password);
+    if (!passwordValidation.valid) {
+      showToast.error(passwordValidation.error!);
+      return;
+    }
+
+    if (data.password !== data.confirmPassword) {
+      showToast.error('Passwords do not match');
+      return;
+    }
+
+    if (data.phoneNo) {
+      const phoneValidation = validatePhoneNumber(data.phoneNo);
+      if (!phoneValidation.valid) {
+        showToast.error(phoneValidation.error!);
+        return;
+      }
+    }
+
+    // Prevent duplicate submissions
+    if (isLoading) {
+      console.warn('[SignupPage] Duplicate submission prevented');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -62,25 +102,25 @@ export const SignupPage: React.FC = () => {
           ? await authService.influencerSignup({ ...signupData, acceptTerms: true })
           : await authService.salonSignup({ ...signupData, acceptTerms: true });
 
-      // For salons, redirect to payment without showing OTP message
-      if (selectedRole === 'salon' && response.requiresPayment) {
-        // Don't show the OTP message for salons yet
-        showToast.success('Account created! Please complete payment to continue.');
-        navigate('/payment/checkout', { 
-          state: { 
-            salonId: response.salonId,
-            email: data.email 
-          } 
-        });
-      } else {
-        // For influencers, show OTP message and go to verification
-        showToast.success(response.message);
-        navigate('/verify-otp', { state: { email: data.email } });
-      }
+      // NEW FLOW: Always go to OTP verification first (for both influencers and salons)
+      showToast.success(response.message || 'Account created! Please check your email for verification code.');
+      navigate('/verify-otp', { 
+        state: { 
+          email: data.email,
+          role: selectedRole,
+          userId: response.userId,
+          salonId: response.salonId,
+          influencerId: response.influencerId
+        } 
+      });
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.error || t('toast.error.signupFailed');
-      showToast.error(errorMessage);
+      // Handle rate limiting specifically
+      if (error.response?.data?.code === 'RATE_LIMIT_EXCEEDED') {
+        showToast.error(error.response.data.message || 'Too many attempts. Please try again later.');
+      } else {
+        const errorMessage = error.response?.data?.error || t('toast.error.signupFailed');
+        showToast.error(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -381,6 +421,8 @@ export const SignupPage: React.FC = () => {
                 {errors.password && (
                   <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
                 )}
+                {/* Password Strength Indicator */}
+                <PasswordStrengthIndicator password={password || ''} show={!!password && password.length > 0} />
               </div>
 
               {/* Confirm Password */}

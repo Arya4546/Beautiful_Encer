@@ -33,6 +33,13 @@ router.post('/verify-otp', authLimiter, authController.verifyOtp.bind(authContro
 router.post('/resend-otp', authLimiter, authController.resendOtp.bind(authController));
 
 /**
+ * @route   GET /api/v1/auth/check-status
+ * @desc    Check user registration and verification status
+ * @access  Public + Rate Limited
+ */
+router.get('/check-status', authLimiter, authController.checkUserStatus.bind(authController));
+
+/**
  * @route   POST /api/v1/auth/login
  * @desc    Login (for both influencer and salon)
  * @access  Public + Rate Limited

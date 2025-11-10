@@ -5,6 +5,8 @@ import { prisma } from '../lib/prisma.js';
 import { Role } from '@prisma/client';
 import { generateTokens } from '../services/jwt.service.js';
 import { sendOtpEmail, sendPasswordResetOtpEmail } from '../services/email.service.js';
+import { otpRateLimiter } from '../utils/otpRateLimiter.util.js';
+import { validateEmail, validatePassword, validatePhoneNumber, validateName } from '../utils/validation.util.js';
 
 const REFRESH_TOKEN_COOKIE_NAME = 'jid';
 
@@ -20,20 +22,44 @@ class AuthController {
         return res.status(400).json({ error: 'Missing required fields: name, email, and password are required' });
       }
 
+      // Check OTP rate limit
+      const rateLimitCheck = otpRateLimiter.checkLimit(email);
+      if (!rateLimitCheck.allowed) {
+        const resetTime = rateLimitCheck.resetTime ? otpRateLimiter.formatTimeRemaining(rateLimitCheck.resetTime - Date.now()) : '15 minutes';
+        return res.status(429).json({ 
+          error: 'Too many OTP requests',
+          message: `Too many OTP requests. Please try again in ${resetTime}.`,
+          code: 'RATE_LIMIT_EXCEEDED'
+        });
+      }
+
       // Require acceptance of legal terms
       if (acceptTerms !== true) {
         return res.status(400).json({ error: 'You must accept the Terms of Service and Privacy Policy to sign up.' });
       }
 
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return res.status(400).json({ error: 'Invalid email format' });
+      // Validate name
+      const nameValidation = validateName(name, 'Name');
+      if (!nameValidation.valid) {
+        return res.status(400).json({ error: nameValidation.error });
       }
 
-      // Validate password strength (min 8 characters)
-      if (password.length < 8) {
-        return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+      // Validate email format
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.valid) {
+        return res.status(400).json({ error: emailValidation.error });
+      }
+
+      // Validate password strength
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.valid) {
+        return res.status(400).json({ error: passwordValidation.error });
+      }
+
+      // Validate phone number if provided
+      const phoneValidation = validatePhoneNumber(phoneNo);
+      if (!phoneValidation.valid) {
+        return res.status(400).json({ error: phoneValidation.error });
       }
 
       const hashedPassword = await bcrypt.hash(password, 12);
@@ -57,6 +83,9 @@ class AuthController {
         },
       });
 
+      // Delete any existing OTPs for this email
+      await prisma.otp.deleteMany({ where: { email } });
+
       // Generate OTP
       const otp = crypto.randomInt(100000, 999999).toString();
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
@@ -69,13 +98,23 @@ class AuthController {
         },
       });
 
+      // Record OTP attempt
+      otpRateLimiter.recordAttempt(email);
+
       // Send OTP email
-      await sendOtpEmail(email, otp);
+      try {
+        await sendOtpEmail(email, otp);
+      } catch (emailError) {
+        console.error('[AuthController.influencerSignup] Failed to send OTP email:', emailError);
+        // Don't fail signup if email fails - user can resend
+      }
 
       const { password: _, ...user } = newUser;
       return res.status(201).json({
         message: 'Influencer registered successfully. Please check your email for an OTP to verify your account.',
         userId: user.id,
+        email: user.email,
+        nextStep: 'VERIFY_EMAIL',
       });
     } catch (error: any) {
       if (error.code === 'P2002') {
@@ -98,52 +137,132 @@ class AuthController {
         return res.status(400).json({ error: 'Email and OTP are required' });
       }
 
-      const otpEntry = await prisma.otp.findUnique({
-        where: { email_otp: { email, otp } },
-      });
+      // Use transaction to prevent race conditions
+      const result: 
+        | { error: string; status: 400 | 404 }
+        | { user: any; success: true } = await prisma.$transaction(async (tx) => {
+        // Find and delete OTP in one atomic operation
+        const otpEntry = await tx.otp.findUnique({
+          where: { email_otp: { email, otp } },
+        });
 
-      if (!otpEntry) {
-        return res.status(400).json({ error: 'Invalid OTP' });
-      }
-
-      if (otpEntry.expiresAt < new Date()) {
-        // OTP has expired, delete it
-        await prisma.otp.delete({ where: { id: otpEntry.id } });
-        return res.status(400).json({ error: 'OTP has expired' });
-      }
-
-      // OTP is valid, update user and delete OTP
-      const user = await prisma.user.findUnique({ 
-        where: { email },
-        include: {
-          influencer: true,
-          salon: true,
+        if (!otpEntry) {
+          return { error: 'Invalid OTP', status: 400 as const };
         }
+
+        if (otpEntry.expiresAt < new Date()) {
+          // OTP has expired, delete it
+          await tx.otp.delete({ where: { id: otpEntry.id } });
+          return { error: 'OTP has expired', status: 400 as const };
+        }
+
+        // Delete OTP immediately to prevent concurrent use
+        await tx.otp.delete({ where: { id: otpEntry.id } });
+
+        // Get user with related data
+        const user = await tx.user.findUnique({ 
+          where: { email },
+          include: {
+            influencer: true,
+            salon: true,
+          }
+        });
+        
+        if (!user) {
+          return { error: 'User not found', status: 404 as const };
+        }
+
+        // Update emailVerified based on user role
+        if (user.role === Role.INFLUENCER && user.influencer) {
+          await tx.influencer.update({
+            where: { userId: user.id },
+            data: { emailVerified: true },
+          });
+          user.influencer.emailVerified = true;
+        } else if (user.role === Role.SALON && user.salon) {
+          await tx.salon.update({
+            where: { userId: user.id },
+            data: { emailVerified: true },
+          });
+          user.salon.emailVerified = true;
+        }
+
+        return { user, success: true as const };
       });
-      
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+
+      // Check for errors from transaction
+      if ('error' in result && 'status' in result) {
+        return res.status(result.status as number).json({ error: result.error });
       }
 
-      // Update emailVerified based on user role
+      if (!('user' in result)) {
+        return res.status(500).json({ error: 'Unexpected error during OTP verification' });
+      }
+
+      const user = result.user;
+
+      // Reset rate limit on successful verification
+      otpRateLimiter.resetAttempts(email);
+
+      // Return appropriate response based on role and next steps
+      const response: any = { 
+        message: 'Email verified successfully.',
+        role: user.role,
+        userId: user.id,
+      };
+
+      // For influencers: Go directly to login/onboarding
       if (user.role === Role.INFLUENCER && user.influencer) {
-        await prisma.influencer.update({
-          where: { userId: user.id },
-          data: { emailVerified: true },
-        });
-      } else if (user.role === Role.SALON && user.salon) {
-        await prisma.salon.update({
-          where: { userId: user.id },
-          data: { emailVerified: true },
-        });
+        response.influencerId = user.influencer.id;
+        response.requiresPayment = false;
+        response.nextStep = 'LOGIN';
+        response.message = 'Email verified successfully. Please login to continue.';
+      } 
+      // For salons: Check if payment is completed
+      else if (user.role === Role.SALON && user.salon) {
+        response.salonId = user.salon.id;
+        response.email = user.email;
+        
+        // Check payment status with multiple sources
+        const hasActiveSubscription = await prisma.subscription.count({
+          where: { 
+            salonId: user.salon.id,
+            status: { in: ['ACTIVE', 'TRIALING'] }
+          }
+        }) > 0;
+
+        const hasCompletedPayment = await prisma.payment.count({
+          where: { 
+            salonId: user.salon.id,
+            status: 'COMPLETED'
+          }
+        }) > 0;
+
+        const paymentCompleted = hasActiveSubscription || hasCompletedPayment || user.salon.paymentCompleted;
+
+        // Auto-fix payment flag if inconsistent
+        if ((hasActiveSubscription || hasCompletedPayment) && !user.salon.paymentCompleted) {
+          console.log(`[AuthController.verifyOtp] Auto-fixing payment flag for salon ${user.salon.id}`);
+          await prisma.salon.update({
+            where: { id: user.salon.id },
+            data: { paymentCompleted: true }
+          });
+        }
+
+        if (paymentCompleted) {
+          // Payment already done, go to login
+          response.requiresPayment = false;
+          response.nextStep = 'LOGIN';
+          response.message = 'Email verified successfully. Please login to continue.';
+        } else {
+          // Need to complete payment first
+          response.requiresPayment = true;
+          response.nextStep = 'PAYMENT';
+          response.message = 'Email verified successfully. Please complete payment to continue.';
+        }
       }
 
-      await prisma.otp.delete({ where: { id: otpEntry.id } });
-
-      return res.status(200).json({ 
-        message: 'Email verified successfully. Please complete your onboarding.',
-        role: user.role 
-      });
+      return res.status(200).json(response);
     } catch (error: any) {
       console.error('[AuthController.verifyOtp] Error:', error);
       return res.status(500).json({ error: 'Failed to verify OTP' });
@@ -161,20 +280,44 @@ class AuthController {
         return res.status(400).json({ error: 'Missing required fields: name, email, and password are required' });
       }
 
+      // Check OTP rate limit
+      const rateLimitCheck = otpRateLimiter.checkLimit(email);
+      if (!rateLimitCheck.allowed) {
+        const resetTime = rateLimitCheck.resetTime ? otpRateLimiter.formatTimeRemaining(rateLimitCheck.resetTime - Date.now()) : '15 minutes';
+        return res.status(429).json({ 
+          error: 'Too many OTP requests',
+          message: `Too many OTP requests. Please try again in ${resetTime}.`,
+          code: 'RATE_LIMIT_EXCEEDED'
+        });
+      }
+
       // Require acceptance of legal terms
       if (acceptTerms !== true) {
         return res.status(400).json({ error: 'You must accept the Terms of Service and Privacy Policy to sign up.' });
       }
 
-      // Validate email format
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        return res.status(400).json({ error: 'Invalid email format' });
+      // Validate name
+      const nameValidation = validateName(name, 'Name');
+      if (!nameValidation.valid) {
+        return res.status(400).json({ error: nameValidation.error });
       }
 
-      // Validate password strength (min 8 characters)
-      if (password.length < 8) {
-        return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+      // Validate email format
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.valid) {
+        return res.status(400).json({ error: emailValidation.error });
+      }
+
+      // Validate password strength
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.valid) {
+        return res.status(400).json({ error: passwordValidation.error });
+      }
+
+      // Validate phone number if provided
+      const phoneValidation = validatePhoneNumber(phoneNo);
+      if (!phoneValidation.valid) {
+        return res.status(400).json({ error: phoneValidation.error });
       }
 
       const hashedPassword = await bcrypt.hash(password, 12);
@@ -190,6 +333,8 @@ class AuthController {
           salon: {
             create: {
               phoneNo,
+              // Payment will be completed later, after email verification
+              paymentCompleted: false,
             },
           },
         } as any),
@@ -197,6 +342,9 @@ class AuthController {
           salon: true,
         },
       });
+
+      // Delete any existing OTPs for this email
+      await prisma.otp.deleteMany({ where: { email } });
 
       // Generate OTP
       const otp = crypto.randomInt(100000, 999999).toString();
@@ -210,8 +358,16 @@ class AuthController {
         },
       });
 
+      // Record OTP attempt
+      otpRateLimiter.recordAttempt(email);
+
       // Send OTP email
-      await sendOtpEmail(email, otp);
+      try {
+        await sendOtpEmail(email, otp);
+      } catch (emailError) {
+        console.error('[AuthController.salonSignup] Failed to send OTP email:', emailError);
+        // Don't fail signup if email fails - user can resend
+      }
 
       const { password: _, ...user } = newUser;
       return res.status(201).json({
@@ -219,7 +375,8 @@ class AuthController {
         userId: user.id,
         salonId: user.salon?.id,
         email: user.email,
-        requiresPayment: true,
+        // Don't redirect to payment yet - verify email first!
+        nextStep: 'VERIFY_EMAIL',
       });
     } catch (error: any) {
       if (error.code === 'P2002') {
@@ -242,13 +399,39 @@ class AuthController {
         return res.status(400).json({ error: 'Email and password are required' });
       }
 
-  const user = await prisma.user.findUnique({ where: { email }, include: { influencer: true, salon: true } }) as any;
+      const user = await prisma.user.findUnique({ 
+        where: { email }, 
+        include: { 
+          influencer: true, 
+          salon: {
+            include: {
+              subscriptions: {
+                where: {
+                  status: { in: ['ACTIVE', 'TRIALING'] }
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 1
+              },
+              payments: {
+                where: {
+                  status: 'COMPLETED'
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 1
+              }
+            }
+          }
+        } 
+      }) as any;
+
       if (!user) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) return res.status(401).json({ error: 'Invalid credentials' });
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
 
       // Block login if terms not accepted
       if (!user.termsAccepted) {
@@ -260,21 +443,27 @@ class AuthController {
       }
 
       // Enforce email verification before allowing login
-      const isEmailVerified = user.role === 'INFLUENCER' ? user.influencer?.emailVerified : user.role === 'SALON' ? user.salon?.emailVerified : true;
+      const isEmailVerified = user.role === 'INFLUENCER' 
+        ? user.influencer?.emailVerified 
+        : user.role === 'SALON' 
+          ? user.salon?.emailVerified 
+          : true;
+
       if (!isEmailVerified) {
-        // Optionally auto re-issue OTP if none exists or expired
+        // Delete old OTPs and create a new one
+        await prisma.otp.deleteMany({ where: { email } });
+        
+        const otp = crypto.randomInt(100000, 999999).toString();
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+        
+        await prisma.otp.create({ data: { email, otp, expiresAt } });
+        
         try {
-          const existingOtp = await prisma.otp.findFirst({ where: { email }, orderBy: { createdAt: 'desc' } });
-          const shouldIssueNew = !existingOtp || existingOtp.expiresAt < new Date();
-          if (shouldIssueNew) {
-            const otp = crypto.randomInt(100000, 999999).toString();
-            const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
-            await prisma.otp.create({ data: { email, otp, expiresAt } });
-            await sendOtpEmail(email, otp);
-          }
-        } catch (e) {
-          console.warn('[AuthController.login] Failed to auto-issue OTP:', e);
+          await sendOtpEmail(email, otp);
+        } catch (emailError) {
+          console.error('[AuthController.login] Failed to send OTP email:', emailError);
         }
+
         return res.status(403).json({
           error: 'EmailNotVerified',
           code: 'EMAIL_NOT_VERIFIED',
@@ -284,17 +473,38 @@ class AuthController {
       }
 
       // Check if salon has completed payment (salons only)
+      // More robust check: Look for active subscription OR completed payment OR paymentCompleted flag
       if (user.role === 'SALON' && user.salon) {
-        console.log(`[AuthController.login] Checking payment status for salon ${user.salon.id}`);
-        console.log(`[AuthController.login] paymentCompleted: ${user.salon.paymentCompleted}`);
-        
-        if (!user.salon.paymentCompleted) {
+        const hasActiveSubscription = user.salon.subscriptions && user.salon.subscriptions.length > 0;
+        const hasCompletedPayment = user.salon.payments && user.salon.payments.length > 0;
+        const paymentCompletedFlag = user.salon.paymentCompleted;
+
+        console.log(`[AuthController.login] Payment status check for salon ${user.salon.id}:`, {
+          hasActiveSubscription,
+          hasCompletedPayment,
+          paymentCompletedFlag
+        });
+
+        // If they have an active subscription or completed payment but flag is not set, fix it
+        if ((hasActiveSubscription || hasCompletedPayment) && !paymentCompletedFlag) {
+          console.log(`[AuthController.login] Auto-fixing payment flag for salon ${user.salon.id}`);
+          await prisma.salon.update({
+            where: { id: user.salon.id },
+            data: { paymentCompleted: true }
+          });
+          user.salon.paymentCompleted = true;
+        }
+
+        // Only block if NO payment method found AND email is verified
+        // This ensures users complete: Signup → Verify Email → Payment → Onboarding
+        if (!hasActiveSubscription && !hasCompletedPayment && !paymentCompletedFlag) {
           return res.status(403).json({
             error: 'PaymentRequired',
             code: 'PAYMENT_REQUIRED',
             message: 'Please complete payment to access your salon account.',
             salonId: user.salon.id,
             email: user.email,
+            nextStep: 'PAYMENT',
           });
         }
       }
@@ -306,23 +516,17 @@ class AuthController {
 
       res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // only send over https
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        path: '/auth/refresh-token', // be specific about the path
+        path: '/auth/refresh-token',
       });
 
       // Check if user has completed onboarding
       let hasCompletedOnboarding = false;
       if (user.role === 'INFLUENCER') {
-        const influencer = await prisma.influencer.findUnique({
-          where: { userId: user.id },
-        });
-        hasCompletedOnboarding = !!influencer?.bio; // If bio exists, onboarding is complete
+        hasCompletedOnboarding = !!user.influencer?.bio;
       } else if (user.role === 'SALON') {
-        const salon = await prisma.salon.findUnique({
-          where: { userId: user.id },
-        });
-        hasCompletedOnboarding = !!salon?.businessName; // If businessName exists, onboarding is complete
+        hasCompletedOnboarding = !!user.salon?.businessName;
       }
 
       const { password: _, ...userData } = user;
@@ -341,6 +545,77 @@ class AuthController {
   }
 
   // ===========================
+  // CHECK USER STATUS (For better UX flow)
+  // ===========================
+  async checkUserStatus(req: Request, res: Response) {
+    try {
+      const { email } = req.query;
+      
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ error: 'Email is required' });
+      }
+
+      const user = await prisma.user.findUnique({ 
+        where: { email },
+        include: { 
+          influencer: true, 
+          salon: {
+            include: {
+              subscriptions: {
+                where: { status: { in: ['ACTIVE', 'TRIALING'] } },
+                take: 1
+              },
+              payments: {
+                where: { status: 'COMPLETED' },
+                take: 1
+              }
+            }
+          }
+        }
+      });
+
+      if (!user) {
+        return res.status(404).json({ 
+          exists: false,
+          message: 'User not found' 
+        });
+      }
+
+      const isEmailVerified = user.role === 'INFLUENCER' 
+        ? user.influencer?.emailVerified 
+        : user.role === 'SALON' 
+          ? user.salon?.emailVerified 
+          : true;
+
+      let paymentCompleted = true;
+      let hasOnboarded = false;
+
+      if (user.role === 'SALON' && user.salon) {
+        const hasActiveSubscription = user.salon.subscriptions && user.salon.subscriptions.length > 0;
+        const hasCompletedPayment = user.salon.payments && user.salon.payments.length > 0;
+        paymentCompleted = hasActiveSubscription || hasCompletedPayment || user.salon.paymentCompleted;
+        hasOnboarded = !!user.salon.businessName;
+      } else if (user.role === 'INFLUENCER' && user.influencer) {
+        hasOnboarded = !!user.influencer.bio;
+      }
+
+      return res.status(200).json({
+        exists: true,
+        role: user.role,
+        emailVerified: isEmailVerified,
+        paymentCompleted,
+        hasOnboarded,
+        termsAccepted: user.termsAccepted,
+        salonId: user.salon?.id,
+        influencerId: user.influencer?.id
+      });
+    } catch (error: any) {
+      console.error('[AuthController.checkUserStatus] Error:', error);
+      return res.status(500).json({ error: 'Failed to check user status' });
+    }
+  }
+
+  // ===========================
   // RESEND OTP
   // ===========================
   async resendOtp(req: Request, res: Response) {
@@ -348,6 +623,18 @@ class AuthController {
       const { email } = req.body;
       if (!email) {
         return res.status(400).json({ error: 'Email is required' });
+      }
+
+      // Check OTP rate limit
+      const rateLimitCheck = otpRateLimiter.checkLimit(email);
+      if (!rateLimitCheck.allowed) {
+        const resetTime = rateLimitCheck.resetTime ? otpRateLimiter.formatTimeRemaining(rateLimitCheck.resetTime - Date.now()) : '15 minutes';
+        return res.status(429).json({ 
+          error: 'Too many OTP requests',
+          message: `Too many OTP requests. Please try again in ${resetTime}.`,
+          code: 'RATE_LIMIT_EXCEEDED',
+          resetTime: rateLimitCheck.resetTime
+        });
       }
 
       const user = await prisma.user.findUnique({ where: { email }, include: { influencer: true, salon: true } });
@@ -368,9 +655,24 @@ class AuthController {
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
       await prisma.otp.create({ data: { email, otp, expiresAt } });
 
-      await sendOtpEmail(email, otp);
+      // Record OTP attempt
+      otpRateLimiter.recordAttempt(email);
 
-      return res.status(200).json({ message: 'OTP resent successfully' });
+      // Send OTP email
+      try {
+        await sendOtpEmail(email, otp);
+      } catch (emailError) {
+        console.error('[AuthController.resendOtp] Failed to send OTP email:', emailError);
+        return res.status(500).json({ 
+          error: 'Failed to send OTP email',
+          message: 'Could not send email. Please try again later.'
+        });
+      }
+
+      return res.status(200).json({ 
+        message: 'OTP resent successfully',
+        remainingAttempts: rateLimitCheck.remainingAttempts 
+      });
     } catch (error: any) {
       console.error('[AuthController.resendOtp] Error:', error);
       return res.status(500).json({ error: 'Failed to resend OTP' });
@@ -488,8 +790,9 @@ class AuthController {
       }
 
       // Validate password strength
-      if (newPassword.length < 8) {
-        return res.status(400).json({ error: 'Password must be at least 8 characters long' });
+      const passwordValidation = validatePassword(newPassword);
+      if (!passwordValidation.valid) {
+        return res.status(400).json({ error: passwordValidation.error });
       }
 
       // Verify OTP one more time

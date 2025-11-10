@@ -119,8 +119,10 @@ export interface SignupResponse {
   message: string;
   userId: string;
   salonId?: string; // Only for salon signups
-  email?: string; // Email for payment flow
-  requiresPayment?: boolean; // Indicates if payment is required
+  influencerId?: string; // Only for influencer signups
+  email?: string; // Email for OTP verification
+  requiresOtpVerification?: boolean; // New flow: indicates OTP verification needed
+  requiresPayment?: boolean; // Deprecated: old flow (kept for backward compatibility)
 }
 
 export interface VerifyOtpRequest {
@@ -131,6 +133,9 @@ export interface VerifyOtpRequest {
 export interface VerifyOtpResponse {
   message: string;
   role: UserRole;
+  requiresPayment?: boolean; // Indicates if payment is required (for salons)
+  salonId?: string; // Salon ID if payment is required
+  email?: string; // Email for payment flow
 }
 
 export interface LoginRequest {
