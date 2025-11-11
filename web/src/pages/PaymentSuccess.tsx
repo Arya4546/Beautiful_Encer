@@ -35,11 +35,11 @@ export const PaymentSuccess: React.FC = () => {
         
         // Show toast only once
         if (!hasShownToast) {
-          showToast.success('Payment completed successfully!');
+          showToast.success('Payment completed successfully! Please login to continue.');
           setHasShownToast(true);
         }
         
-        // Get email from session result or use salonId to fetch
+        // Get email from session result
         const email = result.data.customerEmail;
         
         if (!email) {
@@ -49,10 +49,14 @@ export const PaymentSuccess: React.FC = () => {
           return;
         }
         
-        // Wait 2 seconds then redirect to OTP page (OTP will be auto-resent there)
+        // Payment complete - redirect directly to login (email already verified)
         setTimeout(() => {
-          navigate('/verify-otp', { 
-            state: { email, fromPayment: true, autoResendOtp: true } 
+          navigate('/login', { 
+            state: { 
+              email,
+              message: 'Payment completed successfully! Please login to continue.',
+              fromPayment: true
+            } 
           });
         }, 2000);
       } else {
@@ -107,8 +111,8 @@ export const PaymentSuccess: React.FC = () => {
               </p>
               <p className="text-sm text-blue-700">
                 {isJapanese 
-                  ? 'メールアドレスの確認を行ってください。OTP認証ページに自動的にリダイレクトされます。'
-                  : 'Verify your email address. You will be redirected to the OTP verification page.'}
+                  ? 'ログインしてオンボーディングを完了してください。'
+                  : 'Login to complete your profile setup and start using the platform.'}
               </p>
             </div>
 

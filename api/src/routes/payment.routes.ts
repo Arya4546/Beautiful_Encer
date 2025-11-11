@@ -33,4 +33,11 @@ router.get('/subscription-status/:salonId', protect, paymentController.getSubscr
  */
 router.get('/verify-session/:sessionId', paymentController.verifySession);
 
+/**
+ * @route   POST /api/v1/payment/sync-salon-payment/:salonId
+ * @desc    Manually sync payment status for a salon (fix stuck payments)
+ * @access  Public
+ */
+router.post('/sync-salon-payment/:salonId', paymentController.syncSalonPayment);
+
 export default router;

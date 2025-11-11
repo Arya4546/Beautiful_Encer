@@ -446,13 +446,13 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
       return (
         <button 
           disabled 
-          className="w-full px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-white text-xs sm:text-sm font-semibold shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{
             background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
           }}
         >
-          <div className="flex items-center justify-center gap-2">
-            <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-2 border-white border-t-transparent"></div>
             <span>{t('discovery.card.processing')}</span>
           </div>
         </button>
@@ -464,13 +464,13 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
         return (
           <button 
             disabled 
-            className="w-full px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 disabled:cursor-default"
+            className="w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-white text-xs sm:text-sm font-semibold shadow-lg transition-all duration-300 disabled:cursor-default"
             style={{
               background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)'
             }}
           >
-            <div className="flex items-center justify-center gap-2">
-              <FiCheck size={20} className="text-white" />
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+              <FiCheck size={18} className="text-white sm:w-5 sm:h-5" />
               <span>{t('discovery.card.connected')}</span>
             </div>
           </button>
@@ -479,13 +479,13 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
         return (
           <button 
             onClick={handleConnectionAction} 
-            className="w-full px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
+            className="w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-white text-xs sm:text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
             style={{
               background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)'
             }}
           >
-            <div className="flex items-center justify-center gap-2">
-              <FiClock size={20} className="text-white" />
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+              <FiClock size={18} className="text-white sm:w-5 sm:h-5" />
               <span>{t('discovery.card.pending')}</span>
             </div>
           </button>
@@ -494,13 +494,13 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
         return (
           <button 
             onClick={handleConnectionAction} 
-            className="w-full px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
+            className="w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-white text-xs sm:text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
             style={{
               background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)'
             }}
           >
-            <div className="flex items-center justify-center gap-2">
-              <FiUserPlus size={20} className="text-white" />
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+              <FiUserPlus size={18} className="text-white sm:w-5 sm:h-5" />
               <span>{t('discovery.card.accept')}</span>
             </div>
           </button>
@@ -509,13 +509,13 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
         return (
           <button 
             onClick={handleConnectionAction} 
-            className="w-full px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
+            className="w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-white text-xs sm:text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
             style={{
               background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
             }}
           >
-            <div className="flex items-center justify-center gap-2">
-              <FiUserPlus size={20} className="text-white" />
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+              <FiUserPlus size={18} className="text-white sm:w-5 sm:h-5" />
               <span>{t('discovery.card.connect')}</span>
             </div>
           </button>
@@ -655,13 +655,13 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
           {/* View Profile Button */}
           <button 
             onClick={onViewProfile}
-            className="flex-1 md:flex-initial px-6 py-3 rounded-xl text-white text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl"
+            className="flex-1 md:flex-initial px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-white text-xs sm:text-sm font-semibold shadow-lg transition-all duration-300 hover:shadow-xl whitespace-nowrap"
             style={{
               background: 'linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%)'
             }}
           >
-            <div className="flex items-center justify-center gap-2">
-              <FiEye size={20} className="text-white" />
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+              <FiEye size={18} className="text-white sm:w-5 sm:h-5" />
               <span>
                 {t('discovery.card.viewProfile')}
               </span>

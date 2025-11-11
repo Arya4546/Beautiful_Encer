@@ -28,6 +28,8 @@
     "yes": "はい",
     "no": "いいえ",
     "confirm": "確認",
+    "create": "作成",
+    "new": "新着",
     "viewProfile": "プロフィールを見る",
     "sendMessage": "メッセージを送る",
     "message": "メッセージ",
@@ -405,6 +407,7 @@
       "subtitle": "インフルエンサーにあなたのサロンについて知ってもらいましょう",
       "success": "ようこそ！ビジネスプロフィールが正常に作成されました。",
       "profilePictureOptional": "ビジネスロゴ（任意）",
+      "profilePicHelper": "サロンのロゴや画像をアップロード（任意）",
       "businessName": "ビジネス名（必須）",
       "businessNamePlaceholder": "サロン名／事業名を入力してください",
       "description": "説明（必須）",
@@ -419,6 +422,8 @@
       "teamSizePlaceholder": "スタッフの人数",
       "operatingHoursOptional": "営業時間（任意）",
       "operatingHoursPlaceholder": "例：{\"monday\": \"9:00-18:00\", \"tuesday\": \"9:00-18:00\"}",
+      "region": "地域・都道府県",
+      "regionPlaceholder": "都道府県を選択してください",
       "socialOptional": "ソーシャルメディア（任意）",
       "instagramHandle": "Instagramユーザー名",
       "tiktokHandle": "TikTokユーザー名",
@@ -429,6 +434,7 @@
       "errors": {
         "categoryRequired": "少なくとも1つのカテゴリーを選択してください",
         "descriptionRequired": "説明を入力してください",
+        "regionRequired": "地域を選択してください",
         "yearInvalid": "有効な年を入力してください",
         "yearFuture": "未来の年は指定できません",
         "teamSizeMin": "1以上を入力してください"
@@ -738,7 +744,12 @@
     "food": "グルメ",
     "travel": "旅行",
     "tech": "テクノロジー",
-    "gaming": "ゲーム"
+    "technology": "テクノロジー",
+    "gaming": "ゲーム",
+    "wellness": "ウェルネス",
+    "parenting": "子育て",
+    "pets": "ペット",
+    "photography": "写真"
   },
   "error": {
     "404": {

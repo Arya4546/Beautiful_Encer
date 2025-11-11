@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FiHome, FiUsers, FiMessageCircle, FiBell, FiUser } from 'react-icons/fi';
+import { FiHome, FiUsers, FiMessageCircle, FiBell, FiUser, FiBriefcase } from 'react-icons/fi';
 import { FaInstagram } from 'react-icons/fa';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useAuthStore } from '../../store/authStore';
@@ -60,6 +60,11 @@ export const Sidebar: React.FC = () => {
   const navItems = [
     { to: '/discover', icon: FiHome, label: t('nav.discover'), badge: 0 },
     { to: '/requests', icon: FiUsers, label: t('nav.requests'), badge: 0 },
+    // Projects - different routes for salon vs influencer
+    ...(user?.role === 'SALON' 
+      ? [{ to: '/salon/projects', icon: FiBriefcase, label: t('nav.projects'), badge: 0 }]
+      : [{ to: '/influencer/projects', icon: FiBriefcase, label: t('nav.projects'), badge: 0 }]
+    ),
     { to: '/chat', icon: FiMessageCircle, label: t('nav.chat'), badge: 0 },
     { to: '/notifications', icon: FiBell, label: t('nav.notifications'), badge: unreadCount },
     // Only show Social Media for influencers

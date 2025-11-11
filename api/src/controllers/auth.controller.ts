@@ -137,6 +137,71 @@ class AuthController {
         return res.status(400).json({ error: 'Email and OTP are required' });
       }
 
+      // First check if user already has email verified
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+        include: {
+          influencer: true,
+          salon: true,
+        }
+      });
+
+      if (existingUser) {
+        const isAlreadyVerified = existingUser.role === Role.INFLUENCER
+          ? existingUser.influencer?.emailVerified
+          : existingUser.role === Role.SALON
+            ? existingUser.salon?.emailVerified
+            : false;
+
+        if (isAlreadyVerified) {
+          console.log(`[AuthController.verifyOtp] Email already verified for ${email}`);
+          
+          // Return appropriate response based on role and payment status
+          const response: any = {
+            message: 'Email already verified. Please login to continue.',
+            role: existingUser.role,
+            userId: existingUser.id,
+            alreadyVerified: true,
+          };
+
+          if (existingUser.role === Role.INFLUENCER && existingUser.influencer) {
+            response.influencerId = existingUser.influencer.id;
+            response.requiresPayment = false;
+            response.nextStep = 'LOGIN';
+          } else if (existingUser.role === Role.SALON && existingUser.salon) {
+            response.salonId = existingUser.salon.id;
+            response.email = existingUser.email;
+
+            // Check payment status
+            const hasActiveSubscription = await prisma.subscription.count({
+              where: { 
+                salonId: existingUser.salon.id,
+                status: { in: ['ACTIVE', 'TRIALING'] }
+              }
+            }) > 0;
+
+            const hasCompletedPayment = await prisma.payment.count({
+              where: { 
+                salonId: existingUser.salon.id,
+                status: 'COMPLETED'
+              }
+            }) > 0;
+
+            const paymentCompleted = hasActiveSubscription || hasCompletedPayment || existingUser.salon.paymentCompleted;
+
+            if (paymentCompleted) {
+              response.requiresPayment = false;
+              response.nextStep = 'LOGIN';
+            } else {
+              response.requiresPayment = true;
+              response.nextStep = 'PAYMENT';
+            }
+          }
+
+          return res.status(200).json(response);
+        }
+      }
+
       // Use transaction to prevent race conditions
       const result: 
         | { error: string; status: 400 | 404 }

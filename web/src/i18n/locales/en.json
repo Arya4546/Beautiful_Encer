@@ -28,6 +28,8 @@
     "yes": "Yes",
     "no": "No",
     "confirm": "Confirm",
+    "create": "Create",
+    "new": "New",
     "viewProfile": "View Profile",
     "sendMessage": "Send Message",
     "message": "Message",
@@ -406,6 +408,7 @@
       "subtitle": "Tell influencers about your business",
       "success": "Welcome! Your business profile has been created successfully.",
       "profilePictureOptional": "Business Logo (Optional)",
+      "profilePicHelper": "Upload your salon logo or image (optional)",
       "businessName": "Business Name *",
       "businessNamePlaceholder": "Enter your salon/business name",
       "description": "Description *",
@@ -420,6 +423,8 @@
       "teamSizePlaceholder": "Number of staff members",
       "operatingHoursOptional": "Operating Hours (Optional)",
       "operatingHoursPlaceholder": "e.g., {\"monday\": \"9:00-18:00\", \"tuesday\": \"9:00-18:00\"}",
+      "region": "Region/Area",
+      "regionPlaceholder": "Select your prefecture",
       "socialOptional": "Social Media (Optional)",
       "instagramHandle": "Instagram Handle",
       "tiktokHandle": "TikTok Handle",
@@ -430,6 +435,7 @@
       "errors": {
         "categoryRequired": "Please select at least one preferred category",
         "descriptionRequired": "Description is required",
+        "regionRequired": "Region is required",
         "yearInvalid": "Please enter a valid year",
         "yearFuture": "Year cannot be in the future",
         "teamSizeMin": "Must be at least 1"
@@ -739,7 +745,12 @@
     "food": "Food",
     "travel": "Travel",
     "tech": "Tech",
-    "gaming": "Gaming"
+    "technology": "Technology",
+    "gaming": "Gaming",
+    "wellness": "Wellness",
+    "parenting": "Parenting",
+    "pets": "Pets",
+    "photography": "Photography"
   },
   "error": {
     "404": {

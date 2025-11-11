@@ -136,6 +136,10 @@ export interface VerifyOtpResponse {
   requiresPayment?: boolean; // Indicates if payment is required (for salons)
   salonId?: string; // Salon ID if payment is required
   email?: string; // Email for payment flow
+  nextStep?: string; // Next step: 'LOGIN' | 'PAYMENT'
+  alreadyVerified?: boolean; // True if email was already verified
+  userId?: string;
+  influencerId?: string;
 }
 
 export interface LoginRequest {
