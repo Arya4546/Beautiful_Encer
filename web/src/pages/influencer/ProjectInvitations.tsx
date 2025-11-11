@@ -5,6 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 import projectService from '../../services/project.service';
 import { useAuthStore } from '../../store/authStore';
 import { ProjectStatus, projectStatusLabels, projectStatusColors, projectTypeLabels, ProjectType } from '../../types/project.types';
+import { Header } from '../../components/layout/Header';
+import { Sidebar } from '../../components/layout/Sidebar';
 import { BottomNav } from '../../components/layout/BottomNav';
 
 const ProjectInvitations: React.FC = () => {
@@ -35,17 +37,25 @@ const ProjectInvitations: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
-      </div>
+      <>
+        <Header />
+        <Sidebar />
+        <div className="flex items-center justify-center min-h-screen md:ml-64 mt-16">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+        </div>
+        <BottomNav />
+      </>
     );
   }
 
   const projects = data?.projects || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+    <>
+      <Header />
+      <Sidebar />
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50 md:ml-64 mt-16">
+        <div className="max-w-7xl mx-auto py-8 px-4 pb-24 md:pb-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
@@ -242,9 +252,10 @@ const ProjectInvitations: React.FC = () => {
             ))}
           </div>
         )}
+        </div>
       </div>
       <BottomNav />
-    </div>
+    </>
   );
 };
 

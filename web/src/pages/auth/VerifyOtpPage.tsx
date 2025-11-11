@@ -17,13 +17,12 @@ export const VerifyOtpPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email;
-  const autoResendOtp = location.state?.autoResendOtp;
+  const fromPayment = location.state?.fromPayment;
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [hasCheckedEmail, setHasCheckedEmail] = useState(false);
-  const [hasAutoResent, setHasAutoResent] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -37,13 +36,14 @@ export const VerifyOtpPage: React.FC = () => {
     }
   }, [email, navigate, hasCheckedEmail]);
 
-  // Auto-resend OTP when coming from payment success page
+  // Check if user is coming from payment (should not be here)
   useEffect(() => {
-    if (email && autoResendOtp && !hasAutoResent) {
-      setHasAutoResent(true);
-      handleResendOtp(true); // silent = true (no toast)
+    if (fromPayment && email) {
+      console.warn('[VerifyOtpPage] User redirected from payment - should go to login instead');
+      showToast.success('Email already verified. Please login to continue.');
+      navigate('/login', { state: { email } });
     }
-  }, [email, autoResendOtp, hasAutoResent]);
+  }, [fromPayment, email, navigate]);
 
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) {
@@ -133,6 +133,29 @@ export const VerifyOtpPage: React.FC = () => {
         email,
         otp: otpString,
       });
+
+      // Check if email was already verified
+      if (response.alreadyVerified) {
+        showToast.success(response.message || 'Email already verified!');
+        
+        // Navigate based on next step
+        if (response.requiresPayment && response.salonId) {
+          navigate('/payment/checkout', { 
+            state: { 
+              salonId: response.salonId,
+              email 
+            } 
+          });
+        } else {
+          navigate('/login', { 
+            state: { 
+              message: response.message || 'Please login to continue.',
+              email 
+            } 
+          });
+        }
+        return;
+      }
 
       showToast.success(response.message);
       
@@ -258,10 +281,7 @@ export const VerifyOtpPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 rounded-xl text-white text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
-              }}
+              className="w-full py-4 rounded-xl text-white text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl mt-6 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">

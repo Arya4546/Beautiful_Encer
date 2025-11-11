@@ -170,7 +170,7 @@ export const SalonOnboarding: React.FC = () => {
           </div>
 
           {/* Scrollable Form Content */}
-          <div className="px-8 pb-10 sm:px-12 sm:pb-12 overflow-y-auto flex-1">
+          <div className="px-8 pb-10 sm:px-12 sm:pb-12 overflow-y-auto flex-1 scrollbar-hide">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {/* Profile Picture Upload - Figma Style (Optional) */}
               <div>
@@ -364,10 +364,7 @@ export const SalonOnboarding: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-4 rounded-xl text-white text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  background: 'linear-gradient(135deg, #E89BB5 0%, #B8D8E8 100%)'
-                }}
+                className="w-full py-4 rounded-xl text-white text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl mt-6 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">

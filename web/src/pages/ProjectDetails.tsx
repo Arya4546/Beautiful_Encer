@@ -6,6 +6,8 @@ import { toast } from 'react-hot-toast';
 import projectService from '../services/project.service';
 import { useAuthStore } from '../store/authStore';
 import { ProjectStatus, projectStatusLabels, projectStatusColors, projectTypeLabels, ProjectType } from '../types/project.types';
+import { Header } from '../components/layout/Header';
+import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
 
 const ProjectDetails: React.FC = () => {
@@ -86,22 +88,32 @@ const ProjectDetails: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
-      </div>
+      <>
+        <Header />
+        <Sidebar />
+        <div className="flex items-center justify-center min-h-screen md:ml-64 mt-16">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+        </div>
+        <BottomNav />
+      </>
     );
   }
 
   if (!project) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-gray-600">{t('projects.noProjects')}</p>
-          <button onClick={() => navigate(-1)} className="mt-4 text-pink-500 hover:text-pink-600">
-            {t('common.back')}
-          </button>
+      <>
+        <Header />
+        <Sidebar />
+        <div className="flex items-center justify-center min-h-screen md:ml-64 mt-16">
+          <div className="text-center">
+            <p className="text-gray-600">{t('projects.noProjects')}</p>
+            <button onClick={() => navigate(-1)} className="mt-4 text-pink-500 hover:text-pink-600">
+              {t('common.back')}
+            </button>
+          </div>
         </div>
-      </div>
+        <BottomNav />
+      </>
     );
   }
 
@@ -114,8 +126,11 @@ const ProjectDetails: React.FC = () => {
   const canComplete = isSalon && project.status === ProjectStatus.IN_PROGRESS;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <>
+      <Header />
+      <Sidebar />
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50 md:ml-64 mt-16">
+        <div className="max-w-4xl mx-auto py-8 px-4 pb-24 md:pb-8">{/* Added pb-24 for bottom nav */}
         {/* Header */}
         <div className="mb-6">
           <button
@@ -377,8 +392,9 @@ const ProjectDetails: React.FC = () => {
           </div>
         </div>
       )}
+        </div>
       <BottomNav />
-    </div>
+    </>
   );
 };
 

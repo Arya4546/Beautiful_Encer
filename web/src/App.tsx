@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from 'react-hot-toast';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/queryClient';
 
 // Pages
 import LandingPage from "./pages/LandingPage";
@@ -55,7 +57,7 @@ const App: React.FC = () => {
   }, [initializeAuth]);
 
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <Toaster
         position="top-right"
         toastOptions={{
@@ -208,7 +210,7 @@ const App: React.FC = () => {
         {/* 404 - Not Found */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-    </>
+    </QueryClientProvider>
   );
 };
 

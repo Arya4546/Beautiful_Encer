@@ -5,6 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 import projectService from '../../services/project.service';
 import { useAuthStore } from '../../store/authStore';
 import { ProjectStatus, projectStatusLabels, projectStatusColors } from '../../types/project.types';
+import { Header } from '../../components/layout/Header';
+import { Sidebar } from '../../components/layout/Sidebar';
 import { BottomNav } from '../../components/layout/BottomNav';
 
 const ProjectList: React.FC = () => {
@@ -35,34 +37,43 @@ const ProjectList: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
-      </div>
+      <>
+        <Header />
+        <Sidebar />
+        <div className="flex items-center justify-center min-h-screen md:ml-64 mt-16">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+        </div>
+        <BottomNav />
+      </>
     );
   }
 
   const projects = data?.projects || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+    <>
+      <Header />
+      <Sidebar />
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50 md:ml-64 mt-16">
+        <div className="max-w-7xl mx-auto py-8 px-4 pb-24 md:pb-8">{/* Added pb-24 for bottom nav */}
         {/* Header */}
         <div className="mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
                 {t('projects.myProjects')}
               </h1>
-              <p className="mt-2 text-gray-600">{t('projects.createDescription')}</p>
+              <p className="mt-2 text-sm sm:text-base text-gray-600">{t('projects.createDescription')}</p>
             </div>
             <button
               onClick={() => navigate('/salon/projects/create')}
-              className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2"
+              className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-sm sm:text-base whitespace-nowrap"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              {t('projects.createNew')}
+              <span className="hidden sm:inline">{t('projects.createNew')}</span>
+              <span className="sm:hidden">{t('common.create')}</span>
             </button>
           </div>
         </div>
@@ -226,8 +237,9 @@ const ProjectList: React.FC = () => {
           </div>
         )}
       </div>
+      </div>
       <BottomNav />
-    </div>
+    </>
   );
 };
 

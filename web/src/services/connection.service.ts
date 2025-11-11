@@ -19,11 +19,13 @@ export interface ConnectionRequest {
     email: string;
     role: 'INFLUENCER' | 'SALON';
     influencer?: {
+      id: string;
       profilePic: string | null;
       bio: string | null;
       categories: string[];
     };
     salon?: {
+      id: string;
       businessName: string | null;
       profilePic: string | null;
       description: string | null;
@@ -35,11 +37,13 @@ export interface ConnectionRequest {
     email: string;
     role: 'INFLUENCER' | 'SALON';
     influencer?: {
+      id: string;
       profilePic: string | null;
       bio: string | null;
       categories: string[];
     };
     salon?: {
+      id: string;
       businessName: string | null;
       profilePic: string | null;
       description: string | null;

@@ -65,7 +65,15 @@ export const PaymentCheckout: React.FC = () => {
       window.location.href = result.url;
     } catch (error: any) {
       console.error('Checkout error:', error);
-      showToast.error(error.response?.data?.message || 'Failed to initiate checkout');
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to initiate checkout';
+      showToast.error(errorMessage);
+      
+      // If email not verified, redirect to verification
+      if (errorMessage.includes('Email must be verified')) {
+        setTimeout(() => {
+          navigate('/verify-otp', { state: { email } });
+        }, 2000);
+      }
     } finally {
       setLoading(false);
     }

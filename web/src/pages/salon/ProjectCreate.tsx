@@ -7,6 +7,8 @@ import projectService, { type CreateProjectParams } from '../../services/project
 import connectionService from '../../services/connection.service';
 import { ProjectType, projectTypeLabels } from '../../types/project.types';
 import { useAuthStore } from '../../store/authStore';
+import { Header } from '../../components/layout/Header';
+import { Sidebar } from '../../components/layout/Sidebar';
 import { BottomNav } from '../../components/layout/BottomNav';
 
 const ProjectCreate: React.FC = () => {
@@ -118,50 +120,75 @@ const ProjectCreate: React.FC = () => {
 
   if (loadingInfluencers) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
-      </div>
+      <>
+        <Header />
+        <Sidebar />
+        <div className="flex items-center justify-center min-h-screen md:ml-64 mt-16">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+        </div>
+        <BottomNav />
+      </>
     );
   }
 
   // Filter connections to get only influencers
   const connectedInfluencers = connectionsData?.data
-    .filter((conn: any) => conn.receiver?.role === 'INFLUENCER' || conn.sender?.role === 'INFLUENCER')
+    .filter((conn: any) => {
+      // Check if receiver or sender is an influencer
+      const isReceiverInfluencer = conn.receiver?.role === 'INFLUENCER';
+      const isSenderInfluencer = conn.sender?.role === 'INFLUENCER';
+      return isReceiverInfluencer || isSenderInfluencer;
+    })
     .map((conn: any) => {
       // Get the influencer from the connection (could be sender or receiver)
-      const influencer = conn.receiver?.role === 'INFLUENCER' ? conn.receiver : conn.sender;
+      const influencerUser = conn.receiver?.role === 'INFLUENCER' ? conn.receiver : conn.sender;
+      
+      // IMPORTANT: Backend needs the Influencer profile ID, not the User ID
+      // The influencer object contains the profile data with its own ID
+      if (!influencerUser.influencer) {
+        console.warn('[ProjectCreate] Influencer user missing profile data:', influencerUser);
+        return null;
+      }
+      
       return {
-        id: influencer.influencer?.id,
-        user: {
-          name: influencer.name,
-          id: influencer.id,
-        },
+        influencerId: influencerUser.influencer.id, // Influencer profile ID for backend
+        userId: influencerUser.id, // User ID (for reference)
+        name: influencerUser.name,
+        profilePic: influencerUser.influencer?.profilePic,
+        bio: influencerUser.influencer?.bio,
+        categories: influencerUser.influencer?.categories || [],
       };
     })
-    .filter((inf: any) => inf.id) || [];
+    .filter((inf: any) => inf !== null && inf.influencerId) || [];
+
+  console.log('[ProjectCreate] Connected influencers:', connectedInfluencers);
+  console.log('[ProjectCreate] Raw connections data:', connectionsData);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50 py-8 px-4">
-      <div className="max-w-3xl mx-auto">
+    <>
+      <Header />
+      <Sidebar />
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50 md:ml-64 mt-16">
+        <div className="max-w-4xl mx-auto py-8 px-4 pb-24 md:pb-8">{/* Added pb-24 for bottom nav space */}
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => navigate(-1)}
-            className="mb-4 text-gray-600 hover:text-gray-900 flex items-center gap-2"
+            className="mb-4 text-gray-600 hover:text-gray-900 flex items-center gap-2 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             {t('common.back')}
           </button>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
             {t('projects.createNew')}
           </h1>
-          <p className="mt-2 text-gray-600">{t('projects.createDescription')}</p>
+          <p className="mt-2 text-sm sm:text-base text-gray-600">{t('projects.createDescription')}</p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-6 md:p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 space-y-6">{/* Made responsive padding */}
           {/* Influencer Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -176,8 +203,8 @@ const ProjectCreate: React.FC = () => {
             >
               <option value="">{t('projects.selectInfluencerPlaceholder')}</option>
               {connectedInfluencers.map((influencer: any) => (
-                <option key={influencer.id} value={influencer.id}>
-                  {influencer.user.name}
+                <option key={influencer.influencerId} value={influencer.influencerId}>
+                  {influencer.name}
                 </option>
               ))}
             </select>
@@ -372,19 +399,19 @@ const ProjectCreate: React.FC = () => {
           </div>
 
           {/* Submit Button */}
-          <div className="pt-4">
+          <div className="pt-4 pb-2">{/* Added bottom padding */}
             <button
               type="submit"
               disabled={createMutation.isPending || connectedInfluencers.length === 0}
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-4 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-            >
+              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 sm:py-4 rounded-xl font-semibold hover:from-pink-600 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl text-sm sm:text-base">{/* Made responsive */}
               {createMutation.isPending ? t('projects.creating') : t('projects.sendProposal')}
             </button>
           </div>
         </form>
       </div>
+      </div>
       <BottomNav />
-    </div>
+    </>
   );
 };
 
