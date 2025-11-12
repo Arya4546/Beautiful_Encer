@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { FaInstagram, FaYoutube, FaTwitter, FaPlus, FaCheck, FaClock } from 'react-icons/fa';
+import { FaInstagram, FaYoutube, FaPlus, FaCheck, FaClock } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
@@ -631,13 +632,13 @@ export default function SocialMediaPage() {
                   className="bg-white rounded-3xl shadow-lg overflow-hidden hover:shadow-2xl transition-all"
                 >
                   {/* Header */}
-                  <div className="bg-gradient-to-r from-blue-400 to-blue-500 p-6">
+                  <div className="bg-gradient-to-r from-gray-900 to-black p-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="bg-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg">
-                          <FaTwitter className="text-3xl text-blue-500" />
+                          <FaXTwitter className="text-3xl text-black" />
                         </div>
-                        <h2 className="text-2xl font-bold text-white">Twitter/X</h2>
+                        <h2 className="text-2xl font-bold text-white">X</h2>
                       </div>
                       {selectedTwitterAccount && (
                         <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
@@ -683,32 +684,32 @@ export default function SocialMediaPage() {
 
                         {/* Stats Grid */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          <div className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 rounded-xl p-4 text-center">
-                            <p className="text-2xl font-bold text-blue-600">
+                          <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-gray-900">
                               {(selectedTwitterAccount.followersCount || 0).toLocaleString()}
                             </p>
                             <p className="text-xs text-gray-600 font-semibold mt-1">
                               {t('twitter.followers') || 'Followers'}
                             </p>
                           </div>
-                          <div className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-4 text-center">
-                            <p className="text-2xl font-bold text-purple-600">
+                          <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-gray-900">
                               {(selectedTwitterAccount.postsCount || 0).toLocaleString()}
                             </p>
                             <p className="text-xs text-gray-600 font-semibold mt-1">
-                              {t('twitter.tweets') || 'Tweets'}
+                              {t('twitter.tweets') || 'Posts'}
                             </p>
                           </div>
-                          <div className="bg-gradient-to-br from-pink-50 to-pink-100 border-2 border-pink-200 rounded-xl p-4 text-center">
-                            <p className="text-2xl font-bold text-pink-600">
+                          <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-gray-900">
                               {(selectedTwitterAccount.engagementRate || selectedTwitterAccount.metadata?.engagementRate || 0).toFixed(2)}%
                             </p>
                             <p className="text-xs text-gray-600 font-semibold mt-1">
                               {t('twitter.engagement') || 'Engagement'}
                             </p>
                           </div>
-                          <div className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-4 text-center">
-                            <p className="text-2xl font-bold text-green-600">
+                          <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-200 rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold text-gray-900">
                               {(selectedTwitterAccount.followingCount || 0).toLocaleString()}
                             </p>
                             <p className="text-xs text-gray-600 font-semibold mt-1">
@@ -732,7 +733,7 @@ export default function SocialMediaPage() {
                           </div>
                           <button
                             onClick={() => setTwitterModalOpen(true)}
-                            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+                            className="px-6 py-2 bg-gradient-to-r from-gray-900 to-black text-white rounded-xl font-bold hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
                           >
                             {t('common.manage') || 'Manage'}
                           </button>
@@ -742,23 +743,23 @@ export default function SocialMediaPage() {
                       /* Not Connected State */
                       <div className="text-center py-12">
                         <div className="bg-gray-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <FaTwitter className="text-4xl text-gray-400" />
+                          <FaXTwitter className="text-4xl text-gray-400" />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">
-                          {t('socialMedia.twitter.notConnected') || 'Twitter/X Not Connected'}
+                          {t('socialMedia.twitter.notConnected') || 'X Not Connected'}
                         </h3>
                         <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                          {t('socialMedia.twitter.notConnectedDesc') || 'Connect your Twitter/X account to display your followers, engagement rate, and recent tweets'}
+                          {t('socialMedia.twitter.notConnectedDesc') || 'Connect your X account to display your followers, engagement rate, and recent posts'}
                         </p>
                         <button
                           onClick={() => {
                             setSelectedTwitterAccount(null);
                             setTwitterModalOpen(true);
                           }}
-                          className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 text-white rounded-xl font-bold text-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
+                          className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-gray-900 via-black to-gray-900 text-white rounded-xl font-bold text-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
                         >
                           <FaPlus />
-                          {t('socialMedia.twitter.connect') || 'Connect Twitter'}
+                          {t('socialMedia.twitter.connect') || 'Connect X'}
                         </button>
                       </div>
                     )}

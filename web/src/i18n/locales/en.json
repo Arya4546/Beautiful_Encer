@@ -1039,11 +1039,13 @@
       "invalidHandle": "Channel handle can only contain letters, numbers, underscores, dots, and hyphens",
       "handleLengthInvalid": "Channel handle must be between 3 and 30 characters",
       "connectionFailed": "Failed to connect YouTube channel. Please check the handle and try again.",
+      "connectionTimeout": "Connection is taking longer than expected. Your channel might still be connecting in the background. Please refresh the page in a moment.",
+      "alreadyConnected": "This YouTube channel is already connected to your account",
       "invalidRequest": "Invalid request. Please check the channel handle",
-      "channelNotFound": "YouTube channel not found. Please verify the handle",
-      "rateLimitExceeded": "Too many requests. Please try again later",
-      "serverError": "Server error. Please try again later",
-      "networkError": "Network error. Please check your connection",
+      "channelNotFound": "YouTube channel not found. Please verify the handle is correct (e.g., @MrSpike)",
+      "rateLimitExceeded": "Too many requests. Please try again in a few minutes",
+      "serverError": "Server error occurred. Please try again later",
+      "networkError": "Network error. Please check your internet connection",
       "syncFailed": "Failed to refresh YouTube data. Please try again later.",
       "noAccountToSync": "No channel to sync",
       "channelNotFoundSync": "Channel not found. Please reconnect",
@@ -1100,13 +1102,15 @@
     "avgEngagement": "Avg Total",
     "analyticsNote": "Analytics are calculated from your recent tweets and updated daily.",
     "errors": {
-      "usernameRequired": "Twitter username is required",
+      "usernameRequired": "X/Twitter username is required",
       "invalidUsername": "Username can only contain letters, numbers, and underscores",
       "usernameLengthInvalid": "Username must be between 3 and 15 characters",
-      "accountNotFound": "Twitter account not found. Please check the username.",
-      "accountPrivate": "This Twitter account is private and cannot be connected.",
-      "storageFull": "Account connected but tweets could not be stored. Please contact support."
-    }
+      "accountNotFound": "X/Twitter account not found. Please check the username.",
+      "accountPrivate": "This X/Twitter account is private and cannot be connected.",
+      "storageFull": "Account connected but posts could not be stored. Please contact support.",
+      "paidServiceRequired": "X/Twitter connection requires a paid API subscription and is temporarily unavailable. Please use Instagram or TikTok instead."
+    },
+    "paidServiceNote": "X/Twitter connection requires a paid API subscription and may be temporarily unavailable. Please try Instagram or TikTok for reliable connectivity."
   },
   "admin": {
     "title": "Admin Panel",

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaYoutube, FaTimes, FaSpinner, FaCheck, FaExclamationTriangle, FaSync } from 'react-icons/fa';
+import { FaYoutube, FaTimes, FaSpinner, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import axiosInstance from '../lib/axios';
 import { API_ENDPOINTS } from '../config/api.config';
 import { useTranslation } from 'react-i18next';
@@ -56,7 +56,6 @@ export default function YoutubeConnect({ isOpen, onClose, onSuccess, existingAcc
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [accountData, setAccountData] = useState<YoutubeAccount | null>(existingAccount || null);
-  const [syncing, setSyncing] = useState(false);
 
   const handleConnect = async () => {
     // Validation
@@ -86,27 +85,45 @@ export default function YoutubeConnect({ isOpen, onClose, onSuccess, existingAcc
         channelHandle: trimmedHandle,
       });
 
-      if (!response.data || !response.data.account) {
-        throw new Error('Invalid response from server');
+      // Backend returns: { success: true, message: '...', data: { account, posts } }
+      // Or could return: { account, posts } directly
+      const accountData = response.data?.data?.account || response.data?.account || response.data?.data;
+      
+      if (!accountData) {
+        console.error('Invalid response structure:', response.data);
+        throw new Error('Invalid response from server - no account data received');
       }
 
       setSuccess(true);
-      setAccountData(response.data.account);
-      showToast.success(t('youtube.connected', 'YouTube channel connected successfully!'));
+      setAccountData(accountData);
+      showToast.success(t('youtube.connected') || 'YouTube channel connected successfully!');
       
       setTimeout(() => {
         if (onSuccess) onSuccess();
         onClose();
+        // Reset state for next use
+        setChannelHandle('');
+        setError(null);
+        setSuccess(false);
       }, 1500);
 
     } catch (err: any) {
       console.error('Error connecting YouTube:', err);
+      console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
       
       let errorMessage = t('youtube.errors.connectionFailed') || 'Failed to connect YouTube channel';
       
       if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-        // Timeout error
-        errorMessage = 'Connection timeout. YouTube scraping takes time. Please try again or the channel may be processing in the background.';
+        // Timeout error - but connection might still succeed
+        errorMessage = t('youtube.errors.connectionTimeout') || 'Connection is taking longer than expected. Your channel might still be connecting in the background. Please refresh the page in a moment.';
+        showToast.error(errorMessage);
+        
+        // Still try to refresh after timeout in case it succeeded
+        setTimeout(() => {
+          if (onSuccess) onSuccess();
+        }, 2000);
+        
       } else if (err.response) {
         // Server responded with error
         switch (err.response.status) {
@@ -114,82 +131,39 @@ export default function YoutubeConnect({ isOpen, onClose, onSuccess, existingAcc
             errorMessage = err.response.data?.message || t('youtube.errors.invalidRequest') || 'Invalid request. Please check the channel handle';
             break;
           case 404:
-            errorMessage = t('youtube.errors.channelNotFound') || 'YouTube channel not found. Please verify the handle';
+            errorMessage = t('youtube.errors.channelNotFound') || 'YouTube channel not found. Please verify the handle is correct (e.g., @MrSpike)';
             break;
+          case 409:
+            errorMessage = t('youtube.errors.alreadyConnected') || 'This YouTube channel is already connected to your account';
+            // Channel already connected is not really an error - refresh the list
+            showToast.success(errorMessage);
+            setTimeout(() => {
+              if (onSuccess) onSuccess();
+              onClose();
+            }, 1500);
+            return; // Don't set error state
           case 429:
-            errorMessage = t('youtube.errors.rateLimitExceeded') || 'Too many requests. Please try again later';
+            errorMessage = t('youtube.errors.rateLimitExceeded') || 'Too many requests. Please try again in a few minutes';
             break;
           case 500:
-            errorMessage = t('youtube.errors.serverError') || 'Server error. Please try again later';
+            errorMessage = t('youtube.errors.serverError') || 'Server error occurred. Please try again later';
             break;
           default:
             errorMessage = err.response.data?.message || errorMessage;
         }
+        showToast.error(errorMessage);
       } else if (err.request) {
         // Request made but no response
-        errorMessage = t('youtube.errors.networkError') || 'Network error. Please check your connection';
+        errorMessage = t('youtube.errors.networkError') || 'Network error. Please check your internet connection';
+        showToast.error(errorMessage);
+      } else {
+        // Something else went wrong
+        showToast.error(errorMessage);
       }
       
       setError(errorMessage);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSync = async () => {
-    if (!accountData?.id) {
-      setError(t('youtube.errors.noAccountToSync') || 'No account to sync');
-      return;
-    }
-
-    setSyncing(true);
-    setError(null);
-
-    try {
-      const response = await axiosInstance.post(API_ENDPOINTS.SOCIAL_MEDIA.YOUTUBE_SYNC, {
-        accountId: accountData.id,
-      });
-
-      if (!response.data || !response.data.account) {
-        throw new Error('Invalid response from server');
-      }
-
-      setAccountData(response.data.account);
-      setSuccess(true);
-      showToast.success(t('youtube.synced', 'YouTube data synced successfully!'));
-      
-      if (onSuccess) onSuccess();
-      
-      setTimeout(() => {
-        setSuccess(false);
-      }, 2000);
-
-    } catch (err: any) {
-      console.error('Error syncing YouTube:', err);
-      
-      let errorMessage = t('youtube.errors.syncFailed') || 'Failed to sync YouTube data';
-      
-      if (err.response) {
-        switch (err.response.status) {
-          case 404:
-            errorMessage = t('youtube.errors.channelNotFoundSync') || 'Channel not found. Please reconnect';
-            break;
-          case 429:
-            errorMessage = t('youtube.errors.syncRateLimitExceeded') || 'Sync limit exceeded. Please try again in a few minutes';
-            break;
-          case 500:
-            errorMessage = t('youtube.errors.syncServerError') || 'Server error during sync. Please try again later';
-            break;
-          default:
-            errorMessage = err.response.data?.message || errorMessage;
-        }
-      } else if (err.request) {
-        errorMessage = t('youtube.errors.syncNetworkError') || 'Network error during sync. Please check your connection';
-      }
-      
-      setError(errorMessage);
-    } finally {
-      setSyncing(false);
     }
   };
 
@@ -356,15 +330,21 @@ export default function YoutubeConnect({ isOpen, onClose, onSuccess, existingAcc
                     <div className="grid grid-cols-2 gap-4 mt-4">
                       <div className="bg-white/80 rounded-lg p-3">
                         <p className="text-xs text-gray-600 mb-1">{t('youtube.stats.subscribers')}</p>
-                        <p className="text-xl font-bold text-gray-900">{accountData.followersCount.toLocaleString()}</p>
+                        <p className="text-xl font-bold text-gray-900">
+                          {(accountData.followersCount || 0).toLocaleString()}
+                        </p>
                       </div>
                       <div className="bg-white/80 rounded-lg p-3">
                         <p className="text-xs text-gray-600 mb-1">{t('youtube.stats.videos')}</p>
-                        <p className="text-xl font-bold text-gray-900">{accountData.postsCount.toLocaleString()}</p>
+                        <p className="text-xl font-bold text-gray-900">
+                          {(accountData.postsCount || 0).toLocaleString()}
+                        </p>
                       </div>
                       <div className="bg-white/80 rounded-lg p-3">
                         <p className="text-xs text-gray-600 mb-1">{t('youtube.stats.engagement')}</p>
-                        <p className="text-xl font-bold text-gray-900">{accountData.engagementRate.toFixed(2)}%</p>
+                        <p className="text-xl font-bold text-gray-900">
+                          {(accountData.engagementRate || 0).toFixed(2)}%
+                        </p>
                       </div>
                       {accountData.metadata?.viewCount && (
                         <div className="bg-white/80 rounded-lg p-3">
@@ -379,31 +359,23 @@ export default function YoutubeConnect({ isOpen, onClose, onSuccess, existingAcc
                 </div>
 
                 {/* Action Buttons */}
-                <div className="mt-6 flex gap-3">
-                  <button
-                    onClick={handleSync}
-                    disabled={syncing}
-                    className="flex-1 bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {syncing ? (
-                      <>
-                        <FaSpinner className="animate-spin" />
-                        {t('youtube.buttons.syncing')}
-                      </>
-                    ) : (
-                      <>
-                        <FaSync />
-                        {t('youtube.buttons.sync')}
-                      </>
-                    )}
-                  </button>
+                <div className="mt-6">
                   <button
                     onClick={handleDisconnect}
                     disabled={loading}
-                    className="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    <FaTimes />
-                    {t('youtube.buttons.disconnect')}
+                    {loading ? (
+                      <>
+                        <FaSpinner className="animate-spin" />
+                        {t('common.loading')}
+                      </>
+                    ) : (
+                      <>
+                        <FaTimes />
+                        {t('youtube.buttons.disconnect')}
+                      </>
+                    )}
                   </button>
                 </div>
               </motion.div>
