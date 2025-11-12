@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTwitter, FaTimes, FaSpinner, FaCheck, FaExclamationTriangle, FaSync } from 'react-icons/fa';
+import { FaTimes, FaSpinner, FaCheck, FaExclamationTriangle, FaSync } from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6'; 
 import axiosInstance from '../lib/axios';
 import { API_ENDPOINTS } from '../config/api.config';
 import { useTranslation } from 'react-i18next';
@@ -84,7 +85,7 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
     setError(null);
 
     // Show loading toast
-    const loadingToast = showToast.loading(t('twitter.scraping') || 'Scraping Twitter data... This may take 1-2 minutes.');
+    const loadingToast = showToast.loading(t('twitter.scraping') || 'Fetching X/Twitter data... This may take 1-2 minutes.');
 
     try {
       const response = await axiosInstance.post(API_ENDPOINTS.SOCIAL_MEDIA.TWITTER_CONNECT, {
@@ -94,13 +95,22 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
       // Dismiss loading toast
       showToast.dismiss(loadingToast);
 
-      if (!response.data || !response.data.account) {
+      // Flexible response parsing (handle different response structures)
+      const accountData = response.data?.data?.account || response.data?.account || response.data?.data;
+      
+      if (!accountData) {
         throw new Error('Invalid response from server');
       }
 
       setSuccess(true);
-      setAccountData(response.data.account);
-      showToast.success(t('twitter.connected', 'Twitter account connected successfully!'));
+      setAccountData(accountData);
+      showToast.success(t('twitter.connected', 'X/Twitter account connected successfully!'));
+      
+      // Reset state after short delay
+      setTimeout(() => {
+        setSuccess(false);
+        setUsername('');
+      }, 1500);
       
       setTimeout(() => {
         if (onSuccess) onSuccess();
@@ -111,20 +121,30 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
       // Dismiss loading toast on error
       showToast.dismiss(loadingToast);
       
-      console.error('Twitter connection error:', err);
+      console.error('X/Twitter connection error:', err);
       
-      const errorMessage = err.response?.data?.message || err.message || 'Failed to connect Twitter account';
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to connect X/Twitter account';
+      const statusCode = err.response?.status;
       
-      if (errorMessage.includes('not found') || errorMessage.includes('does not exist')) {
-        setError(t('twitter.errors.accountNotFound') || 'Twitter account not found. Please check the username.');
-      } else if (errorMessage.includes('private')) {
-        setError(t('twitter.errors.accountPrivate') || 'This Twitter account is private and cannot be connected.');
-      } else if (errorMessage.includes('storage') || errorMessage.includes('space')) {
-        setError(t('twitter.errors.storageFull') || 'Account connected but tweets could not be stored. Please contact support.');
-        // Still consider it a partial success - show account data if available
+      // Handle specific status codes
+      if (statusCode === 409) {
+        // Already connected - treat as success
+        setSuccess(true);
+        showToast.success(t('twitter.alreadyConnected') || 'X/Twitter account is already connected!');
         if (err.response?.data?.account) {
           setAccountData(err.response.data.account);
         }
+        setTimeout(() => {
+          if (onSuccess) onSuccess();
+          onClose();
+        }, 1500);
+        return;
+      }
+      
+      if (errorMessage.includes('not found') || errorMessage.includes('does not exist')) {
+        setError(t('twitter.errors.accountNotFound') || 'X/Twitter account not found. Please check the username.');
+      } else if (errorMessage.includes('private')) {
+        setError(t('twitter.errors.accountPrivate') || 'This X/Twitter account is private and cannot be connected.');
       } else {
         setError(errorMessage);
       }
@@ -140,7 +160,7 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
     setError(null);
 
     // Show loading toast
-    const loadingToast = showToast.loading(t('twitter.syncing') || 'Syncing Twitter data... This may take 1-2 minutes.');
+    const loadingToast = showToast.loading(t('twitter.syncing') || 'Syncing X/Twitter data... This may take 1-2 minutes.');
 
     try {
       const response = await axiosInstance.post(API_ENDPOINTS.SOCIAL_MEDIA.TWITTER_SYNC(accountData.id));
@@ -152,7 +172,7 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
         setAccountData(response.data.account);
       }
 
-      showToast.success(t('twitter.synced', 'Twitter data synchronized successfully!'));
+      showToast.success(t('twitter.synced', 'X/Twitter data synchronized successfully!'));
       
       if (onSuccess) onSuccess();
 
@@ -165,12 +185,12 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
       const errorMessage = err.response?.data?.message || err.message || 'Failed to sync Twitter data';
       
       if (errorMessage.includes('up to date')) {
-        showToast.success(t('twitter.alreadySynced') || 'Twitter data is already up to date');
+        showToast.success(t('twitter.alreadySynced') || 'X/Twitter data is already up to date');
       } else if (errorMessage.includes('storage') || errorMessage.includes('space')) {
-        setError(t('twitter.errors.storageFull') || 'Data synced but tweets could not be stored. Please contact support.');
+        setError(t('twitter.errors.storageFull') || 'Data synced but posts could not be stored. Please contact support.');
       } else {
         setError(errorMessage);
-        showToast.error(t('twitter.syncFailed') || 'Failed to sync Twitter data');
+        showToast.error(t('twitter.syncFailed') || 'Failed to sync X/Twitter data');
       }
     } finally {
       setSyncing(false);
@@ -180,7 +200,7 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
   const handleDisconnect = async () => {
     if (!accountData) return;
     
-    if (!confirm(t('twitter.confirmDisconnect') || 'Are you sure you want to disconnect this Twitter account?')) {
+    if (!confirm(t('twitter.confirmDisconnect') || 'Are you sure you want to disconnect this X/Twitter account?')) {
       return;
     }
 
@@ -190,7 +210,7 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
     try {
       await axiosInstance.delete(API_ENDPOINTS.SOCIAL_MEDIA.TWITTER_DISCONNECT(accountData.id));
 
-      showToast.success(t('twitter.disconnected', 'Twitter account disconnected successfully!'));
+      showToast.success(t('twitter.disconnected', 'X/Twitter account disconnected successfully!'));
       
       setAccountData(null);
       setUsername('');
@@ -201,9 +221,9 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
       }, 1000);
 
     } catch (err: any) {
-      console.error('Twitter disconnect error:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to disconnect Twitter account');
-      showToast.error(t('twitter.disconnectFailed') || 'Failed to disconnect Twitter account');
+      console.error('X/Twitter disconnect error:', err);
+      setError(err.response?.data?.message || err.message || 'Failed to disconnect X/Twitter account');
+      showToast.error(t('twitter.disconnectFailed') || 'Failed to disconnect X/Twitter account');
     } finally {
       setLoading(false);
     }
@@ -245,13 +265,13 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-400 flex items-center justify-center">
-                <FaTwitter className="text-white text-xl" />
+              <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center">
+                <FaXTwitter className="text-white text-xl" />
               </div>
               <h2 className="text-xl font-semibold text-gray-900">
                 {accountData 
-                  ? t('twitter.manageAccount', 'Manage Twitter Account')
-                  : t('twitter.connectAccount', 'Connect Twitter Account')
+                  ? t('twitter.manageAccount', 'Manage X Account')
+                  : t('twitter.connectAccount', 'Connect X Account')
                 }
               </h2>
             </div>
@@ -285,7 +305,7 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
                         {accountData.displayName}
                       </h3>
                       {accountData.isVerified && (
-                        <FaCheck className="text-blue-400 text-sm flex-shrink-0" />
+                        <FaCheck className="text-black text-sm flex-shrink-0" />
                       )}
                     </div>
                     <p className="text-sm text-gray-600">@{accountData.platformUsername}</p>
@@ -306,7 +326,7 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
                     </p>
                   </div>
                   <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-600 mb-1">{t('twitter.tweets', 'Tweets')}</p>
+                    <p className="text-xs text-gray-600 mb-1">{t('twitter.tweets', 'Posts')}</p>
                     <p className="text-lg font-semibold text-gray-900">
                       {formatNumber(accountData.postsCount)}
                     </p>
@@ -323,25 +343,25 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
                 {accountData.metadata && (
                   <div className="grid grid-cols-3 gap-3">
                     {accountData.metadata.averageLikes !== undefined && (
-                      <div className="text-center p-3 bg-blue-50 rounded-lg">
-                        <p className="text-xs text-blue-600 mb-1">{t('twitter.avgLikes', 'Avg Likes')}</p>
-                        <p className="text-sm font-semibold text-blue-900">
+                      <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <p className="text-xs text-gray-600 mb-1">{t('twitter.avgLikes', 'Avg Likes')}</p>
+                        <p className="text-sm font-semibold text-gray-900">
                           {formatNumber(accountData.metadata.averageLikes)}
                         </p>
                       </div>
                     )}
                     {accountData.metadata.averageRetweets !== undefined && (
-                      <div className="text-center p-3 bg-green-50 rounded-lg">
-                        <p className="text-xs text-green-600 mb-1">{t('twitter.avgRetweets', 'Avg Retweets')}</p>
-                        <p className="text-sm font-semibold text-green-900">
+                      <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <p className="text-xs text-gray-600 mb-1">{t('twitter.avgReposts', 'Avg Reposts')}</p>
+                        <p className="text-sm font-semibold text-gray-900">
                           {formatNumber(accountData.metadata.averageRetweets)}
                         </p>
                       </div>
                     )}
                     {accountData.metadata.averageReplies !== undefined && (
-                      <div className="text-center p-3 bg-purple-50 rounded-lg">
-                        <p className="text-xs text-purple-600 mb-1">{t('twitter.avgReplies', 'Avg Replies')}</p>
-                        <p className="text-sm font-semibold text-purple-900">
+                      <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <p className="text-xs text-gray-600 mb-1">{t('twitter.avgReplies', 'Avg Replies')}</p>
+                        <p className="text-sm font-semibold text-gray-900">
                           {formatNumber(accountData.metadata.averageReplies)}
                         </p>
                       </div>
@@ -362,7 +382,7 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
                   <button
                     onClick={handleSync}
                     disabled={syncing || loading}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-400 text-white rounded-lg font-medium hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {syncing ? (
                       <>
@@ -395,7 +415,7 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
                 {/* Username Input */}
                 <div>
                   <label htmlFor="twitter-username" className="block text-sm font-medium text-gray-700 mb-2">
-                    {t('twitter.usernameLabel', 'Twitter Username')}
+                    {t('twitter.usernameLabel', 'X/Twitter Username')}
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">@</span>
@@ -405,12 +425,12 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
                       value={username}
                       onChange={handleInputChange}
                       placeholder={t('twitter.usernamePlaceholder', 'username')}
-                      className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-all"
+                      className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
                       disabled={loading}
                     />
                   </div>
                   <p className="mt-1 text-xs text-gray-500">
-                    {t('twitter.usernameHint', 'Enter your Twitter/X username (without @)')}
+                    {t('twitter.usernameHint', 'Enter your X/Twitter username (without @)')}
                   </p>
                 </div>
 
@@ -427,7 +447,7 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
                   <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <FaCheck className="text-green-500" />
                     <p className="text-sm text-green-700">
-                      {t('twitter.connectSuccess', 'Twitter account connected successfully!')}
+                      {t('twitter.connectSuccess', 'X/Twitter account connected successfully!')}
                     </p>
                   </div>
                 )}
@@ -436,7 +456,7 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
                 <button
                   onClick={handleConnect}
                   disabled={loading || success}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-400 text-white rounded-lg font-medium hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <>
@@ -450,16 +470,16 @@ export default function TwitterConnect({ isOpen, onClose, onSuccess, existingAcc
                     </>
                   ) : (
                     <>
-                      <FaTwitter />
-                      <span>{t('twitter.connect', 'Connect Twitter')}</span>
+                      <FaXTwitter />
+                      <span>{t('twitter.connect', 'Connect X')}</span>
                     </>
                   )}
                 </button>
 
                 {/* Info Note */}
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-xs text-blue-700">
-                    {t('twitter.publicDataNote', 'We only access publicly available information from your Twitter/X profile. No login required.')}
+                <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                  <p className="text-xs text-gray-600">
+                    {t('twitter.publicDataNote', 'We only access publicly available information from your X/Twitter profile. No login required.')}
                   </p>
                 </div>
               </div>

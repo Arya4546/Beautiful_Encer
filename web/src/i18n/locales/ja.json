@@ -1038,11 +1038,13 @@
       "invalidHandle": "チャンネルハンドルには英数字、アンダースコア、ドット、ハイフンのみ使用できます",
       "handleLengthInvalid": "チャンネルハンドルは3文字以上30文字以内である必要があります",
       "connectionFailed": "YouTubeチャンネルの連携に失敗しました。ハンドルを確認して、もう一度お試しください。",
+      "connectionTimeout": "接続に予想以上の時間がかかっています。チャンネルはバックグラウンドで接続中の可能性があります。しばらくしてからページを更新してください。",
+      "alreadyConnected": "このYouTubeチャンネルは既にアカウントに連携されています",
       "invalidRequest": "無効なリクエストです。チャンネルハンドルを確認してください",
-      "channelNotFound": "YouTubeチャンネルが見つかりません。ハンドルを確認してください",
-      "rateLimitExceeded": "リクエストが多すぎます。後でもう一度お試しください",
-      "serverError": "サーバーエラーです。後でもう一度お試しください",
-      "networkError": "ネットワークエラーです。接続を確認してください",
+      "channelNotFound": "YouTubeチャンネルが見つかりません。ハンドルが正しいか確認してください（例：@MrSpike）",
+      "rateLimitExceeded": "リクエストが多すぎます。数分後にもう一度お試しください",
+      "serverError": "サーバーエラーが発生しました。後でもう一度お試しください",
+      "networkError": "ネットワークエラーです。インターネット接続を確認してください",
       "syncFailed": "YouTubeデータの更新に失敗しました。後でもう一度お試しください。",
       "noAccountToSync": "同期するチャンネルがありません",
       "channelNotFoundSync": "チャンネルが見つかりません。もう一度連携してください",
@@ -1099,13 +1101,15 @@
     "avgEngagement": "平均合計",
     "analyticsNote": "分析は最近のツイートから計算され、毎日更新されます。",
     "errors": {
-      "usernameRequired": "Twitterユーザー名が必要です",
+      "usernameRequired": "X/Twitterユーザー名が必要です",
       "invalidUsername": "ユーザー名には英数字とアンダースコアのみ使用できます",
       "usernameLengthInvalid": "ユーザー名は3文字以上15文字以内である必要があります",
-      "accountNotFound": "Twitterアカウントが見つかりません。ユーザー名を確認してください。",
-      "accountPrivate": "このTwitterアカウントは非公開のため連携できません。",
-      "storageFull": "アカウントは連携されましたが、ツイートを保存できませんでした。サポートにお問い合わせください。"
-    }
+      "accountNotFound": "X/Twitterアカウントが見つかりません。ユーザー名を確認してください。",
+      "accountPrivate": "このX/Twitterアカウントは非公開のため連携できません。",
+      "storageFull": "アカウントは連携されましたが、投稿を保存できませんでした。サポートにお問い合わせください。",
+      "paidServiceRequired": "X/Twitter連携には有料APIサブスクリプションが必要で、一時的に利用できません。InstagramまたはTikTokをご利用ください。"
+    },
+    "paidServiceNote": "X/Twitter連携には有料APIサブスクリプションが必要で、一時的に利用できない場合があります。確実な接続のためにInstagramまたはTikTokをお試しください。"
   },
   "admin": {
     "title": "管理者パネル",

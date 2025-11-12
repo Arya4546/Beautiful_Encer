@@ -1169,8 +1169,15 @@ class SocialMediaController {
       // Handle specific error cases
       if (error.message.includes('not found') || error.message.includes('No data found')) {
         return res.status(404).json({ 
-          error: 'Twitter account not found',
-          message: 'The Twitter/X username you provided does not exist or is private'
+          error: 'X/Twitter account not found',
+          message: 'The X/Twitter username you provided does not exist or is private'
+        });
+      }
+
+      if (error.message.includes('already connected')) {
+        return res.status(409).json({ 
+          error: 'Already connected',
+          message: 'This X/Twitter account is already connected to your profile'
         });
       }
 
@@ -1181,16 +1188,9 @@ class SocialMediaController {
         });
       }
 
-      if (error.message.includes('No space left')) {
-        return res.status(507).json({ 
-          error: 'Storage full',
-          message: 'Account connected but tweets could not be stored. Please contact support.'
-        });
-      }
-
       return res.status(500).json({ 
-        error: 'Failed to connect Twitter',
-        message: error.message || 'An unexpected error occurred while connecting Twitter'
+        error: 'Failed to connect X/Twitter',
+        message: error.message || 'An unexpected error occurred while connecting X/Twitter'
       });
     }
   }
