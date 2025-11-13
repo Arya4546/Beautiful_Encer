@@ -1183,9 +1183,10 @@ class AdminController {
       });
 
       // Fetch influencer details for top influencers
+      const influencerIds = topInfluencers.map(i => i.influencerId).filter((id): id is string => id !== null);
       const influencerDetails = await prisma.influencer.findMany({
         where: {
-          id: { in: topInfluencers.map(i => i.influencerId) }
+          id: { in: influencerIds }
         },
         include: {
           user: {
@@ -1204,7 +1205,7 @@ class AdminController {
         return {
           id: salon.salonId,
           businessName: details?.businessName || 'Unknown',
-          email: details?.user.email,
+          email: details?.user?.email,
           projectCount: salon._count.id,
           totalBudget: salon._sum.budget || 0
         };
@@ -1214,8 +1215,8 @@ class AdminController {
         const details = influencerDetails.find(i => i.id === influencer.influencerId);
         return {
           id: influencer.influencerId,
-          name: details?.user.name || 'Unknown',
-          email: details?.user.email,
+          name: details?.user?.name || 'Unknown',
+          email: details?.user?.email,
           completedProjects: influencer._count.id,
           totalEarnings: influencer._sum.budget || 0
         };
@@ -1266,11 +1267,11 @@ class AdminController {
               businessName: project.salon.businessName,
               email: project.salon.user.email
             },
-            influencer: {
+            influencer: project.influencer ? {
               id: project.influencer.id,
               name: project.influencer.user.name,
               email: project.influencer.user.email
-            }
+            } : null
           })),
           topSalons: topSalonsWithDetails,
           topInfluencers: topInfluencersWithDetails,
@@ -1382,11 +1383,11 @@ class AdminController {
               businessName: project.salon.businessName,
               email: project.salon.user.email
             },
-            influencer: {
+            influencer: project.influencer ? {
               id: project.influencer.id,
               name: project.influencer.user.name,
               email: project.influencer.user.email
-            }
+            } : null
           })),
           pagination: {
             page: pageNum,

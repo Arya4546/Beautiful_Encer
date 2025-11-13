@@ -28,11 +28,19 @@ import PaymentCheckout from "./pages/PaymentCheckout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
 
-// Project Pages
+// Project Pages (Legacy)
 import ProjectCreate from "./pages/salon/ProjectCreate";
 import ProjectList from "./pages/salon/ProjectList";
 import ProjectInvitations from "./pages/influencer/ProjectInvitations";
 import ProjectDetails from "./pages/ProjectDetails";
+
+// Marketplace Pages
+import { MarketplacePage } from "./pages/MarketplacePage";
+import { ProjectDetailPage } from "./pages/ProjectDetailPage";
+import { MyApplicationsPage } from "./pages/MyApplicationsPage";
+import { ProjectCreatePage } from "./pages/ProjectCreatePage";
+import { ApplicationManagementPage } from "./pages/ApplicationManagementPage";
+import { SalonProjectsDashboardPage } from "./pages/SalonProjectsDashboardPage";
 
 // Admin Pages
 import { AdminDashboard } from "./pages/admin/AdminDashboard";
@@ -138,7 +146,39 @@ const App: React.FC = () => {
           element={<ProtectedRoute><ChatPage /></ProtectedRoute>} 
         />
         
-        {/* Project Routes */}
+        {/* Marketplace Routes - Public marketplace for influencers */}
+        <Route 
+          path="/marketplace" 
+          element={<ProtectedRoute><MarketplacePage /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/marketplace/projects/:id" 
+          element={<ProtectedRoute><ProjectDetailPage /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/influencer/marketplace/applications" 
+          element={<ProtectedRoute><MyApplicationsPage /></ProtectedRoute>} 
+        />
+        
+        {/* Salon Marketplace Routes */}
+        <Route 
+          path="/salon/marketplace" 
+          element={<ProtectedRoute><SalonProjectsDashboardPage /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/salon/marketplace/create" 
+          element={<ProtectedRoute><ProjectCreatePage /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/salon/marketplace/projects/:id" 
+          element={<ProtectedRoute><ProjectDetailPage /></ProtectedRoute>} 
+        />
+        <Route 
+          path="/salon/marketplace/projects/:projectId/applications" 
+          element={<ProtectedRoute><ApplicationManagementPage /></ProtectedRoute>} 
+        />
+        
+        {/* Legacy Project Routes */}
         <Route 
           path="/salon/projects" 
           element={<ProtectedRoute><ProjectList /></ProtectedRoute>} 

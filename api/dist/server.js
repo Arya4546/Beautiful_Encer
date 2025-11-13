@@ -14,6 +14,7 @@ import proxyRoutes from './routes/proxy.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import projectRoutes from './routes/project.routes.js';
+import marketplaceRoutes from './routes/marketplace.routes.js';
 import chatController from './controllers/chat.controller.js';
 import notificationController from './controllers/notification.controller.js';
 import projectController from './controllers/project.controller.js';
@@ -119,7 +120,8 @@ app.use('/api/v1/chat', chatRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/proxy', proxyRoutes); // Image proxy for CORS issues
 app.use('/api/v1/admin', adminRoutes); // Admin panel routes
-app.use('/api/v1/projects', projectRoutes); // Project proposal routes
+app.use('/api/v1/projects', projectRoutes); // Legacy project proposal routes
+app.use('/api/v1/marketplace', marketplaceRoutes); // Project marketplace routes
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'Server is running' });

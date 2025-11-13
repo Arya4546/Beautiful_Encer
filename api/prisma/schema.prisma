@@ -10,91 +10,94 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  name      String
-  email     String      @unique
-  password  String
-  role      Role
+  id              String      @id @default(uuid())
+  name            String
+  email           String      @unique
+  password        String
+  role            Role
   // Legal acceptance
-  termsAccepted  Boolean   @default(false)
+  termsAccepted   Boolean     @default(false)
   termsAcceptedAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now()) 
-  influencer Influencer? 
-  salon      Salon?
-  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @default(now()) @updatedAt
+  influencer      Influencer?
+  salon           Salon?
+
   // Connection requests
   sentRequests     ConnectionRequest[] @relation("SentRequests")
   receivedRequests ConnectionRequest[] @relation("ReceivedRequests")
-  
+
   // Chat
-  conversations    ConversationParticipant[]
-  messages         Message[]
-  
+  conversations ConversationParticipant[]
+  messages      Message[]
+
   // Notifications
-  notifications    Notification[]
+  notifications Notification[]
 }
 
 model Influencer {
-  id              String           @id @default(uuid())
-  phoneNo         String?
-  emailVerified   Boolean          @default(false)
-  bio             String?
-  profilePic      String?
-  categories      String[]
-  region          String?
-  age             Int?
-  gender          Gender?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id            String   @id @default(uuid())
+  phoneNo       String?
+  emailVerified Boolean  @default(false)
+  bio           String?
+  profilePic    String?
+  categories    String[]
+  region        String?
+  age           Int?
+  gender        Gender?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId            String              @unique
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              String               @unique
   socialMediaAccounts SocialMediaAccount[]
-  
+
   // Projects received from salons
-  projectsReceived Project[]           @relation("ProjectInfluencer")
+  projectsReceived Project[] @relation("ProjectInfluencer")
+
+  // Project applications submitted
+  applications ProjectApplication[] @relation("InfluencerApplications")
 }
 
 model Salon {
-  id                  String       @id @default(uuid())
-  phoneNo             String?
-  emailVerified       Boolean      @default(false)
-  
+  id            String  @id @default(uuid())
+  phoneNo       String?
+  emailVerified Boolean @default(false)
+
   // Onboarding fields
-  businessName        String?      // Official business name
-  description         String?      @db.Text
-  profilePic          String?      // Logo/profile picture
-  preferredCategories String[]     // Types of influencers they want to work with
-  region              String?      // Business location (Japanese prefecture)
-  
+  businessName        String? // Official business name
+  description         String?  @db.Text
+  profilePic          String? // Logo/profile picture
+  preferredCategories String[] // Types of influencers they want to work with
+  region              String? // Business location (Japanese prefecture)
+
   // Business details
-  website             String?
-  establishedYear     Int?
-  teamSize            Int?         // Number of staff
-  
+  website         String?
+  establishedYear Int?
+  teamSize        Int? // Number of staff
+
   // Operating hours (stored as JSON string)
-  operatingHours      String?      @db.Text
-  
+  operatingHours String? @db.Text
+
   // Social media (optional, not OAuth)
-  instagramHandle     String?
-  tiktokHandle        String?
-  facebookPage        String?
-  
+  instagramHandle String?
+  tiktokHandle    String?
+  facebookPage    String?
+
   // Payment and subscription
-  paymentCompleted    Boolean      @default(false)
-  stripeCustomerId    String?      @unique
-  
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  paymentCompleted Boolean @default(false)
+  stripeCustomerId String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String         @unique
   subscriptions Subscription[]
   payments      Payment[]
-  
+
   // Projects sent to influencers
-  projectsSent  Project[]      @relation("ProjectSalon")
+  projectsSent Project[] @relation("ProjectSalon")
 }
 
 model Otp {
@@ -108,59 +111,59 @@ model Otp {
 }
 
 model SocialMediaAccount {
-  id                String              @id @default(uuid())
-  platform          SocialMediaPlatform
-  platformUserId    String              // Instagram/TikTok user ID
-  platformUsername  String              // Display username
-  displayName       String?             // Full name/display name
-  profileUrl        String?             // Profile URL
-  profilePicture    String?             // Profile picture URL
-  accessToken       String              // Encrypted access token (or empty for scraping)
-  refreshToken      String?             // Encrypted refresh token (if applicable)
-  tokenExpiresAt    DateTime?           // Token expiration
-  isActive          Boolean             @default(true)
-  
-  // Cached metrics (updated periodically)
-  followersCount    Int?
-  followingCount    Int?
-  postsCount        Int?
-  engagementRate    Float?
-  lastSyncedAt      DateTime?
-  metadata          Json?               // Additional platform-specific data
-  
-  // Account verification and lock
-  isVerified        Boolean             @default(false) // Whether account ownership is verified
-  verificationCode  String?             // Verification code for DM/bio verification
-  lastAccountChange DateTime?           // Last time account was changed (for 7-day lock)
-  
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  id               String              @id @default(uuid())
+  platform         SocialMediaPlatform
+  platformUserId   String // Instagram/TikTok user ID
+  platformUsername String // Display username
+  displayName      String? // Full name/display name
+  profileUrl       String? // Profile URL
+  profilePicture   String? // Profile picture URL
+  accessToken      String // Encrypted access token (or empty for scraping)
+  refreshToken     String? // Encrypted refresh token (if applicable)
+  tokenExpiresAt   DateTime? // Token expiration
+  isActive         Boolean             @default(true)
 
-  influencer        Influencer          @relation(fields: [influencerId], references: [id], onDelete: Cascade)
-  influencerId      String
-  
-  posts             SocialMediaPost[]
+  // Cached metrics (updated periodically)
+  followersCount Int?
+  followingCount Int?
+  postsCount     Int?
+  engagementRate Float?
+  lastSyncedAt   DateTime?
+  metadata       Json? // Additional platform-specific data
+
+  // Account verification and lock
+  isVerified        Boolean   @default(false) // Whether account ownership is verified
+  verificationCode  String? // Verification code for DM/bio verification
+  lastAccountChange DateTime? // Last time account was changed (for 7-day lock)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  influencer   Influencer @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  influencerId String
+
+  posts SocialMediaPost[]
 
   @@unique([influencerId, platform])
   @@index([influencerId])
 }
 
 model SocialMediaPost {
-  id                String              @id @default(uuid())
-  platformPostId    String              // Original post ID from platform
-  caption           String?             @db.Text
-  mediaUrl          String?             // Primary media URL
-  thumbnailUrl      String?             // Thumbnail/preview image URL
-  mediaType         MediaType
-  likesCount        Int                 @default(0)
-  commentsCount     Int                 @default(0)
-  sharesCount       Int                 @default(0)
-  viewsCount        Int?
-  engagementRate    Float?
-  postedAt          DateTime
-  metadata          Json?               // Additional platform-specific data (description, duration, etc.)
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  id             String    @id @default(uuid())
+  platformPostId String // Original post ID from platform
+  caption        String?   @db.Text
+  mediaUrl       String? // Primary media URL
+  thumbnailUrl   String? // Thumbnail/preview image URL
+  mediaType      MediaType
+  likesCount     Int       @default(0)
+  commentsCount  Int       @default(0)
+  sharesCount    Int       @default(0)
+  viewsCount     Int?
+  engagementRate Float?
+  postedAt       DateTime
+  metadata       Json? // Additional platform-specific data (description, duration, etc.)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   socialMediaAccount SocialMediaAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountId          String
@@ -171,19 +174,19 @@ model SocialMediaPost {
 }
 
 model ConnectionRequest {
-  id          String              @id @default(uuid())
-  status      ConnectionStatus    @default(PENDING)
-  message     String?             @db.Text
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  id        String           @id @default(uuid())
+  status    ConnectionStatus @default(PENDING)
+  message   String?          @db.Text
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
   // Sender (can be influencer or salon)
-  senderId    String
-  sender      User                @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  senderId String
+  sender   User   @relation("SentRequests", fields: [senderId], references: [id], onDelete: Cascade)
 
   // Receiver (can be influencer or salon)
-  receiverId  String
-  receiver    User                @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User   @relation("ReceivedRequests", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@unique([senderId, receiverId])
   @@index([senderId])
@@ -191,60 +194,111 @@ model ConnectionRequest {
   @@index([status])
 }
 
-// Project Proposal System
+// Project Marketplace System
 model Project {
-  id              String          @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // Basic Information
-  title           String          // Project name/title
-  projectType     ProjectType     // Type of project (see enum below)
-  description     String          @db.Text // Detailed project description
-  
+  title       String // Project name/title
+  projectType ProjectType // Type of project (see enum below)
+  description String      @db.Text // Detailed project description
+
   // Campaign Details
-  startDate       DateTime        // Project start date
-  endDate         DateTime        // Project end date
-  budget          Decimal         @db.Decimal(10, 2) // Budget in JPY
-  deliverables    String[]        // List of deliverables (e.g., "3 Instagram posts", "1 TikTok video")
-  requirements    String?         @db.Text // Special requirements or notes
-  
+  startDate    DateTime // Project start date
+  endDate      DateTime // Project end date
+  budget       Decimal  @db.Decimal(10, 2) // Budget in JPY
+  deliverables String[] // List of deliverables (e.g., "3 Instagram posts", "1 TikTok video")
+  requirements String?  @db.Text // Special requirements or notes
+
   // Location & Category
-  location        String?         // Project location (if applicable)
-  category        String?         // Project category (beauty, fashion, etc.)
-  
+  location String? // Project location (if applicable)
+  category String? // Project category (beauty, fashion, etc.)
+  tags     String[] @default([]) // Searchable tags
+
+  // Marketplace Features
+  visibility          ProjectVisibility @default(PUBLIC) // PUBLIC, PRIVATE, DRAFT
+  isOpen              Boolean           @default(true) // Whether accepting applications
+  maxApplications     Int?              @default(50) // Maximum number of applications
+  applicationDeadline DateTime? // Last date to apply
+  viewCount           Int               @default(0) // Number of views
+  applicationCount    Int               @default(0) // Number of applications received
+
   // Status & Tracking
-  status          ProjectStatus   @default(PENDING)
-  proposedAt      DateTime        @default(now())
-  respondedAt     DateTime?       // When influencer accepted/rejected
-  completedAt     DateTime?       // When project was marked complete
-  
-  // Response
-  rejectionReason String?         @db.Text // Reason if rejected
-  
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  
+  status      ProjectStatus @default(DRAFT)
+  proposedAt  DateTime      @default(now())
+  respondedAt DateTime? // When influencer was selected
+  completedAt DateTime? // When project was marked complete
+
+  // Response (keeping for backward compatibility)
+  rejectionReason String? @db.Text // Reason if project cancelled
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Relations
-  salonId         String
-  salon           Salon           @relation("ProjectSalon", fields: [salonId], references: [id], onDelete: Cascade)
-  
-  influencerId    String
-  influencer      Influencer      @relation("ProjectInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
-  
+  salonId String
+  salon   Salon  @relation("ProjectSalon", fields: [salonId], references: [id], onDelete: Cascade)
+
+  // Selected influencer (nullable until selected)
+  influencerId String?
+  influencer   Influencer? @relation("ProjectInfluencer", fields: [influencerId], references: [id], onDelete: Cascade)
+
+  // Applications from influencers
+  applications ProjectApplication[]
+
   @@index([salonId])
   @@index([influencerId])
   @@index([proposedAt])
+  @@index([visibility])
+  @@index([status])
+  @@index([isOpen])
+  @@index([createdAt])
+  @@index([category])
+}
+
+// Project Application System
+model ProjectApplication {
+  id String @id @default(uuid())
+
+  // References
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  influencerId String
+  influencer   Influencer @relation("InfluencerApplications", fields: [influencerId], references: [id], onDelete: Cascade)
+
+  // Application Details
+  status                ApplicationStatus @default(PENDING)
+  coverLetter           String?           @db.Text // Why they want this project
+  proposedBudget        Decimal?          @db.Decimal(10, 2) // Influencer's proposed budget (if negotiable)
+  estimatedDeliveryDays Int? // How many days to complete
+  portfolioLinks        String[]          @default([]) // Links to previous work
+
+  // Timestamps
+  appliedAt       DateTime  @default(now())
+  respondedAt     DateTime? // When salon accepted/rejected
+  rejectionReason String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, influencerId]) // One application per influencer per project
+  @@index([projectId])
+  @@index([influencerId])
+  @@index([status])
+  @@index([appliedAt])
 }
 
 // Chat system models
 model Conversation {
-  id          String                    @id @default(uuid())
-  createdAt   DateTime                  @default(now())
-  updatedAt   DateTime                  @updatedAt
-  
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Last message for quick access
   lastMessageAt DateTime?
-  lastMessage   String?                 @db.Text
-  
+  lastMessage   String?   @db.Text
+
   participants ConversationParticipant[]
   messages     Message[]
 
@@ -252,16 +306,16 @@ model Conversation {
 }
 
 model ConversationParticipant {
-  id             String       @id @default(uuid())
+  id             String   @id @default(uuid())
   conversationId String
   userId         String
-  joinedAt       DateTime     @default(now())
-  
+  joinedAt       DateTime @default(now())
+
   // For unread count
-  lastReadAt     DateTime?
-  
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt DateTime?
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([conversationId, userId])
   @@index([userId])
@@ -269,27 +323,27 @@ model ConversationParticipant {
 }
 
 model Message {
-  id             String       @id @default(uuid())
+  id             String      @id @default(uuid())
   conversationId String
   senderId       String
-  content        String       @db.Text
-  messageType    MessageType  @default(TEXT)
-  
+  content        String      @db.Text
+  messageType    MessageType @default(TEXT)
+
   // For file/image messages
-  fileUrl        String?
-  fileName       String?
-  fileSize       Int?
-  
+  fileUrl  String?
+  fileName String?
+  fileSize Int?
+
   // Message status
-  isEdited       Boolean      @default(false)
-  isDeleted      Boolean      @default(false)
-  deletedAt      DateTime?
-  
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  isEdited  Boolean   @default(false)
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([conversationId])
   @@index([senderId])
@@ -297,56 +351,56 @@ model Message {
 }
 
 model Notification {
-  id          String           @id @default(uuid())
-  type        NotificationType
-  title       String
-  message     String           @db.Text
-  isRead      Boolean          @default(false)
-  
+  id      String           @id @default(uuid())
+  type    NotificationType
+  title   String
+  message String           @db.Text
+  isRead  Boolean          @default(false)
+
   // Reference IDs for different notification types
   connectionRequestId String?
   messageId           String?
   conversationId      String?
-  
+
   // Metadata as JSON
-  metadata    String?          @db.Text
-  
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  
+  metadata String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // User who receives the notification
-  userId      String
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@index([isRead])
   @@index([createdAt])
 }
 
 model ActivityLog {
-  id          String           @id @default(uuid())
+  id          String         @id @default(uuid())
   action      ActivityAction
-  description String           @db.Text
-  
+  description String         @db.Text
+
   // Admin who performed the action
-  adminId     String
-  adminName   String
-  adminEmail  String
-  
+  adminId    String
+  adminName  String
+  adminEmail String
+
   // Target user (if applicable)
-  targetUserId String?
-  targetUserName String?
+  targetUserId    String?
+  targetUserName  String?
   targetUserEmail String?
-  
+
   // IP address and user agent
-  ipAddress   String?
-  userAgent   String?
-  
+  ipAddress String?
+  userAgent String?
+
   // Metadata as JSON
-  metadata    String?          @db.Text
-  
-  createdAt   DateTime         @default(now())
-  
+  metadata String? @db.Text
+
+  createdAt DateTime @default(now())
+
   @@index([adminId])
   @@index([targetUserId])
   @@index([action])
@@ -354,72 +408,72 @@ model ActivityLog {
 }
 
 model Payment {
-  id                  String          @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // Stripe references
-  stripePaymentId     String          @unique  // Stripe PaymentIntent ID
-  stripeSessionId     String?         @unique  // Stripe Checkout Session ID
-  
+  stripePaymentId String  @unique // Stripe PaymentIntent ID
+  stripeSessionId String? @unique // Stripe Checkout Session ID
+
   // Payment details
-  amount              Int                      // Amount in cents
-  currency            String          @default("usd")
-  status              PaymentStatus   @default(PENDING)
-  
+  amount   Int // Amount in cents
+  currency String        @default("usd")
+  status   PaymentStatus @default(PENDING)
+
   // Salon reference
-  salonId             String
-  salon               Salon           @relation(fields: [salonId], references: [id], onDelete: Cascade)
-  
+  salonId String
+  salon   Salon  @relation(fields: [salonId], references: [id], onDelete: Cascade)
+
   // Subscription reference (if applicable)
-  subscriptionId      String?
-  subscription        Subscription?   @relation(fields: [subscriptionId], references: [id])
-  
+  subscriptionId String?
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+
   // Payment metadata
-  description         String?
-  metadata            Json?           // Additional Stripe metadata
-  
+  description String?
+  metadata    Json? // Additional Stripe metadata
+
   // Timestamps
-  paidAt              DateTime?
-  refundedAt          DateTime?
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
-  
+  paidAt     DateTime?
+  refundedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
   @@index([salonId])
   @@index([status])
   @@index([createdAt])
 }
 
 model Subscription {
-  id                    String              @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // Stripe references
-  stripeSubscriptionId  String              @unique  // Stripe Subscription ID
-  stripeCustomerId      String                       // Stripe Customer ID
-  stripePriceId         String?                      // Stripe Price ID
-  
+  stripeSubscriptionId String  @unique // Stripe Subscription ID
+  stripeCustomerId     String // Stripe Customer ID
+  stripePriceId        String? // Stripe Price ID
+
   // Subscription details
-  plan                  SubscriptionPlan
-  status                SubscriptionStatus  @default(ACTIVE)
-  
+  plan   SubscriptionPlan
+  status SubscriptionStatus @default(ACTIVE)
+
   // Salon reference
-  salonId               String
-  salon                 Salon               @relation(fields: [salonId], references: [id], onDelete: Cascade)
-  
+  salonId String
+  salon   Salon  @relation(fields: [salonId], references: [id], onDelete: Cascade)
+
   // Subscription periods
-  currentPeriodStart    DateTime
-  currentPeriodEnd      DateTime
-  cancelAtPeriodEnd     Boolean             @default(false)
-  canceledAt            DateTime?
-  
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean   @default(false)
+  canceledAt         DateTime?
+
   // Trial period (optional)
-  trialStart            DateTime?
-  trialEnd              DateTime?
-  
+  trialStart DateTime?
+  trialEnd   DateTime?
+
   // Timestamps
-  createdAt             DateTime            @default(now())
-  updatedAt             DateTime            @updatedAt
-  
-  payments              Payment[]
-  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payments Payment[]
+
   @@index([salonId])
   @@index([status])
   @@index([currentPeriodEnd])
@@ -433,11 +487,20 @@ enum NotificationType {
   MESSAGE_REPLY
   PROFILE_VIEW
   SYSTEM
+  // Legacy project notifications
   PROJECT_RECEIVED
   PROJECT_ACCEPTED
   PROJECT_REJECTED
   PROJECT_CANCELLED
   PROJECT_COMPLETED
+  // New marketplace notifications
+  PROJECT_PUBLISHED         // Project published to marketplace
+  PROJECT_APPLICATION       // New application received
+  APPLICATION_ACCEPTED      // Your application was accepted
+  APPLICATION_REJECTED      // Your application was rejected
+  INFLUENCER_SELECTED       // Influencer selected for project
+  PROJECT_STARTED           // Project started
+  PROJECT_MILESTONE         // Project milestone reached
 }
 
 enum ActivityAction {
@@ -527,10 +590,27 @@ enum ProjectType {
 }
 
 enum ProjectStatus {
-  PENDING         // Waiting for influencer response
-  ACCEPTED        // Influencer accepted
-  REJECTED        // Influencer rejected
-  IN_PROGRESS     // Project is ongoing
-  COMPLETED       // Project completed
-  CANCELLED       // Project cancelled by salon
+  DRAFT // Project being created
+  OPEN // Open for applications
+  REVIEWING_APPLICATIONS // Reviewing applications
+  INFLUENCER_SELECTED // Influencer selected
+  IN_PROGRESS // Project is ongoing
+  COMPLETED // Project completed
+  CANCELLED // Project cancelled by salon
+  PENDING // Legacy: Waiting for influencer response
+  ACCEPTED // Legacy: Influencer accepted
+  REJECTED // Legacy: Influencer rejected
+}
+
+enum ApplicationStatus {
+  PENDING // Application submitted, waiting for review
+  ACCEPTED // Application accepted by salon
+  REJECTED // Application rejected by salon
+  WITHDRAWN // Application withdrawn by influencer
+}
+
+enum ProjectVisibility {
+  PUBLIC // Visible to all influencers
+  PRIVATE // Only visible to invited influencers
+  DRAFT // Not yet published
 }

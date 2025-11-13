@@ -303,7 +303,7 @@ class ProjectController {
             }
             const project = await projectService.acceptProject(id, userId);
             // Send notification to salon
-            if (this.io) {
+            if (this.io && project.influencer) {
                 const salon = project.salon;
                 const influencer = project.influencer;
                 // Create notification
@@ -374,7 +374,7 @@ class ProjectController {
             }
             const project = await projectService.rejectProject(id, userId, reason);
             // Send notification to salon
-            if (this.io) {
+            if (this.io && project.influencer) {
                 const salon = project.salon;
                 const influencer = project.influencer;
                 // Create notification
@@ -445,7 +445,7 @@ class ProjectController {
             }
             const project = await projectService.cancelProject(id, userId);
             // Send notification to influencer
-            if (this.io) {
+            if (this.io && project.influencerId) {
                 const influencer = await prisma.influencer.findUnique({
                     where: { id: project.influencerId },
                     include: { user: true },
@@ -564,7 +564,7 @@ class ProjectController {
             }
             const project = await projectService.completeProject(id, userId);
             // Send notification to influencer
-            if (this.io) {
+            if (this.io && project.influencerId) {
                 const influencer = await prisma.influencer.findUnique({
                     where: { id: project.influencerId },
                     include: { user: true },

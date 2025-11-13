@@ -89,4 +89,27 @@ export const API_ENDPOINTS = {
     VERIFY_SESSION: (sessionId: string) => `/payment/verify-session/${sessionId}`,
     SUBSCRIPTION_STATUS: (salonId: string) => `/payment/subscription-status/${salonId}`,
   },
+  // Marketplace endpoints
+  MARKETPLACE: {
+    // Projects
+    PROJECTS: '/marketplace/projects',
+    PROJECT_DETAIL: (projectId: string) => `/marketplace/projects/${projectId}`,
+    SALON_PROJECTS: '/marketplace/projects/salon/my-projects',
+    PUBLISH_PROJECT: (projectId: string) => `/marketplace/projects/${projectId}/publish`,
+    CLOSE_APPLICATIONS: (projectId: string) => `/marketplace/projects/${projectId}/close-applications`,
+    
+    // Categories and tags
+    CATEGORIES: '/marketplace/categories',
+    POPULAR_TAGS: '/marketplace/tags/popular',
+    
+    // Applications
+    SUBMIT_APPLICATION: (projectId: string) => `/marketplace/projects/${projectId}/applications`,
+    PROJECT_APPLICATIONS: (projectId: string) => `/marketplace/projects/${projectId}/applications`,
+    HAS_APPLIED: (projectId: string) => `/marketplace/projects/${projectId}/has-applied`,
+    MY_APPLICATIONS: '/marketplace/applications/my-applications',
+    APPLICATION_DETAIL: (applicationId: string) => `/marketplace/applications/${applicationId}`,
+    ACCEPT_APPLICATION: (applicationId: string) => `/marketplace/applications/${applicationId}/accept`,
+    REJECT_APPLICATION: (applicationId: string) => `/marketplace/applications/${applicationId}/reject`,
+    WITHDRAW_APPLICATION: (applicationId: string) => `/marketplace/applications/${applicationId}/withdraw`,
+  },
 } as const;

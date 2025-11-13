@@ -447,7 +447,7 @@ class ProjectService {
         throw new Error('Project not found');
       }
 
-      if (project.influencer.userId !== userId) {
+      if (!project.influencer || project.influencer.userId !== userId) {
         throw new Error('Only the invited influencer can accept this project');
       }
 
@@ -507,7 +507,7 @@ class ProjectService {
         throw new Error('Project not found');
       }
 
-      if (project.influencer.userId !== userId) {
+      if (!project.influencer || project.influencer.userId !== userId) {
         throw new Error('Only the invited influencer can reject this project');
       }
 

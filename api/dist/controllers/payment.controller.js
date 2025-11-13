@@ -278,5 +278,96 @@ class PaymentController {
             });
         }
     }
+    /**
+     * @route   POST /api/v1/payment/sync-salon-payment/:salonId
+     * @desc    Manually sync payment status for a salon (fix stuck payments)
+     * @access  Public
+     */
+    async syncSalonPayment(req, res) {
+        try {
+            const { salonId } = req.params;
+            if (!salonId) {
+                return res.status(400).json({ error: 'Salon ID required' });
+            }
+            const { prisma } = await import('../lib/prisma.js');
+            const { stripe } = await import('../config/stripe.config.js');
+            const salon = await prisma.salon.findUnique({
+                where: { id: salonId },
+                include: { user: true },
+            });
+            if (!salon || !salon.stripeCustomerId) {
+                return res.status(404).json({ error: 'Salon or Stripe customer not found' });
+            }
+            const subscriptions = await stripe.subscriptions.list({
+                customer: salon.stripeCustomerId,
+                limit: 10,
+            });
+            const activeSubscriptions = subscriptions.data.filter((sub) => sub.status === 'active' || sub.status === 'trialing');
+            if (activeSubscriptions.length === 0) {
+                return res.status(404).json({ error: 'No active subscriptions found' });
+            }
+            const subscription = activeSubscriptions[0];
+            let periodStart = subscription.current_period_start || subscription.billing_cycle_anchor || subscription.created;
+            let periodEnd = subscription.current_period_end;
+            if (!periodEnd) {
+                const interval = subscription.items.data[0]?.price?.recurring?.interval;
+                periodEnd = periodStart + (interval === 'year' ? 365 : 30) * 24 * 60 * 60;
+            }
+            const currentPeriodStart = new Date(periodStart * 1000);
+            const currentPeriodEnd = new Date(periodEnd * 1000);
+            const interval = subscription.items.data[0]?.price?.recurring?.interval;
+            const plan = interval === 'year' ? 'YEARLY' : 'MONTHLY';
+            await prisma.$transaction(async (tx) => {
+                const dbSubscription = await tx.subscription.upsert({
+                    where: { stripeSubscriptionId: subscription.id },
+                    create: {
+                        stripeSubscriptionId: subscription.id,
+                        stripeCustomerId: salon.stripeCustomerId,
+                        stripePriceId: subscription.items.data[0]?.price?.id || '',
+                        plan,
+                        status: 'ACTIVE',
+                        salonId: salon.id,
+                        currentPeriodStart,
+                        currentPeriodEnd,
+                    },
+                    update: {
+                        status: 'ACTIVE',
+                        currentPeriodStart,
+                        currentPeriodEnd,
+                    },
+                });
+                const existingPayment = await tx.payment.findFirst({
+                    where: { salonId: salon.id, subscriptionId: dbSubscription.id },
+                });
+                if (!existingPayment) {
+                    await tx.payment.create({
+                        data: {
+                            stripePaymentId: subscription.latest_invoice || `manual_${Date.now()}`,
+                            stripeSessionId: `sync_${Date.now()}`,
+                            amount: subscription.items.data[0]?.price?.unit_amount || 0,
+                            currency: subscription.currency || 'usd',
+                            status: 'COMPLETED',
+                            salonId: salon.id,
+                            subscriptionId: dbSubscription.id,
+                            description: `${plan} subscription - synced`,
+                            paidAt: currentPeriodStart,
+                        },
+                    });
+                }
+                await tx.salon.update({
+                    where: { id: salon.id },
+                    data: { paymentCompleted: true },
+                });
+            });
+            return res.status(200).json({
+                success: true,
+                message: 'Payment synced successfully. You can now login.',
+            });
+        }
+        catch (error) {
+            console.error('[PaymentController.syncSalonPayment] Error:', error);
+            return res.status(500).json({ error: 'Sync failed', message: error.message });
+        }
+    }
 }
 export default new PaymentController();
