@@ -31,6 +31,10 @@ class PaymentService {
             if (!salon.user) {
                 throw new Error('Salon user not found');
             }
+            // IMPORTANT: Verify email before allowing payment
+            if (!salon.emailVerified) {
+                throw new Error('Email must be verified before completing payment. Please verify your email first.');
+            }
             // Check if payment already completed
             if (salon.paymentCompleted) {
                 // Check if they have an active subscription
@@ -136,8 +140,8 @@ class PaymentService {
                     allow_promotion_codes: true,
                     // Collect billing address
                     billing_address_collection: 'auto',
-                    // Set payment timeout (24 hours)
-                    expires_at: Math.floor(Date.now() / 1000) + (24 * 60 * 60),
+                    // Set payment timeout (23 hours - must be less than 24 hours per Stripe requirements)
+                    expires_at: Math.floor(Date.now() / 1000) + (23 * 60 * 60),
                 });
             }
             catch (stripeError) {
@@ -230,6 +234,52 @@ class PaymentService {
                     await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
                 }
             }
+            // Ensure subscription was retrieved
+            if (!stripeSubscription) {
+                throw new Error('Failed to retrieve subscription from Stripe');
+            }
+            // Extract period timestamps (these are Unix timestamps in seconds)
+            // Stripe API v2024+ uses different field structure
+            let periodStart = stripeSubscription.current_period_start;
+            let periodEnd = stripeSubscription.current_period_end;
+            // Fallback: Use billing_cycle_anchor and calculate period end for monthly/yearly
+            if (!periodStart || !periodEnd) {
+                console.warn('[PaymentService.handleSuccessfulPayment] current_period_start/end not found, using fallback');
+                const billingCycleAnchor = stripeSubscription.billing_cycle_anchor || stripeSubscription.created;
+                periodStart = billingCycleAnchor;
+                // Calculate period end based on plan interval
+                const plan = session.metadata?.plan;
+                if (plan === 'monthly') {
+                    // Add 1 month (30 days in seconds)
+                    periodEnd = billingCycleAnchor + (30 * 24 * 60 * 60);
+                }
+                else if (plan === 'yearly') {
+                    // Add 1 year (365 days in seconds)
+                    periodEnd = billingCycleAnchor + (365 * 24 * 60 * 60);
+                }
+                else {
+                    // Default to 30 days
+                    periodEnd = billingCycleAnchor + (30 * 24 * 60 * 60);
+                }
+                console.log(`[PaymentService.handleSuccessfulPayment] Using calculated period: start=${periodStart}, end=${periodEnd}`);
+            }
+            // Validate timestamps exist
+            if (!periodStart || !periodEnd) {
+                console.error('[PaymentService.handleSuccessfulPayment] Invalid subscription data:', stripeSubscription);
+                throw new Error('Could not determine subscription period dates');
+            }
+            // Convert timestamps to Date objects
+            const currentPeriodStart = new Date(periodStart * 1000);
+            const currentPeriodEnd = new Date(periodEnd * 1000);
+            // Validate dates are valid
+            if (isNaN(currentPeriodStart.getTime()) || isNaN(currentPeriodEnd.getTime())) {
+                console.error('[PaymentService.handleSuccessfulPayment] Invalid dates from subscription:', {
+                    period_start: periodStart,
+                    period_end: periodEnd,
+                });
+                throw new Error('Invalid subscription period dates');
+            }
+            console.log(`[PaymentService.handleSuccessfulPayment] Period dates: ${currentPeriodStart.toISOString()} to ${currentPeriodEnd.toISOString()}`);
             // Use transaction for atomicity
             await prisma.$transaction(async (tx) => {
                 // Check if subscription already exists
@@ -243,8 +293,8 @@ class PaymentService {
                         where: { id: existingSubscription.id },
                         data: {
                             status: SubscriptionStatus.ACTIVE,
-                            currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-                            currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+                            currentPeriodStart,
+                            currentPeriodEnd,
                             stripePriceId: stripeSubscription.items.data[0]?.price.id,
                             stripeCustomerId: session.customer,
                         },
@@ -261,8 +311,8 @@ class PaymentService {
                             plan: plan === 'monthly' ? SubscriptionPlan.MONTHLY : SubscriptionPlan.YEARLY,
                             status: SubscriptionStatus.ACTIVE,
                             salonId: salon.id,
-                            currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-                            currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+                            currentPeriodStart,
+                            currentPeriodEnd,
                         },
                     });
                     console.log(`[PaymentService.handleSuccessfulPayment] Created new subscription ${subscription.id}`);

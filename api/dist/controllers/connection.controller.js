@@ -376,6 +376,7 @@ class ConnectionController {
                                 role: true,
                                 influencer: {
                                     select: {
+                                        id: true,
                                         profilePic: true,
                                         bio: true,
                                         categories: true,
@@ -383,6 +384,7 @@ class ConnectionController {
                                 },
                                 salon: {
                                     select: {
+                                        id: true,
                                         businessName: true,
                                         profilePic: true,
                                         description: true,
@@ -398,6 +400,7 @@ class ConnectionController {
                                 role: true,
                                 influencer: {
                                     select: {
+                                        id: true,
                                         profilePic: true,
                                         bio: true,
                                         categories: true,
@@ -405,6 +408,7 @@ class ConnectionController {
                                 },
                                 salon: {
                                     select: {
+                                        id: true,
                                         businessName: true,
                                         profilePic: true,
                                         description: true,

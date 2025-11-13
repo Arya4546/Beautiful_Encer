@@ -24,6 +24,10 @@ class ProjectService {
             const start = new Date(startDate);
             const end = new Date(endDate);
             const now = new Date();
+            // Reset time to midnight for date-only comparison
+            start.setHours(0, 0, 0, 0);
+            end.setHours(0, 0, 0, 0);
+            now.setHours(0, 0, 0, 0);
             if (start < now) {
                 throw new Error('Start date cannot be in the past');
             }
@@ -275,11 +279,23 @@ class ProjectService {
                 throw new Error('Can only update pending projects');
             }
             // Validate updates
-            if (updates.startDate && new Date(updates.startDate) < new Date()) {
-                throw new Error('Start date cannot be in the past');
+            if (updates.startDate) {
+                const startDate = new Date(updates.startDate);
+                const now = new Date();
+                startDate.setHours(0, 0, 0, 0);
+                now.setHours(0, 0, 0, 0);
+                if (startDate < now) {
+                    throw new Error('Start date cannot be in the past');
+                }
             }
-            if (updates.endDate && updates.startDate && new Date(updates.endDate) <= new Date(updates.startDate)) {
-                throw new Error('End date must be after start date');
+            if (updates.endDate && updates.startDate) {
+                const startDate = new Date(updates.startDate);
+                const endDate = new Date(updates.endDate);
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(0, 0, 0, 0);
+                if (endDate <= startDate) {
+                    throw new Error('End date must be after start date');
+                }
             }
             if (updates.budget && updates.budget <= 0) {
                 throw new Error('Budget must be greater than 0');
@@ -331,7 +347,7 @@ class ProjectService {
             if (!project) {
                 throw new Error('Project not found');
             }
-            if (project.influencer.userId !== userId) {
+            if (!project.influencer || project.influencer.userId !== userId) {
                 throw new Error('Only the invited influencer can accept this project');
             }
             if (project.status !== ProjectStatus.PENDING) {
@@ -384,7 +400,7 @@ class ProjectService {
             if (!project) {
                 throw new Error('Project not found');
             }
-            if (project.influencer.userId !== userId) {
+            if (!project.influencer || project.influencer.userId !== userId) {
                 throw new Error('Only the invited influencer can reject this project');
             }
             if (project.status !== ProjectStatus.PENDING) {
