@@ -238,10 +238,7 @@ class ProjectApplicationService {
                     },
                 },
             });
-            return {
-                success: true,
-                applications,
-            };
+            return applications;
         }
         catch (error) {
             console.error('[ProjectApplicationService.getProjectApplications] Error:', error);

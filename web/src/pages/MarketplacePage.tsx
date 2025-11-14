@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { 
   FiSearch, FiFilter, FiX, FiMapPin, FiClock, FiDollarSign, 
-  FiTag, FiCalendar, FiEye, FiFileText, FiTrendingUp 
+  FiTag, FiCalendar, FiEye, FiFileText, FiTrendingUp, FiAlertCircle 
 } from 'react-icons/fi';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
@@ -242,7 +243,7 @@ const FilterSidebar: React.FC<{
               className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent"
             >
               <option value="">{t('marketplace.filters.allCategories')}</option>
-              {categories?.map((cat) => (
+              {Array.isArray(categories) && categories.map((cat) => (
                 <option key={cat} value={cat}>
                   {cat}
                 </option>
@@ -373,17 +374,37 @@ export const MarketplacePage: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   
+  // Role-based access - influencers only for public marketplace
+  useEffect(() => {
+    if (user && user.role !== 'INFLUENCER') {
+      toast.error(t('marketplace.errors.influencersOnly'));
+      navigate('/salon/marketplace', { replace: true });
+    }
+  }, [user, navigate, t]);
+  
   const [filters, setFilters] = useState<ProjectFilters>({});
   const [page, setPage] = useState(1);
   const [filterSidebarOpen, setFilterSidebarOpen] = useState(false);
+  const [allProjects, setAllProjects] = useState<Project[]>([]);
   
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  // Fetch projects with filters
-  const { data, isLoading, isFetching, refetch } = usePublicProjects(filters);
+  // Fetch projects with filters and page
+  const { data, isLoading, isFetching, refetch, error, isError } = usePublicProjects({ ...filters, page, limit: 12 });
 
-  const projects = data?.data || [];
+  const newProjects = data?.data || [];
   const pagination = data?.pagination;
+
+  // Accumulate projects for infinite scroll
+  useEffect(() => {
+    if (page === 1) {
+      setAllProjects(newProjects);
+    } else if (newProjects.length > 0) {
+      setAllProjects((prev) => [...prev, ...newProjects]);
+    }
+  }, [newProjects, page]);
+
+  const projects = allProjects;
 
   // Infinite scroll
   useEffect(() => {
@@ -410,6 +431,7 @@ export const MarketplacePage: React.FC = () => {
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
+    setAllProjects([]);
   }, [filters]);
 
   const handleProjectClick = (projectId: string) => {
@@ -418,6 +440,8 @@ export const MarketplacePage: React.FC = () => {
 
   const handleFiltersChange = (newFilters: ProjectFilters) => {
     setFilters(newFilters);
+    setPage(1);
+    setAllProjects([]);
   };
 
   const activeFiltersCount = Object.values(filters).filter(
@@ -490,7 +514,23 @@ export const MarketplacePage: React.FC = () => {
             </div>
 
             {/* Projects Grid */}
-            {isLoading && page === 1 ? (
+            {isError ? (
+              <div className="text-center py-16">
+                <FiAlertCircle size={64} className="mx-auto text-red-500 mb-4" />
+                <h3 className="text-xl font-semibold text-text-primary mb-2">
+                  {t('marketplace.errors.loadFailed')}
+                </h3>
+                <p className="text-text-secondary mb-4">
+                  {error?.message || t('marketplace.errors.tryAgain')}
+                </p>
+                <button
+                  onClick={() => refetch()}
+                  className="px-6 py-2 bg-magenta text-white rounded-lg hover:bg-magenta-dark transition-colors"
+                >
+                  {t('common.retry')}
+                </button>
+              </div>
+            ) : isLoading && page === 1 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
                   <div
@@ -550,7 +590,7 @@ export const MarketplacePage: React.FC = () => {
                 </p>
                 {activeFiltersCount > 0 && (
                   <button
-                    onClick={() => setFilters({})}
+                    onClick={() => handleFiltersChange({})}
                     className="mt-4 px-6 py-2 bg-magenta text-white rounded-lg hover:bg-magenta-dark transition-colors"
                   >
                     {t('marketplace.filters.clearAll')}

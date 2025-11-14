@@ -224,12 +224,12 @@ export const MyApplicationsPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background-primary">
+    <div className="min-h-screen bg-background-primary overflow-x-hidden">
       <Header />
       <Sidebar />
       
       <div className="md:ml-64 pt-16 pb-20 md:pb-6">
-        <div className="max-w-7xl mx-auto p-6">
+        <div className="max-w-6xl mx-auto p-4 md:p-6">
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-text-primary mb-2">

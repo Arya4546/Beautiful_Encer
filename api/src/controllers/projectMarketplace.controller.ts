@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import projectMarketplaceService from '../services/projectMarketplace.service.js';
 import { ProjectType, ProjectVisibility } from '@prisma/client';
+import { prisma } from '../lib/prisma.js';
 
 /**
  * Controller for Project Marketplace operations
@@ -195,9 +196,33 @@ class ProjectMarketplaceController {
         limitNum
       );
 
+      // Add application status for each project for this influencer
+      const { influencer } = req.user!;
+      const projectsWithAppStatus = await Promise.all(
+        result.projects.map(async (project: any) => {
+          if (!influencer?.id) return project;
+          
+          const application = await prisma.projectApplication.findFirst({
+            where: {
+              projectId: project.id,
+              influencerId: influencer.id,
+            },
+            select: {
+              status: true,
+            },
+          });
+
+          return {
+            ...project,
+            hasApplied: !!application,
+            applicationStatus: application?.status || null,
+          };
+        })
+      );
+
       return res.status(200).json({
         success: true,
-        data: result.projects,
+        data: projectsWithAppStatus,
         pagination: result.pagination,
       });
     } catch (error: any) {

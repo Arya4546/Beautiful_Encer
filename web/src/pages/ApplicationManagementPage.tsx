@@ -264,13 +264,21 @@ export const ApplicationManagementPage: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuthStore();
 
+  // Hooks must be called before any conditional returns
+  const { data: project, isLoading: projectLoading } = useProject(projectId!);
+  const { data: applicationsData, isLoading: applicationsLoading, error: applicationsError } = useProjectApplications(projectId!);
+  const acceptMutation = useAcceptApplication(projectId!);
+  const rejectMutation = useRejectApplication(projectId!);
+
+  const [statusFilter, setStatusFilter] = useState<ProjectApplication['status'] | 'ALL'>('ALL');
+
   // Role-based access control - Redirect if not a SALON
   useEffect(() => {
     if (user && user.role !== 'SALON') {
-      toast.error('Access denied: Only salons can manage applications');
+      toast.error(t('common.accessDenied'));
       navigate('/discover', { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, t]);
 
   // Don't render content until role is verified
   if (!user || user.role !== 'SALON') {
@@ -289,14 +297,8 @@ export const ApplicationManagementPage: React.FC = () => {
     );
   }
 
-  const { data: project, isLoading: projectLoading } = useProject(projectId!);
-  const { data: applicationsData, isLoading: applicationsLoading } = useProjectApplications(projectId!);
-  const acceptMutation = useAcceptApplication(projectId!);
-  const rejectMutation = useRejectApplication(projectId!);
-
-  const [statusFilter, setStatusFilter] = useState<ProjectApplication['status'] | 'ALL'>('ALL');
-
-  const applications = applicationsData || [];
+  // Ensure applications is always an array
+  const applications = Array.isArray(applicationsData) ? applicationsData : [];
   const filteredApplications =
     statusFilter === 'ALL' ? applications : applications.filter((app: ProjectApplication) => app.status === statusFilter);
 
@@ -349,6 +351,35 @@ export const ApplicationManagementPage: React.FC = () => {
     );
   }
 
+  if (applicationsError) {
+    return (
+      <div className="min-h-screen bg-background-primary">
+        <Header />
+        <Sidebar />
+        <div className="md:ml-64 pt-16 pb-20 md:pb-6">
+          <div className="max-w-6xl mx-auto p-6">
+            <div className="text-center py-12">
+              <FiAlertCircle size={48} className="mx-auto text-red-500 mb-4" />
+              <h2 className="text-xl font-bold text-text-primary mb-2">
+                {t('marketplace.errors.loadFailed')}
+              </h2>
+              <p className="text-text-secondary mb-4">
+                {t('marketplace.errors.tryAgain')}
+              </p>
+              <button
+                onClick={() => navigate(-1)}
+                className="btn-primary"
+              >
+                {t('common.back')}
+              </button>
+            </div>
+          </div>
+        </div>
+        <BottomNav />
+      </div>
+    );
+  }
+
   if (!project) {
     return (
       <div className="min-h-screen bg-background-primary">
@@ -367,12 +398,12 @@ export const ApplicationManagementPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background-primary">
+    <div className="min-h-screen bg-background-primary overflow-x-hidden">
       <Header />
       <Sidebar />
 
       <div className="md:ml-64 pt-16 pb-20 md:pb-6">
-        <div className="max-w-6xl mx-auto p-6">
+        <div className="max-w-6xl mx-auto p-4 md:p-6">
           {/* Header */}
           <div className="mb-6">
             <button
@@ -440,7 +471,7 @@ export const ApplicationManagementPage: React.FC = () => {
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          <div className="flex gap-2 mb-4 md:mb-6 overflow-x-auto pb-2">
             {[
               { key: 'ALL', label: t('marketplace.applications.allApplications') },
               { key: 'PENDING', label: t('marketplace.applications.status.pending') },

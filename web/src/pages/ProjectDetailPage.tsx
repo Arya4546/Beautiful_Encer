@@ -358,12 +358,12 @@ export const ProjectDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background-primary">
+    <div className="min-h-screen bg-background-primary overflow-x-hidden">
       <Header />
       <Sidebar />
       
       <div className="md:ml-64 pt-16 pb-20 md:pb-6">
-        <div className="max-w-5xl mx-auto p-6">
+        <div className="max-w-5xl mx-auto p-4 md:p-6">
           {/* Back Button */}
           <button
             onClick={() => navigate(-1)}
@@ -373,11 +373,11 @@ export const ProjectDetailPage: React.FC = () => {
             {t('marketplace.projectDetail.backToList')}
           </button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4 md:space-y-6">
               {/* Header Card */}
-              <div className="bg-white rounded-xl shadow-soft p-6 border border-border">
+              <div className="bg-white rounded-xl shadow-soft p-4 md:p-6 border border-border">
                 <div className="flex flex-wrap gap-2 mb-4">
                   {getProjectTypeBadge(project.projectType)}
                   {project.category && (
@@ -416,7 +416,7 @@ export const ProjectDetailPage: React.FC = () => {
                   <FiFileText className="mr-2" />
                   {t('marketplace.projectDetail.about')}
                 </h2>
-                <p className="text-text-secondary whitespace-pre-wrap leading-relaxed">
+                <p className="text-text-secondary whitespace-pre-wrap leading-relaxed break-words overflow-wrap-anywhere">
                   {project.description}
                 </p>
               </div>
@@ -427,7 +427,7 @@ export const ProjectDetailPage: React.FC = () => {
                   <h2 className="text-xl font-bold text-text-primary mb-4">
                     {t('marketplace.projectDetail.requirements')}
                   </h2>
-                  <p className="text-text-secondary whitespace-pre-wrap leading-relaxed">
+                  <p className="text-text-secondary whitespace-pre-wrap leading-relaxed break-words overflow-wrap-anywhere">
                     {project.requirements}
                   </p>
                 </div>
@@ -606,8 +606,13 @@ export const ProjectDetailPage: React.FC = () => {
                   </div>
 
                   <button
-                    onClick={() => navigate(`/profile/${project.salon?.id}`)}
-                    className="w-full px-4 py-2 border border-magenta text-magenta rounded-lg hover:bg-magenta hover:text-white transition-colors flex items-center justify-center"
+                    onClick={() => {
+                      if (project.salon?.id) {
+                        navigate(`/salon-profile/${project.salon.id}`);
+                      }
+                    }}
+                    className="w-full px-4 py-2 border border-magenta text-magenta rounded-lg hover:bg-magenta hover:text-white transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!project.salon?.id}
                   >
                     <FiExternalLink className="mr-2" />
                     {t('marketplace.projectDetail.viewProfile')}

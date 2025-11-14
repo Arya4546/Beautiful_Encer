@@ -109,17 +109,17 @@ const ProjectCard: React.FC<{
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-soft border border-border p-6 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-xl shadow-soft border border-border p-4 sm:p-6 hover:shadow-md transition-shadow">
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
               <ProjectStatusBadge status={project.status} />
               <ProjectTypeBadge type={project.projectType} />
             </div>
             <Link
               to={`/salon/marketplace/projects/${project.id}`}
-              className="text-lg font-bold text-text-primary hover:text-magenta transition-colors line-clamp-2"
+              className="text-base sm:text-lg font-bold text-text-primary hover:text-magenta transition-colors line-clamp-2 block"
             >
               {project.title}
             </Link>
@@ -127,29 +127,29 @@ const ProjectCard: React.FC<{
         </div>
 
         {/* Description */}
-        <p className="text-sm text-text-secondary mb-4 line-clamp-2">{project.description}</p>
+        <p className="text-xs sm:text-sm text-text-secondary mb-4 line-clamp-2">{project.description}</p>
 
         {/* Project Info Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-4 text-xs sm:text-sm">
           <div className="flex items-center text-text-secondary">
-            <FiDollarSign className="mr-2 text-green-600" />
+            <FiDollarSign className="mr-2 text-green-600 flex-shrink-0" size={16} />
             <span>¥{project.budget.toLocaleString()}</span>
           </div>
           <div className="flex items-center text-text-secondary">
-            <FiUsers className="mr-2 text-blue-600" />
+            <FiUsers className="mr-2 text-blue-600 flex-shrink-0" size={16} />
             <span>
               {applicationCount} {t('marketplace.manageProjects.applications')}
             </span>
           </div>
           {project.location && (
-            <div className="flex items-center text-text-secondary">
-              <FiMapPin className="mr-2 text-red-600" />
+            <div className="flex items-center text-text-secondary min-w-0">
+              <FiMapPin className="mr-2 text-red-600 flex-shrink-0" size={16} />
               <span className="truncate">{project.location}</span>
             </div>
           )}
-          <div className="flex items-center text-text-secondary">
-            <FiCalendar className="mr-2 text-purple-600" />
-            <span className="truncate">
+          <div className="flex items-center text-text-secondary min-w-0">
+            <FiCalendar className="mr-2 text-purple-600 flex-shrink-0" size={16} />
+            <span className="truncate text-xs sm:text-sm">
               {startDate} - {endDate}
             </span>
           </div>
@@ -171,25 +171,26 @@ const ProjectCard: React.FC<{
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 pt-4 border-t border-border">
+        <div className="flex flex-wrap gap-2 pt-4 border-t border-border">
           {project.status === 'DRAFT' && (
             <button
               onClick={() => onPublish(project.id)}
               disabled={isProcessing}
-              className="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 min-w-[120px] px-2 sm:px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FiUnlock className="mr-1" size={14} />
-              {t('marketplace.manageProjects.publish')}
+              <span className="hidden sm:inline">{t('marketplace.manageProjects.publish')}</span>
+              <span className="sm:hidden">{t('marketplace.manageProjects.publish')}</span>
             </button>
           )}
 
           {project.status === 'OPEN' && applicationCount > 0 && (
             <button
               onClick={() => navigate(`/salon/marketplace/projects/${project.id}/applications`)}
-              className="flex-1 px-3 py-2 bg-magenta text-white rounded-lg hover:bg-magenta-dark transition-colors flex items-center justify-center text-sm"
+              className="flex-1 min-w-[120px] px-2 sm:px-3 py-2 bg-magenta text-white rounded-lg hover:bg-magenta-dark transition-colors flex items-center justify-center text-xs sm:text-sm"
             >
               <FiUsers className="mr-1" size={14} />
-              {t('marketplace.manageProjects.viewApplications')}
+              <span className="truncate">{t('marketplace.manageProjects.viewApplications')}</span>
             </button>
           )}
 
@@ -197,16 +198,18 @@ const ProjectCard: React.FC<{
             <button
               onClick={() => onClose(project.id)}
               disabled={isProcessing}
-              className="flex-1 px-3 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors flex items-center justify-center text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 min-w-[100px] px-2 sm:px-3 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors flex items-center justify-center text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FiLock className="mr-1" size={14} />
-              {t('marketplace.manageProjects.close')}
+              <span className="hidden sm:inline">{t('marketplace.manageProjects.close')}</span>
+              <span className="sm:hidden">{t('marketplace.manageProjects.close')}</span>
             </button>
           )}
 
           <button
             onClick={() => navigate(`/salon/marketplace/projects/${project.id}/edit`)}
-            className="px-3 py-2 border border-border text-text-primary rounded-lg hover:bg-background-secondary transition-colors flex items-center justify-center text-sm"
+            className="px-2 sm:px-3 py-2 border border-border text-text-primary rounded-lg hover:bg-background-secondary transition-colors flex items-center justify-center"
+            title={t('marketplace.manageProjects.edit')}
           >
             <FiEdit2 size={14} />
           </button>
@@ -214,7 +217,8 @@ const ProjectCard: React.FC<{
           <button
             onClick={() => setShowDeleteModal(true)}
             disabled={isProcessing}
-            className="px-3 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-2 sm:px-3 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            title={t('marketplace.manageProjects.delete')}
           >
             <FiTrash2 size={14} />
           </button>
@@ -306,36 +310,15 @@ export const SalonProjectsDashboardPage: React.FC = () => {
   };
 
   const handleDelete = (projectId: string) => {
-    deleteProjectMutation.mutate(projectId, {
-      onSuccess: () => {
-        toast.success(t('marketplace.manageProjects.deleteSuccess'));
-      },
-      onError: () => {
-        toast.error(t('marketplace.manageProjects.deleteError'));
-      },
-    });
+    deleteProjectMutation.mutate(projectId);
   };
 
   const handlePublish = (projectId: string) => {
-    publishProjectMutation.mutate(projectId, {
-      onSuccess: () => {
-        toast.success(t('marketplace.manageProjects.publishSuccess'));
-      },
-      onError: () => {
-        toast.error(t('marketplace.manageProjects.publishError'));
-      },
-    });
+    publishProjectMutation.mutate(projectId);
   };
 
   const handleClose = (projectId: string) => {
-    closeApplicationsMutation.mutate(projectId, {
-      onSuccess: () => {
-        toast.success(t('marketplace.manageProjects.closeSuccess'));
-      },
-      onError: () => {
-        toast.error(t('marketplace.manageProjects.closeError'));
-      },
-    });
+    closeApplicationsMutation.mutate(projectId);
   };
 
   return (
@@ -346,16 +329,16 @@ export const SalonProjectsDashboardPage: React.FC = () => {
       <div className="md:ml-64 pt-16 pb-20 md:pb-6">
         <div className="max-w-7xl mx-auto p-6">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-text-primary mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary mb-2">
                 {t('marketplace.manageProjects.title')}
               </h1>
-              <p className="text-text-secondary">{t('marketplace.manageProjects.subtitle')}</p>
+              <p className="text-sm sm:text-base text-text-secondary">{t('marketplace.manageProjects.subtitle')}</p>
             </div>
             <button
               onClick={() => navigate('/salon/marketplace/create')}
-              className="px-6 py-3 bg-magenta text-white rounded-lg hover:bg-magenta-dark transition-colors flex items-center shadow-md"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 bg-magenta text-white rounded-lg hover:bg-magenta-dark transition-colors flex items-center justify-center shadow-md text-sm sm:text-base"
             >
               <FiPlus className="mr-2" />
               {t('marketplace.manageProjects.createProject')}
@@ -363,75 +346,75 @@ export const SalonProjectsDashboardPage: React.FC = () => {
           </div>
 
           {/* Statistics Dashboard */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
-            <div className="bg-white rounded-xl shadow-soft border border-border p-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
+            <div className="bg-white rounded-xl shadow-soft border border-border p-3 sm:p-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-text-tertiary">{t('marketplace.manageProjects.stats.total')}</p>
-                  <p className="text-2xl font-bold text-text-primary">{stats.total}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-text-tertiary truncate">{t('marketplace.manageProjects.stats.total')}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-text-primary">{stats.total}</p>
                 </div>
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <FiBarChart2 className="text-blue-600" size={20} />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+                  <FiBarChart2 className="text-blue-600" size={16} />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-soft border border-border p-4">
+            <div className="bg-white rounded-xl shadow-soft border border-border p-3 sm:p-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-text-tertiary">{t('marketplace.manageProjects.status.draft')}</p>
-                  <p className="text-2xl font-bold text-gray-600">{stats.draft}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-text-tertiary truncate">{t('marketplace.manageProjects.status.draft')}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-600">{stats.draft}</p>
                 </div>
-                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <FiEyeOff className="text-gray-600" size={20} />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+                  <FiEyeOff className="text-gray-600" size={16} />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-soft border border-border p-4">
+            <div className="bg-white rounded-xl shadow-soft border border-border p-3 sm:p-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-text-tertiary">{t('marketplace.manageProjects.status.open')}</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.open}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-text-tertiary truncate">{t('marketplace.manageProjects.status.open')}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.open}</p>
                 </div>
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <FiUnlock className="text-green-600" size={20} />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+                  <FiUnlock className="text-green-600" size={16} />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-soft border border-border p-4">
+            <div className="bg-white rounded-xl shadow-soft border border-border p-3 sm:p-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-text-tertiary">{t('marketplace.manageProjects.status.inProgress')}</p>
-                  <p className="text-2xl font-bold text-blue-600">{stats.inProgress}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-text-tertiary truncate">{t('marketplace.manageProjects.status.inProgress')}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.inProgress}</p>
                 </div>
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <FiCalendar className="text-blue-600" size={20} />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+                  <FiCalendar className="text-blue-600" size={16} />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-soft border border-border p-4">
+            <div className="bg-white rounded-xl shadow-soft border border-border p-3 sm:p-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-text-tertiary">{t('marketplace.manageProjects.status.completed')}</p>
-                  <p className="text-2xl font-bold text-purple-600">{stats.completed}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-text-tertiary truncate">{t('marketplace.manageProjects.status.completed')}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-purple-600">{stats.completed}</p>
                 </div>
-                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                  <FiUsers className="text-purple-600" size={20} />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+                  <FiUsers className="text-purple-600" size={16} />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-soft border border-border p-4">
+            <div className="bg-white rounded-xl shadow-soft border border-border p-3 sm:p-4">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-text-tertiary">{t('marketplace.manageProjects.stats.applications')}</p>
-                  <p className="text-2xl font-bold text-magenta">{stats.totalApplications}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-text-tertiary truncate">{t('marketplace.manageProjects.stats.applications')}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-magenta">{stats.totalApplications}</p>
                 </div>
-                <div className="w-10 h-10 bg-magenta-light rounded-full flex items-center justify-center">
-                  <FiUsers className="text-magenta" size={20} />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-magenta-light rounded-full flex items-center justify-center flex-shrink-0 ml-2">
+                  <FiUsers className="text-magenta" size={16} />
                 </div>
               </div>
             </div>
@@ -445,7 +428,7 @@ export const SalonProjectsDashboardPage: React.FC = () => {
               { key: 'OPEN', label: t('marketplace.manageProjects.status.open') },
               { key: 'IN_PROGRESS', label: t('marketplace.manageProjects.status.inProgress') },
               { key: 'COMPLETED', label: t('marketplace.manageProjects.status.completed') },
-              { key: 'CLOSED', label: t('marketplace.manageProjects.status.closed') },
+              { key: 'CANCELLED', label: t('marketplace.manageProjects.status.closed') },
             ].map((tab) => (
               <button
                 key={tab.key}
