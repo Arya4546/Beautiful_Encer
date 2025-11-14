@@ -607,14 +607,12 @@ export const ProjectDetailPage: React.FC = () => {
 
                   <button
                     onClick={() => {
-                      if (project.salon?.userId) {
-                        navigate(`/profile/${project.salon.userId}`);
-                      } else if (project.salon?.user?.id) {
-                        navigate(`/profile/${project.salon.user.id}`);
+                      if (project.salon?.id) {
+                        navigate(`/salon-profile/${project.salon.id}`);
                       }
                     }}
                     className="w-full px-4 py-2 border border-magenta text-magenta rounded-lg hover:bg-magenta hover:text-white transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={!project.salon?.userId && !project.salon?.user?.id}
+                    disabled={!project.salon?.id}
                   >
                     <FiExternalLink className="mr-2" />
                     {t('marketplace.projectDetail.viewProfile')}
