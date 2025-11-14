@@ -14,6 +14,7 @@
     "edit": "編集",
     "submit": "送信する",
     "close": "閉じる",
+    "retry": "再試行",
     "menu": "メニュー",
     "admin": "管理者",
     "back": "戻る",
@@ -54,7 +55,8 @@
     "video": "動画",
     "all": "すべて",
     "influencersPlural": "インフルエンサー",
-    "salonsPlural": "サロン"
+    "salonsPlural": "サロン",
+    "accessDenied": "アクセスが拒否されました"
   },
   "platform": {
     "instagram": "Instagram",
@@ -1521,6 +1523,11 @@
       "apply": "適用",
       "clearAll": "すべてクリア"
     },
+    "emptyState": {
+      "title": "案件が見つかりません",
+      "noProjects": "現在、利用可能な案件はありません",
+      "noResults": "フィルター条件に一致する案件がありません。検索条件を調整してください。"
+    },
     "projectTypes": {
       "SPONSORED_POST": "スポンサー投稿",
       "PRODUCT_REVIEW": "商品レビュー",
@@ -1650,6 +1657,19 @@
       "withdrawSuccess": "応募を取り消しました",
       "applicationId": "応募ID"
     },
+    "errors": {
+      "loadFailed": "案件の読み込みに失敗しました",
+      "tryAgain": "しばらくしてからもう一度お試しください",
+      "influencersOnly": "マーケットプレイスはインフルエンサー専用です",
+      "submitFailed": "応募の送信に失敗しました",
+      "updateFailed": "案件の更新に失敗しました",
+      "deleteFailed": "案件の削除に失敗しました"
+    },
+    "stats": {
+      "projects": "件の案件",
+      "filtersActive": "個のフィルター適用中"
+    },
+    "noMoreProjects": "すべての案件を表示しました",
     "manageProjects": {
       "title": "案件管理",
       "subtitle": "作成した案件を管理・追跡できます",
@@ -1663,6 +1683,8 @@
       "viewApplications": "応募者を見る",
       "publish": "公開する",
       "close": "募集終了",
+      "edit": "編集",
+      "delete": "削除",
       "deleteProject": "案件を削除",
       "deleteConfirmMessage": "この案件を削除してもよろしいですか？削除後は復元できません。",
       "deleteSuccess": "案件を削除しました",
@@ -1851,35 +1873,6 @@
       "projectCompleted": "案件が完了しました",
       "deadlineSoon": "応募締切が近づいています",
       "maxApplicationsReached": "最大応募数に達しました"
-    },
-    "stats": {
-      "projects": "件の案件",
-      "filtersActive": "件の絞り込み"
-    },
-    "noMoreProjects": "すべての案件を表示しました",
-    "emptyState": {
-      "title": "案件が見つかりません",
-      "noResults": "検索条件に一致する案件がありません",
-      "noProjects": "現在募集中の案件はありません"
-    },
-    "empty": {
-      "noProjects": "案件が見つかりませんでした",
-      "noProjectsMessage": "検索条件を変更してもう一度お試しください",
-      "adjustFilters": "絞り込み条件を調整"
-    },
-    "loading": {
-      "projects": "案件を読み込み中...",
-      "applications": "応募を読み込み中...",
-      "details": "詳細を読み込み中..."
-    },
-    "errors": {
-      "loadFailed": "読み込みに失敗しました",
-      "submitFailed": "送信に失敗しました",
-      "updateFailed": "更新に失敗しました",
-      "deleteFailed": "削除に失敗しました",
-      "tryAgain": "もう一度お試しください",
-      "networkError": "ネットワークエラーが発生しました",
-      "unauthorized": "この操作を実行する権限がありません"
     }
   }
 }

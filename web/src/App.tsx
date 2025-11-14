@@ -170,6 +170,10 @@ const App: React.FC = () => {
           element={<ProtectedRoute><ProjectCreatePage /></ProtectedRoute>} 
         />
         <Route 
+          path="/salon/marketplace/projects/:id/edit" 
+          element={<ProtectedRoute><ProjectCreatePage /></ProtectedRoute>} 
+        />
+        <Route 
           path="/salon/marketplace/projects/:id" 
           element={<ProtectedRoute><ProjectDetailPage /></ProtectedRoute>} 
         />

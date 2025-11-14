@@ -272,10 +272,7 @@ class ProjectApplicationService {
         },
       });
 
-      return {
-        success: true,
-        applications,
-      };
+      return applications;
     } catch (error: any) {
       console.error('[ProjectApplicationService.getProjectApplications] Error:', error);
       throw new Error(`Failed to fetch applications: ${error.message}`);

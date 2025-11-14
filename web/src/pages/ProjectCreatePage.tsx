@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   FiArrowLeft, FiArrowRight, FiSave, FiSend, FiCalendar,
@@ -9,7 +9,7 @@ import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
 import { useAuthStore } from '../store/authStore';
-import { useCreateProject, useCategories } from '../hooks/useMarketplace';
+import { useCreateProject, useCategories, useProject, useUpdateProject } from '../hooks/useMarketplace';
 import { type ProjectType, type CreateProjectData } from '../services/marketplace.service';
 import toast from 'react-hot-toast';
 
@@ -70,20 +70,26 @@ const StepIndicator: React.FC<{ currentStep: number; totalSteps: number }> = ({
 export const ProjectCreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { id: projectId } = useParams<{ id: string }>();
+  const isEditMode = !!projectId;
+  
   const { user } = useAuthStore();
   const { data: categories } = useCategories();
+  const { data: existingProject, isLoading: isLoadingProject } = useProject(projectId || '');
   const createProjectMutation = useCreateProject();
+  const updateProjectMutation = useUpdateProject(projectId || '');
 
   const [currentStep, setCurrentStep] = useState(1);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isFormPopulated, setIsFormPopulated] = useState(false);
 
   // Role-based access control - Redirect if not a SALON
   useEffect(() => {
     if (user && user.role !== 'SALON') {
-      toast.error('Access denied: Only salons can create projects');
+      toast.error(t('common.accessDenied'));
       navigate('/discover', { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, t]);
 
   // Don't render content until role is verified
   if (!user || user.role !== 'SALON') {
@@ -158,6 +164,29 @@ export const ProjectCreatePage: React.FC = () => {
       });
     }
   };
+
+  // Populate form data when in edit mode
+  useEffect(() => {
+    if (isEditMode && existingProject && !isFormPopulated) {
+      setFormData({
+        title: existingProject.title,
+        projectType: existingProject.projectType,
+        description: existingProject.description,
+        category: existingProject.category || '',
+        budget: existingProject.budget,
+        startDate: existingProject.startDate.split('T')[0],
+        endDate: existingProject.endDate.split('T')[0],
+        location: existingProject.location || '',
+        deliverables: existingProject.deliverables || [''],
+        requirements: existingProject.requirements || '',
+        tags: existingProject.tags.join(', '),
+        visibility: existingProject.visibility,
+        maxApplications: existingProject.maxApplications,
+        applicationDeadline: existingProject.applicationDeadline?.split('T')[0] || '',
+      });
+      setIsFormPopulated(true);
+    }
+  }, [isEditMode, existingProject, isFormPopulated]);
 
   const addDeliverable = () => {
     setFormData((prev) => ({
@@ -284,11 +313,19 @@ export const ProjectCreatePage: React.FC = () => {
       applicationDeadline: formData.applicationDeadline ? new Date(formData.applicationDeadline) : undefined,
     };
 
-    createProjectMutation.mutate(projectData, {
-      onSuccess: () => {
-        navigate('/salon/marketplace');
-      },
-    });
+    if (isEditMode) {
+      updateProjectMutation.mutate(projectData, {
+        onSuccess: () => {
+          navigate('/salon/marketplace');
+        },
+      });
+    } else {
+      createProjectMutation.mutate(projectData, {
+        onSuccess: () => {
+          navigate('/salon/marketplace');
+        },
+      });
+    }
   };
 
   return (
@@ -298,17 +335,24 @@ export const ProjectCreatePage: React.FC = () => {
 
       <div className="md:ml-64 pt-16 pb-20 md:pb-6">
         <div className="max-w-4xl mx-auto p-6">
-          {/* Header */}
-          <div className="mb-6">
-            <button
-              onClick={() => navigate('/salon/marketplace')}
-              className="flex items-center text-text-secondary hover:text-text-primary mb-4 transition-colors"
-            >
-              <FiArrowLeft className="mr-2" />
-              {t('common.back')}
-            </button>
-            <h1 className="text-3xl font-bold text-text-primary mb-2">
-              {t('marketplace.createProject.title')}
+          {/* Loading state for edit mode */}
+          {isEditMode && isLoadingProject ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-magenta" />
+            </div>
+          ) : (
+            <>
+              {/* Header */}
+              <div className="mb-6">
+                <button
+                  onClick={() => navigate('/salon/marketplace')}
+                  className="flex items-center text-text-secondary hover:text-text-primary mb-4 transition-colors"
+                >
+                  <FiArrowLeft className="mr-2" />
+                  {t('common.back')}
+                </button>
+                <h1 className="text-3xl font-bold text-text-primary mb-2">
+                  {isEditMode ? t('marketplace.createProject.editTitle') : t('marketplace.createProject.title')}
             </h1>
             <p className="text-text-secondary">
               {t('marketplace.createProject.subtitle')}
@@ -724,7 +768,7 @@ export const ProjectCreatePage: React.FC = () => {
                 <>
                   <button
                     onClick={() => handleSubmit(true)}
-                    disabled={createProjectMutation.isPending}
+                    disabled={isEditMode ? updateProjectMutation.isPending : createProjectMutation.isPending}
                     className="flex-1 px-6 py-3 border border-magenta text-magenta rounded-lg hover:bg-magenta hover:text-white transition-colors flex items-center justify-center disabled:opacity-50"
                   >
                     <FiSave className="mr-2" />
@@ -732,10 +776,10 @@ export const ProjectCreatePage: React.FC = () => {
                   </button>
                   <button
                     onClick={() => handleSubmit(false)}
-                    disabled={createProjectMutation.isPending}
+                    disabled={isEditMode ? updateProjectMutation.isPending : createProjectMutation.isPending}
                     className="flex-1 px-6 py-3 bg-magenta text-white rounded-lg hover:bg-magenta-dark transition-colors flex items-center justify-center disabled:opacity-50"
                   >
-                    {createProjectMutation.isPending ? (
+                    {(isEditMode ? updateProjectMutation.isPending : createProjectMutation.isPending) ? (
                       <>
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
                         {t('common.loading')}
@@ -743,7 +787,7 @@ export const ProjectCreatePage: React.FC = () => {
                     ) : (
                       <>
                         <FiSend className="mr-2" />
-                        {t('marketplace.createProject.publish')}
+                        {isEditMode ? t('marketplace.createProject.update') : t('marketplace.createProject.publish')}
                       </>
                     )}
                   </button>
@@ -751,6 +795,8 @@ export const ProjectCreatePage: React.FC = () => {
               )}
             </div>
           </div>
+          </>
+          )}
         </div>
       </div>
 
