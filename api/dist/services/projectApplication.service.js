@@ -308,17 +308,35 @@ class ProjectApplicationService {
                     rejectionReason: 'Another influencer was selected for this project',
                 },
             });
-            // Create notification for accepted influencer
+            // Create notification for accepted influencer with CTA to chat
             await prisma.notification.create({
                 data: {
                     userId: application.influencer.user.id,
                     type: 'APPLICATION_ACCEPTED',
                     title: 'Application Accepted!',
-                    message: `Your application for "${application.project.title}" has been accepted!`,
+                    message: `Congratulations! ${application.project.salon.businessName} has accepted your application for "${application.project.title}". Connect with them and start a chat to discuss project details!`,
                     metadata: JSON.stringify({
                         projectId: application.projectId,
                         applicationId: application.id,
                         salonId,
+                        salonUserId: application.project.salon.userId,
+                        action: 'CHAT',
+                    }),
+                },
+            });
+            // Create notification for salon to prompt them to message the influencer
+            await prisma.notification.create({
+                data: {
+                    userId: application.project.salon.userId,
+                    type: 'APPLICATION_ACCEPTED_SALON',
+                    title: 'Application Accepted',
+                    message: `You accepted ${application.influencer.user.name}'s application for "${application.project.title}". Start a chat to discuss the project details and next steps!`,
+                    metadata: JSON.stringify({
+                        projectId: application.projectId,
+                        applicationId: application.id,
+                        influencerId: application.influencerId,
+                        influencerUserId: application.influencer.user.id,
+                        action: 'CHAT',
                     }),
                 },
             });

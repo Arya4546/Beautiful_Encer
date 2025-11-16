@@ -3,7 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   FiArrowLeft, FiCheck, FiX, FiClock, FiUser, FiInstagram,
-  FiDollarSign, FiCalendar, FiExternalLink, FiAlertCircle
+  FiDollarSign, FiCalendar, FiExternalLink, FiAlertCircle,
+  FiSend
 } from 'react-icons/fi';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
@@ -187,11 +188,11 @@ const ApplicationCard: React.FC<{
 
         {/* Actions (Only for Pending) */}
         {application.status === 'PENDING' && (
-          <div className="flex gap-3 pt-4 border-t border-border">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4 border-t border-border">
             <button
               onClick={() => onAccept(application.id)}
               disabled={isProcessing}
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               <FiCheck className="mr-2" />
               {t('marketplace.applications.accept')}
@@ -199,11 +200,24 @@ const ApplicationCard: React.FC<{
             <button
               onClick={() => setShowRejectModal(true)}
               disabled={isProcessing}
-              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               <FiX className="mr-2" />
               {t('marketplace.applications.reject')}
             </button>
+          </div>
+        )}
+
+        {/* Message Button for Accepted Applications */}
+        {application.status === 'ACCEPTED' && (
+          <div className="pt-4 border-t border-border">
+            <Link
+              to={`/chat?userId=${influencer.user.id}`}
+              className="w-full px-4 py-2 bg-magenta text-white rounded-lg hover:bg-magenta-dark transition-colors flex items-center justify-center text-sm sm:text-base"
+            >
+              <FiSend className="mr-2" />
+              {t('common.sendMessage')}
+            </Link>
           </div>
         )}
 
@@ -218,11 +232,11 @@ const ApplicationCard: React.FC<{
       {/* Rejection Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-text-primary mb-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg sm:text-xl font-bold text-text-primary mb-3 sm:mb-4">
               {t('marketplace.applications.rejectApplication')}
             </h3>
-            <p className="text-sm text-text-secondary mb-4">
+            <p className="text-sm text-text-secondary mb-3 sm:mb-4">
               {t('marketplace.applications.rejectMessage')}
             </p>
             <textarea
@@ -230,22 +244,22 @@ const ApplicationCard: React.FC<{
               onChange={(e) => setRejectionReason(e.target.value)}
               placeholder={t('marketplace.applications.rejectionReasonPlaceholder')}
               rows={4}
-              className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent resize-none mb-4"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent resize-none mb-3 sm:mb-4 text-sm"
             />
-            <div className="flex gap-3">
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3">
               <button
                 onClick={() => {
                   setShowRejectModal(false);
                   setRejectionReason('');
                 }}
-                className="flex-1 px-4 py-2 border border-border text-text-primary rounded-lg hover:bg-background-secondary transition-colors"
+                className="flex-1 px-4 py-2 border border-border text-text-primary rounded-lg hover:bg-background-secondary transition-colors text-sm sm:text-base"
               >
                 {t('common.cancel')}
               </button>
               <button
                 onClick={handleReject}
                 disabled={!rejectionReason.trim()}
-                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 {t('marketplace.applications.reject')}
               </button>
