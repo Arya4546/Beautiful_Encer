@@ -701,6 +701,13 @@
       "like": "いいねされました",
       "comment": "コメントされました",
       "follow": "フォローされました"
+    },
+    "actions": {
+      "startChat": "チャットを開始",
+      "connectNow": "今すぐつながる",
+      "viewProject": "案件を見る",
+      "viewApplication": "応募を見る",
+      "dismiss": "閉じる"
     }
   },
   "toast": {

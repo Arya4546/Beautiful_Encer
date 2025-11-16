@@ -702,6 +702,13 @@
       "like": "liked your post",
       "comment": "commented on your post",
       "follow": "started following you"
+    },
+    "actions": {
+      "startChat": "Start Chat",
+      "connectNow": "Connect Now",
+      "viewProject": "View Project",
+      "viewApplication": "View Application",
+      "dismiss": "Dismiss"
     }
   },
   "toast": {

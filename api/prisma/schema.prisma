@@ -497,6 +497,7 @@ enum NotificationType {
   PROJECT_PUBLISHED         // Project published to marketplace
   PROJECT_APPLICATION       // New application received
   APPLICATION_ACCEPTED      // Your application was accepted
+  APPLICATION_ACCEPTED_SALON // Salon notification when they accept an application
   APPLICATION_REJECTED      // Your application was rejected
   INFLUENCER_SELECTED       // Influencer selected for project
   PROJECT_STARTED           // Project started
