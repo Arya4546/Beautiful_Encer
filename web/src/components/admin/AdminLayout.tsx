@@ -53,7 +53,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           >
             {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
-          <img src="/BE.png" alt="Beautiful Encer" className="h-14 w-auto" />
+          <img src="/BE.png" alt="Real Media" className="h-14 w-auto" />
           <LanguageSwitcher />
         </div>
       </div>
@@ -67,7 +67,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="p-6 border-b border-border flex items-center justify-center">
-            <img src="/BE.png" alt="Beautiful Encer" className="h-24 w-auto" />
+            <img src="/BE.png" alt="Real Media" className="h-24 w-auto" />
           </div>
 
           {/* Navigation */}

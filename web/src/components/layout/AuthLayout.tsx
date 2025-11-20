@@ -43,7 +43,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
             <div className="relative">
               <img 
                 src="/BE.png" 
-                alt="Beautiful Encer" 
+                alt="Real Media" 
                 className="h-32 w-auto sm:h-36 object-contain relative z-10"
                 style={{
                   filter: 'drop-shadow(0 10px 25px rgba(236, 72, 153, 0.3)) drop-shadow(0 4px 10px rgba(168, 85, 247, 0.2))',
@@ -75,7 +75,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({
 
         {/* Footer */}
         <p className="text-center text-gray-600 mt-3 text-xs">
-          © 2025 Beautiful Encer. All rights reserved.
+          © 2025 Real Media. All rights reserved.
         </p>
       </motion.div>
     </div>

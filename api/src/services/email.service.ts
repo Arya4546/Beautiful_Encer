@@ -30,7 +30,7 @@ const getEmailTemplate = (title: string, message: string, otp: string, purpose: 
               <tr>
                 <td style="background: linear-gradient(135deg, #d946ef 0%, #a855f7 50%, #667eea 100%); padding: 40px 30px; text-align: center;">
                   <h1 style="margin: 0; color: white; font-size: 32px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                    ✨ Beautiful Encer
+                    ✨ Real Media
                   </h1>
                   <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.95); font-size: 16px; font-weight: 500;">
                     Influencer Marketing Platform
@@ -83,13 +83,13 @@ const getEmailTemplate = (title: string, message: string, otp: string, purpose: 
                     Best regards,
                   </p>
                   <p style="margin: 0; background: linear-gradient(135deg, #d946ef 0%, #a855f7 50%, #667eea 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 16px; font-weight: 700;">
-                    Team Beautiful Encer
+                    Team Real Media
                   </p>
                   
                   <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
                     <p style="margin: 0; color: #9ca3af; font-size: 12px; line-height: 1.5;">
-                      © 2025 Beautiful Encer. All rights reserved.<br>
-                      This is an automated email. Please do not reply to this message.
+                        © 2025 Real Media. All rights reserved.<br>
+                        This is an automated email. Please do not reply to this message.
                     </p>
                   </div>
                 </td>
@@ -110,7 +110,7 @@ const getEmailTemplate = (title: string, message: string, otp: string, purpose: 
 export const sendOtpEmail = async (to: string, otp: string) => {
   const html = getEmailTemplate(
     'Email Verification',
-    'Thank you for signing up with Beautiful Encer! To complete your registration, please verify your email address using the OTP code below:',
+    'Thank you for signing up with Real Media! To complete your registration, please verify your email address using the OTP code below:',
     otp,
     'verification'
   );
@@ -120,9 +120,9 @@ export const sendOtpEmail = async (to: string, otp: string) => {
     logger.log(`📧 [Email Service] OTP Code: ${otp}`);
     
     const result = await tranEmailApi.sendTransacEmail({
-      sender: { email: "singharya9693@gmail.com", name: "Beautiful Encer" },
+      sender: { email: "singharya9693@gmail.com", name: "Real Media" },
       to: [{ email: to }],
-      subject: "✨ Beautiful Encer - Verify Your Email",
+      subject: "✨ Real Media - Verify Your Email",
       htmlContent: html,
     });
 
@@ -156,9 +156,9 @@ export const sendPasswordResetOtpEmail = async (to: string, otp: string) => {
     logger.log(`🔐 [Email Service] OTP Code: ${otp}`);
     
     const result = await tranEmailApi.sendTransacEmail({
-      sender: { email: "singharya9693@gmail.com", name: "Beautiful Encer" },
+      sender: { email: "singharya9693@gmail.com", name: "Real Media" },
       to: [{ email: to }],
-      subject: "🔐 Beautiful Encer - Reset Your Password",
+      subject: "🔐 Real Media - Reset Your Password",
       htmlContent: html,
     });
 

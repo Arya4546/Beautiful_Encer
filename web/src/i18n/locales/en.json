@@ -1,6 +1,6 @@
 {
   "brand": {
-    "name": "Beautiful Encer",
+    "name": "Real Media",
     "tagline": "Empowering nano and micro-influencer marketing"
   },
   "common": {
@@ -85,7 +85,7 @@
       "sections": {
         "acceptance": {
           "title": "Acceptance of Terms",
-          "body": "By creating an account or using Beautiful Encer, you agree to these Terms of Service and our Privacy Policy. If you do not agree, please do not use the Service."
+          "body": "By creating an account or using Real Media, you agree to these Terms of Service and our Privacy Policy. If you do not agree, please do not use the Service."
         },
         "accounts": {
           "title": "Accounts & Responsibilities",
@@ -101,7 +101,7 @@
         },
         "liability": {
           "title": "Limitation of Liability",
-          "body": "To the maximum extent permitted by law, Beautiful Encer shall not be liable for indirect, incidental, or consequential damages arising from your use of the Service."
+          "body": "To the maximum extent permitted by law, Real Media shall not be liable for indirect, incidental, or consequential damages arising from your use of the Service."
         },
         "changes": {
           "title": "Changes to Terms",
@@ -264,7 +264,7 @@
       "signupLink": "Sign up here"
     },
     "signup": {
-      "title": "Join Beautiful Encer",
+      "title": "Join Real Media",
       "subtitle": "Choose your account type to get started",
       "selectRoleTitle": "SIGN UP",
       "roleInfluencer": "I'm an Influencer",
