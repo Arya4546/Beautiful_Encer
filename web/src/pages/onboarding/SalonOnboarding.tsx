@@ -154,7 +154,7 @@ export const SalonOnboarding: React.FC = () => {
             <div className="flex flex-col items-center mb-6">
               <img 
                 src="/BE.png" 
-                alt="Beautiful Encer Logo" 
+                alt="Real Media Logo" 
                 className="w-28 h-28 sm:w-32 sm:h-32 object-contain drop-shadow-2xl mb-4"
                 style={{
                   filter: 'drop-shadow(0 10px 30px rgba(236, 72, 153, 0.3))'

@@ -83,7 +83,7 @@ export const Header: React.FC = () => {
             >
               <img 
                 src="/BE.png" 
-                alt="Beautiful Encer" 
+                alt="Real Media" 
                 className="h-20 w-auto sm:h-24 md:h-28 lg:h-32 object-contain relative z-10 transition-all duration-300"
                 style={{
                   filter: 'drop-shadow(0 6px 16px rgba(236, 72, 153, 0.3)) drop-shadow(0 3px 8px rgba(168, 85, 247, 0.2))',

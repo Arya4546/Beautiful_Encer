@@ -30,14 +30,14 @@ const testEmail = async () => {
     console.log('📧 Attempting to send test email...');
     
     const result = await tranEmailApi.sendTransacEmail({
-      sender: { email: "singharya9693@gmail.com", name: "Beautiful Encer" },
+      sender: { email: "singharya9693@gmail.com", name: "Real Media" },
       to: [{ email: "singharya9693@gmail.com" }], // Change to your email
-      subject: "🧪 Test Email - Beautiful Encer",
+      subject: "🧪 Test Email - Real Media",
       htmlContent: `
         <html>
           <body style="font-family: Arial, sans-serif; padding: 20px;">
             <h1 style="color: #d946ef;">Test Email</h1>
-            <p>This is a test email from Beautiful Encer OTP system.</p>
+            <p>This is a test email from Real Media OTP system.</p>
             <p><strong>Test OTP:</strong> 123456</p>
             <p>If you received this, your email service is working correctly! ✅</p>
           </body>
