@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  FiArrowLeft, FiArrowRight, FiSave, FiSend, FiCalendar,
-  FiDollarSign, FiMapPin, FiFileText, FiTag, FiClock, FiX, FiPlus, FiAlertCircle
+  FiArrowLeft, FiArrowRight, FiX, FiPlus, FiAlertCircle
 } from 'react-icons/fi';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
@@ -13,7 +12,7 @@ import { useCreateProject, useCategories, useProject, useUpdateProject } from '.
 import { type ProjectType, type CreateProjectData } from '../services/marketplace.service';
 import toast from 'react-hot-toast';
 
-// Step Indicator Component
+// Step Indicator Component - Mobile Optimized
 const StepIndicator: React.FC<{ currentStep: number; totalSteps: number }> = ({
   currentStep,
   totalSteps,
@@ -24,19 +23,18 @@ const StepIndicator: React.FC<{ currentStep: number; totalSteps: number }> = ({
     { number: 1, label: t('marketplace.createProject.step1') },
     { number: 2, label: t('marketplace.createProject.step2') },
     { number: 3, label: t('marketplace.createProject.step3') },
-    { number: 4, label: t('marketplace.createProject.step4') },
   ];
 
   return (
-    <div className="mb-8">
+    <div className="mb-6 md:mb-8">
       <div className="flex items-center justify-between">
         {steps.map((step, index) => (
           <React.Fragment key={step.number}>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center flex-1">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-colors ${
+                className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-sm md:text-base font-bold transition-all ${
                   step.number === currentStep
-                    ? 'bg-magenta text-white'
+                    ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-md scale-110'
                     : step.number < currentStep
                     ? 'bg-green-500 text-white'
                     : 'bg-gray-200 text-gray-500'
@@ -45,8 +43,8 @@ const StepIndicator: React.FC<{ currentStep: number; totalSteps: number }> = ({
                 {step.number < currentStep ? '✓' : step.number}
               </div>
               <p
-                className={`text-xs mt-2 ${
-                  step.number === currentStep ? 'text-magenta font-semibold' : 'text-text-secondary'
+                className={`text-[10px] md:text-xs mt-1.5 md:mt-2 text-center px-1 ${
+                  step.number === currentStep ? 'text-pink-600 font-semibold' : 'text-gray-500'
                 }`}
               >
                 {step.label}
@@ -54,7 +52,7 @@ const StepIndicator: React.FC<{ currentStep: number; totalSteps: number }> = ({
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`flex-1 h-1 mx-2 rounded ${
+                className={`h-0.5 md:h-1 mx-1 md:mx-2 rounded transition-all flex-1 max-w-[60px] md:max-w-[100px] ${
                   step.number < currentStep ? 'bg-green-500' : 'bg-gray-200'
                 }`}
               />
@@ -235,8 +233,10 @@ export const ProjectCreatePage: React.FC = () => {
         newErrors.description = t('marketplace.createProject.validation.descriptionTooShort');
       }
 
-      if (!formData.budget || formData.budget <= 0) {
+      if (!formData.budget) {
         newErrors.budget = t('marketplace.createProject.validation.budgetRequired');
+      } else if (formData.budget <= 0) {
+        newErrors.budget = t('marketplace.createProject.validation.budgetPositive');
       }
 
       if (!formData.startDate) {
@@ -334,11 +334,11 @@ export const ProjectCreatePage: React.FC = () => {
       <Sidebar />
 
       <div className="md:ml-64 pt-16 pb-20 md:pb-6">
-        <div className="max-w-4xl mx-auto p-6">
+        <div className="max-w-4xl mx-auto p-4 md:p-6">
           {/* Loading state for edit mode */}
           {isEditMode && isLoadingProject ? (
             <div className="flex items-center justify-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-magenta" />
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500" />
             </div>
           ) : (
             <>
@@ -351,29 +351,28 @@ export const ProjectCreatePage: React.FC = () => {
                   <FiArrowLeft className="mr-2" />
                   {t('common.back')}
                 </button>
-                <h1 className="text-3xl font-bold text-text-primary mb-2">
-                  {isEditMode ? t('marketplace.createProject.editTitle') : t('marketplace.createProject.title')}
-            </h1>
-            <p className="text-text-secondary">
-              {t('marketplace.createProject.subtitle')}
-            </p>
-          </div>
+                <div className="mb-2">
+                  <h1 className="text-2xl md:text-3xl font-bold text-text-primary">
+                    {isEditMode ? t('marketplace.createProject.editTitle') : t('marketplace.createProject.title')}
+                  </h1>
+                </div>
+                <p className="text-text-secondary">
+                  {t('marketplace.createProject.subtitle')}
+                </p>
+              </div>
 
-          {/* Step Indicator */}
-          <StepIndicator currentStep={currentStep} totalSteps={4} />
+              {/* Step Indicator */}
+              <StepIndicator currentStep={currentStep} totalSteps={3} />
 
-          {/* Form */}
-          <div className="bg-white rounded-xl shadow-soft p-6 md:p-8 border border-border">
+              {/* Form */}
+              <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 lg:p-8 border border-border">
+            <form className="space-y-5 md:space-y-6">
             {/* Step 1: Basic Information */}
             {currentStep === 1 && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-bold text-text-primary mb-4">
-                  {t('marketplace.createProject.step1')}
-                </h2>
-
+              <div className="space-y-4 md:space-y-5">
                 {/* Title */}
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('marketplace.createProject.projectTitle')} <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -381,28 +380,29 @@ export const ProjectCreatePage: React.FC = () => {
                     value={formData.title}
                     onChange={(e) => updateFormData('title', e.target.value)}
                     placeholder={t('marketplace.createProject.projectTitlePlaceholder')}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent ${
-                      errors.title ? 'border-red-500' : 'border-border'
+                    className={`w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all ${
+                      errors.title ? 'border-red-500' : 'border-gray-300'
                     }`}
                     maxLength={100}
                   />
-                  {errors.title && <p className="mt-1 text-sm text-red-500">{errors.title}</p>}
-                  <p className="mt-1 text-xs text-text-tertiary text-right">
+                  {errors.title && <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.title}</p>}
+                  <p className="mt-1.5 text-xs text-gray-500 text-right">
                     {formData.title?.length || 0} / 100
                   </p>
                 </div>
 
                 {/* Project Type */}
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('marketplace.createProject.projectType')} <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={formData.projectType || ''}
                     onChange={(e) => updateFormData('projectType', e.target.value as ProjectType)}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent ${
-                      errors.projectType ? 'border-red-500' : 'border-border'
+                    className={`w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all appearance-none bg-white ${
+                      errors.projectType ? 'border-red-500' : 'border-gray-300'
                     }`}
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
                   >
                     <option value="">{t('marketplace.filters.projectType')}</option>
                     {projectTypes.map((type) => (
@@ -411,21 +411,22 @@ export const ProjectCreatePage: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  {errors.projectType && <p className="mt-1 text-sm text-red-500">{errors.projectType}</p>}
+                  {errors.projectType && <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.projectType}</p>}
                 </div>
 
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('marketplace.createProject.category')} <span className="text-red-500">*</span>
                   </label>
                   {categories && categories.length > 0 ? (
                     <select
                       value={formData.category || ''}
                       onChange={(e) => updateFormData('category', e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent ${
-                        errors.category ? 'border-red-500' : 'border-border'
+                      className={`w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all appearance-none bg-white ${
+                        errors.category ? 'border-red-500' : 'border-gray-300'
                       }`}
+                      style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
                     >
                       <option value="">{t('marketplace.filters.category')}</option>
                       {categories.map((cat) => (
@@ -440,50 +441,46 @@ export const ProjectCreatePage: React.FC = () => {
                       value={formData.category}
                       onChange={(e) => updateFormData('category', e.target.value)}
                       placeholder={t('marketplace.createProject.categoryPlaceholder')}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent ${
-                        errors.category ? 'border-red-500' : 'border-border'
+                      className={`w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all ${
+                        errors.category ? 'border-red-500' : 'border-gray-300'
                       }`}
                     />
                   )}
-                  {errors.category && <p className="mt-1 text-sm text-red-500">{errors.category}</p>}
+                  {errors.category && <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.category}</p>}
                 </div>
               </div>
             )}
 
             {/* Step 2: Details */}
             {currentStep === 2 && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-bold text-text-primary mb-4">
-                  {t('marketplace.createProject.step2')}
-                </h2>
-
+              <div className="space-y-4 md:space-y-5">
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('marketplace.createProject.description')} <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => updateFormData('description', e.target.value)}
                     placeholder={t('marketplace.createProject.descriptionPlaceholder')}
-                    rows={6}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent resize-none ${
-                      errors.description ? 'border-red-500' : 'border-border'
+                    rows={4}
+                    className={`w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none transition-all ${
+                      errors.description ? 'border-red-500' : 'border-gray-300'
                     }`}
                   />
-                  {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
-                  <p className="mt-1 text-xs text-text-tertiary">
+                  {errors.description && <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.description}</p>}
+                  <p className="mt-1.5 text-xs text-gray-500">
                     {t('marketplace.createProject.descriptionMinLength')}
                   </p>
                 </div>
 
                 {/* Budget */}
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('marketplace.createProject.budget')} <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-tertiary">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm md:text-base">
                       ¥
                     </span>
                     <input
@@ -491,74 +488,70 @@ export const ProjectCreatePage: React.FC = () => {
                       value={formData.budget || ''}
                       onChange={(e) => updateFormData('budget', e.target.value ? Number(e.target.value) : undefined)}
                       placeholder={t('marketplace.createProject.budgetPlaceholder')}
-                      className={`w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent ${
-                        errors.budget ? 'border-red-500' : 'border-border'
+                      className={`w-full pl-7 pr-3 py-2.5 md:pl-8 md:pr-4 md:py-3 text-sm md:text-base border rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all ${
+                        errors.budget ? 'border-red-500' : 'border-gray-300'
                       }`}
                       min="0"
                     />
                   </div>
-                  {errors.budget && <p className="mt-1 text-sm text-red-500">{errors.budget}</p>}
+                  {errors.budget && <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.budget}</p>}
                 </div>
 
                 {/* Dates */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3 md:gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       {t('marketplace.createProject.startDate')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
                       value={formData.startDate}
                       onChange={(e) => updateFormData('startDate', e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent ${
-                        errors.startDate ? 'border-red-500' : 'border-border'
+                      className={`w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all ${
+                        errors.startDate ? 'border-red-500' : 'border-gray-300'
                       }`}
                     />
-                    {errors.startDate && <p className="mt-1 text-sm text-red-500">{errors.startDate}</p>}
+                    {errors.startDate && <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.startDate}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-text-primary mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       {t('marketplace.createProject.endDate')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
                       value={formData.endDate}
                       onChange={(e) => updateFormData('endDate', e.target.value)}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent ${
-                        errors.endDate ? 'border-red-500' : 'border-border'
+                      className={`w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all ${
+                        errors.endDate ? 'border-red-500' : 'border-gray-300'
                       }`}
                     />
-                    {errors.endDate && <p className="mt-1 text-sm text-red-500">{errors.endDate}</p>}
+                    {errors.endDate && <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.endDate}</p>}
                   </div>
                 </div>
 
                 {/* Location */}
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('marketplace.createProject.location')}
                   </label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => updateFormData('location', e.target.value)}
-                    placeholder={t('marketplace.createProject.locationPlaceholder')}
-                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent"
-                  />
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => updateFormData('location', e.target.value)}
+                      placeholder={t('marketplace.createProject.locationPlaceholder')}
+                      className="w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+                    />
                 </div>
               </div>
             )}
 
             {/* Step 3: Requirements */}
             {currentStep === 3 && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-bold text-text-primary mb-4">
-                  {t('marketplace.createProject.step3')}
-                </h2>
-
+              <div className="space-y-4 md:space-y-5">
                 {/* Deliverables */}
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('marketplace.createProject.deliverables')} <span className="text-red-500">*</span>
                   </label>
                   <div className="space-y-2">
@@ -569,15 +562,15 @@ export const ProjectCreatePage: React.FC = () => {
                           value={deliverable}
                           onChange={(e) => updateDeliverable(index, e.target.value)}
                           placeholder={t('marketplace.createProject.deliverablePlaceholder')}
-                          className="flex-1 px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent"
+                          className="flex-1 px-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
                         />
                         {(formData.deliverables || []).length > 1 && (
                           <button
                             type="button"
                             onClick={() => removeDeliverable(index)}
-                            className="px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            className="px-3 py-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
                           >
-                            <FiX size={20} />
+                            <FiX size={18} />
                           </button>
                         )}
                       </div>
@@ -585,32 +578,32 @@ export const ProjectCreatePage: React.FC = () => {
                     <button
                       type="button"
                       onClick={addDeliverable}
-                      className="flex items-center text-sm text-magenta hover:text-magenta-dark font-medium"
+                      className="flex items-center text-sm text-pink-600 hover:text-pink-700 font-medium transition-colors"
                     >
-                      <FiPlus className="mr-1" />
+                      <FiPlus className="mr-1" size={16} />
                       {t('marketplace.createProject.addDeliverable')}
                     </button>
                   </div>
-                  {errors.deliverables && <p className="mt-1 text-sm text-red-500">{errors.deliverables}</p>}
+                  {errors.deliverables && <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.deliverables}</p>}
                 </div>
 
                 {/* Requirements */}
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('marketplace.createProject.requirements')}
                   </label>
                   <textarea
                     value={formData.requirements}
                     onChange={(e) => updateFormData('requirements', e.target.value)}
                     placeholder={t('marketplace.createProject.requirementsPlaceholder')}
-                    rows={4}
-                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent resize-none"
+                    rows={3}
+                    className="w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none transition-all"
                   />
                 </div>
 
                 {/* Tags */}
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('marketplace.createProject.tags')}
                   </label>
                   <input
@@ -618,124 +611,55 @@ export const ProjectCreatePage: React.FC = () => {
                     value={formData.tags}
                     onChange={(e) => updateFormData('tags', e.target.value)}
                     placeholder={t('marketplace.createProject.tagsPlaceholder')}
-                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent"
+                    className="w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
                   />
-                  <p className="mt-1 text-xs text-text-tertiary">
+                  <p className="mt-1.5 text-xs text-gray-500">
                     {t('marketplace.createProject.tagsHint')}
                   </p>
                 </div>
 
-                {/* Max Applications */}
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
-                    {t('marketplace.createProject.maxApplications')}
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.maxApplications || ''}
-                    onChange={(e) => updateFormData('maxApplications', e.target.value ? Number(e.target.value) : undefined)}
-                    placeholder={t('marketplace.createProject.maxApplicationsPlaceholder')}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent ${
-                      errors.maxApplications ? 'border-red-500' : 'border-border'
-                    }`}
-                    min="1"
-                  />
-                  {errors.maxApplications && <p className="mt-1 text-sm text-red-500">{errors.maxApplications}</p>}
-                </div>
-
-                {/* Application Deadline */}
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
-                    {t('marketplace.createProject.applicationDeadline')}
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.applicationDeadline}
-                    onChange={(e) => updateFormData('applicationDeadline', e.target.value)}
-                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent"
-                  />
-                  <p className="mt-1 text-xs text-text-tertiary">
-                    {t('marketplace.createProject.deadlineHint')}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Step 4: Review */}
-            {currentStep === 4 && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-bold text-text-primary mb-4">
-                  {t('marketplace.createProject.step4')}
-                </h2>
-
-                <div className="bg-background-secondary rounded-lg p-6 space-y-4">
+                {/* Max Applications & Application Deadline */}
+                <div className="grid grid-cols-2 gap-3 md:gap-4">
                   <div>
-                    <h3 className="text-sm font-semibold text-text-primary mb-1">
-                      {t('marketplace.createProject.projectTitle')}
-                    </h3>
-                    <p className="text-text-secondary">{formData.title}</p>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('marketplace.createProject.maxApplications')}
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.maxApplications || ''}
+                      onChange={(e) => updateFormData('maxApplications', e.target.value ? Number(e.target.value) : undefined)}
+                      placeholder={t('marketplace.createProject.maxApplicationsPlaceholder')}
+                      className={`w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all ${
+                        errors.maxApplications ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      min="1"
+                    />
+                    {errors.maxApplications && <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.maxApplications}</p>}
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-semibold text-text-primary mb-1">
-                      {t('marketplace.createProject.projectType')}
-                    </h3>
-                    <p className="text-text-secondary">
-                      {projectTypes.find((t) => t.value === formData.projectType)?.label}
-                    </p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-semibold text-text-primary mb-1">
-                      {t('marketplace.createProject.category')}
-                    </h3>
-                    <p className="text-text-secondary">{formData.category}</p>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-semibold text-text-primary mb-1">
-                      {t('marketplace.createProject.description')}
-                    </h3>
-                    <p className="text-text-secondary whitespace-pre-wrap">{formData.description}</p>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h3 className="text-sm font-semibold text-text-primary mb-1">
-                        {t('marketplace.createProject.budget')}
-                      </h3>
-                      <p className="text-text-secondary">¥{formData.budget?.toLocaleString()}</p>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-semibold text-text-primary mb-1">
-                        {t('marketplace.createProject.location')}
-                      </h3>
-                      <p className="text-text-secondary">{formData.location || '-'}</p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-semibold text-text-primary mb-1">
-                      {t('marketplace.createProject.deliverables')}
-                    </h3>
-                    <ul className="list-disc list-inside text-text-secondary">
-                      {(formData.deliverables || []).filter((d) => d.trim()).map((d, i) => (
-                        <li key={i}>{d}</li>
-                      ))}
-                    </ul>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      {t('marketplace.createProject.applicationDeadline')}
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.applicationDeadline}
+                      onChange={(e) => updateFormData('applicationDeadline', e.target.value)}
+                      className="w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+                    />
                   </div>
                 </div>
 
                 {/* Visibility */}
                 <div>
-                  <label className="block text-sm font-medium text-text-primary mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('marketplace.createProject.visibility')}
                   </label>
                   <select
                     value={formData.visibility}
                     onChange={(e) => updateFormData('visibility', e.target.value)}
-                    className="w-full px-4 py-3 border border-border rounded-lg focus:ring-2 focus:ring-magenta focus:border-transparent"
+                    className="w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all appearance-none bg-white"
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`, backgroundPosition: 'right 0.5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
                   >
                     <option value="PUBLIC">{t('marketplace.createProject.visibilityPublic')}</option>
                     <option value="PRIVATE">{t('marketplace.createProject.visibilityPrivate')}</option>
@@ -745,55 +669,48 @@ export const ProjectCreatePage: React.FC = () => {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex gap-3 pt-6 border-t border-border mt-6">
+            <div className="flex gap-3 pt-6 mt-6 border-t border-border">
               {currentStep > 1 && (
                 <button
+                  type="button"
                   onClick={handlePrevious}
-                  className="px-6 py-3 border border-border text-text-primary rounded-lg hover:bg-background-secondary transition-colors flex items-center"
+                  className="px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center font-medium active:scale-95"
                 >
-                  <FiArrowLeft className="mr-2" />
+                  <FiArrowLeft className="mr-2" size={18} />
                   {t('marketplace.createProject.previous')}
                 </button>
               )}
 
-              {currentStep < 4 ? (
+              {currentStep < 3 ? (
                 <button
+                  type="button"
                   onClick={handleNext}
-                  className="flex-1 px-6 py-3 bg-magenta text-white rounded-lg hover:bg-magenta-dark transition-colors flex items-center justify-center"
+                  className="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all flex items-center justify-center font-semibold shadow-md hover:shadow-lg active:scale-95"
                 >
                   {t('marketplace.createProject.next')}
-                  <FiArrowRight className="ml-2" />
+                  <FiArrowRight className="ml-2" size={18} />
                 </button>
               ) : (
-                <>
-                  <button
-                    onClick={() => handleSubmit(true)}
-                    disabled={isEditMode ? updateProjectMutation.isPending : createProjectMutation.isPending}
-                    className="flex-1 px-6 py-3 border border-magenta text-magenta rounded-lg hover:bg-magenta hover:text-white transition-colors flex items-center justify-center disabled:opacity-50"
-                  >
-                    <FiSave className="mr-2" />
-                    {t('marketplace.createProject.saveAsDraft')}
-                  </button>
-                  <button
-                    onClick={() => handleSubmit(false)}
-                    disabled={isEditMode ? updateProjectMutation.isPending : createProjectMutation.isPending}
-                    className="flex-1 px-6 py-3 bg-magenta text-white rounded-lg hover:bg-magenta-dark transition-colors flex items-center justify-center disabled:opacity-50"
-                  >
-                    {(isEditMode ? updateProjectMutation.isPending : createProjectMutation.isPending) ? (
-                      <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                        {t('common.loading')}
-                      </>
-                    ) : (
-                      <>
-                        <FiSend className="mr-2" />
-                        {isEditMode ? t('marketplace.createProject.update') : t('marketplace.createProject.publish')}
-                      </>
-                    )}
-                  </button>
-                </>
+                <button
+                  type="button"
+                  onClick={() => handleSubmit(false)}
+                  disabled={isEditMode ? updateProjectMutation.isPending : createProjectMutation.isPending}
+                  className="flex-1 px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl hover:from-pink-600 hover:to-purple-700 transition-all flex items-center justify-center font-semibold shadow-md hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {(isEditMode ? updateProjectMutation.isPending : createProjectMutation.isPending) ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+                      {t('common.loading')}
+                    </>
+                  ) : (
+                    <>
+                      {isEditMode ? t('marketplace.createProject.update') : t('marketplace.createProject.publish')}
+                    </>
+                  )}
+                </button>
               )}
             </div>
+            </form>
           </div>
           </>
           )}

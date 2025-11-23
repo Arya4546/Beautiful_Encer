@@ -560,7 +560,8 @@
       "status": "Status",
       "more": "more",
       "influencer": "Influencer",
-      "salon": "Salon"
+      "salon": "Salon",
+      "activeProjects": "Active Projects"
     }
   },
   "profile": {

@@ -11,6 +11,25 @@ import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
 import { FilterPanel, type Filters } from '../components/FilterPanel';
 import { ProfileModal } from '../components/ProfileModal';
+import { ProjectMiniCard } from '../components/ProjectMiniCard';
+
+interface Project {
+  id: string;
+  title: string;
+  projectType: string;
+  description: string;
+  category?: string;
+  budget: number;
+  startDate: string;
+  endDate: string;
+  location?: string;
+  tags: string[];
+  viewCount: number;
+  applicationCount: number;
+  maxApplications?: number;
+  applicationDeadline?: string;
+  createdAt: string;
+}
 
 interface User {
   id: string;
@@ -31,6 +50,8 @@ interface User {
     profilePic?: string;
     description?: string;
     preferredCategories?: string[];
+    region?: string;
+    projects?: Project[];
   };
 }
 
@@ -195,6 +216,8 @@ export const DiscoveryPage: React.FC = () => {
             profilePic: salon.profilePic,
             description: salon.description,
             preferredCategories: salon.preferredCategories,
+            region: salon.region,
+            projects: salon.projects || [],
           },
         }));
       }
@@ -674,6 +697,27 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
           </div>
         </div>
       </div>
+
+      {/* Active Projects Section - Only for Salons */}
+      {user.role === 'SALON' && user.salon?.projects && user.salon.projects.length > 0 && (
+        <div className="relative mt-6 pt-6 border-t border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-base md:text-lg font-bold text-gray-900 flex items-center gap-2">
+              <div className="w-1.5 h-6 bg-gradient-to-b from-pink-500 to-purple-600 rounded-full"></div>
+              {t('discovery.card.activeProjects', 'Active Projects')}
+              <span className="px-2 py-0.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-semibold rounded-full">
+                {user.salon.projects.length}
+              </span>
+            </h4>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+            {user.salon.projects.map((project) => (
+              <ProjectMiniCard key={project.id} project={project} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

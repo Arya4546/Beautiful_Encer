@@ -30,13 +30,13 @@ export const STRIPE_CONFIG = {
       amount: 2900, // $29.00/month
       currency: 'usd',
       name: 'Salon Monthly Subscription',
-      description: 'Access to Beautiful_Encer platform for salon businesses',
+      description: 'Access to Real Media platform for salon businesses',
     },
     yearly: {
       amount: 29000, // $290.00/year (save ~17%)
       currency: 'usd',
       name: 'Salon Yearly Subscription',
-      description: 'Annual access to Beautiful_Encer platform for salon businesses',
+      description: 'Annual access to Real Media platform for salon businesses',
     },
   },
   

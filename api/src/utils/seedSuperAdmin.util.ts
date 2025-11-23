@@ -9,7 +9,7 @@ import logger from './logger.util.js';
  * This prevents hardcoded credentials exposure
  */
 
-const DEFAULT_ADMIN_EMAIL = 'admin@beautifulencer.com';
+const DEFAULT_ADMIN_EMAIL = 'admin@realmedia.com';
 const DEFAULT_ADMIN_PASSWORD = 'Admin@123456';
 const DEFAULT_ADMIN_NAME = 'Super Admin';
 
