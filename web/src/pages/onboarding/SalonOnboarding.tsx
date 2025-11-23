@@ -119,25 +119,25 @@ export const SalonOnboarding: React.FC = () => {
 
   return (
     <div 
-      className="min-h-screen relative flex items-center justify-center px-4 py-8 overflow-hidden"
+      className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden"
       style={{ 
-        background: '#e8d5f0'
+        background: 'linear-gradient(135deg, #f5e6ff 0%, #e8d5f0 50%, #fde2f3 100%)'
       }}
     >
-      {/* Decorative Background Elements */}
+      {/* Decorative Background Elements - Optimized for mobile */}
       <div 
-        className="absolute bottom-0 left-0 w-[700px] h-[700px] rounded-full opacity-70 blur-[100px]"
+        className="absolute bottom-0 left-0 w-[400px] h-[400px] md:w-[700px] md:h-[700px] rounded-full opacity-60 blur-[80px] md:blur-[100px]"
         style={{
           background: 'radial-gradient(circle, #ff9ed6 0%, #ffb3e0 40%, #ffc4e8 60%, transparent 80%)',
-          transform: 'translate(-35%, 35%)'
+          transform: 'translate(-30%, 30%)'
         }}
       />
       
       <div 
-        className="absolute top-0 right-0 w-[700px] h-[700px] rounded-full opacity-65 blur-[100px]"
+        className="absolute top-0 right-0 w-[400px] h-[400px] md:w-[700px] md:h-[700px] rounded-full opacity-55 blur-[80px] md:blur-[100px]"
         style={{
           background: 'radial-gradient(circle, #b99ef5 0%, #c5aff8 40%, #d4c0fc 60%, transparent 80%)',
-          transform: 'translate(35%, -35%)'
+          transform: 'translate(30%, -30%)'
         }}
       />
 
@@ -145,40 +145,42 @@ export const SalonOnboarding: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-2xl relative z-10"
+        className="w-full max-w-md md:max-w-xl relative z-10"
       >
-        {/* Scrollable Card Container */}
-        <div className="bg-white rounded-[32px] shadow-2xl max-h-[90vh] flex flex-col">
-          {/* Fixed Header */}
-          <div className="px-8 pt-10 pb-5 sm:px-12 sm:pt-12 sm:pb-6">
-            <div className="flex flex-col items-center mb-6">
-              <img 
-                src="/BE.png" 
-                alt="Real Media Logo" 
-                className="w-28 h-28 sm:w-32 sm:h-32 object-contain drop-shadow-2xl mb-4"
-                style={{
-                  filter: 'drop-shadow(0 10px 30px rgba(236, 72, 153, 0.3))'
-                }}
-              />
-              <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 text-center">
+        {/* Main Card Container */}
+        <div className="bg-white rounded-3xl md:rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[95vh] md:max-h-[90vh]">
+          {/* Fixed Header - Compact on mobile */}
+          <div className="px-6 pt-8 pb-4 md:px-10 md:pt-10 md:pb-6 bg-gradient-to-b from-white to-pink-50/30">
+            <div className="flex flex-col items-center">
+              {/* Logo with BE branding */}
+              <div className="mb-4 md:mb-5">
+                <img 
+                  src="/BE.png" 
+                  alt="Real Media" 
+                  className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-lg"
+                />
+              </div>
+              
+              {/* Title */}
+              <h1 className="text-lg md:text-xl font-bold text-gray-900 text-center mb-1.5">
                 {t('onboarding.salon.title')}
               </h1>
-              <p className="text-sm text-gray-600 mt-1 text-center">
+              <p className="text-xs md:text-sm text-gray-600 text-center max-w-sm">
                 {t('onboarding.salon.subtitle')}
               </p>
             </div>
           </div>
 
           {/* Scrollable Form Content */}
-          <div className="px-8 pb-10 sm:px-12 sm:pb-12 overflow-y-auto flex-1 scrollbar-hide">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              {/* Profile Picture Upload - Figma Style (Optional) */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+          <div className="px-6 pb-6 md:px-10 md:pb-10 overflow-y-auto flex-1">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-5">
+              {/* Profile Picture Upload - Compact Mobile Design */}
+              <div className="pt-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2.5">
                   {t('onboarding.salon.profilePictureOptional')}
                 </label>
-                <div className="flex items-center gap-4">
-                  <div className="relative">
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className="flex-shrink-0">
                     <input
                       type="file"
                       accept="image/*"
@@ -188,21 +190,21 @@ export const SalonOnboarding: React.FC = () => {
                     />
                     <label
                       htmlFor="salon-profile-pic-upload"
-                      className="flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-2xl border-2 border-dashed border-pink-300 hover:border-pink-500 cursor-pointer transition-all bg-pink-50/50"
+                      className="flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-xl md:rounded-2xl border-2 border-dashed border-pink-300 hover:border-pink-500 cursor-pointer transition-all bg-pink-50/50 active:scale-95"
                     >
                       {profilePreview ? (
                         <img 
                           src={profilePreview} 
                           alt="Preview" 
-                          className="w-full h-full object-cover rounded-2xl"
+                          className="w-full h-full object-cover rounded-xl md:rounded-2xl"
                         />
                       ) : (
-                        <FiImage className="w-8 h-8 text-pink-400" />
+                        <FiImage className="w-6 h-6 md:w-8 md:h-8 text-pink-400" />
                       )}
                     </label>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600">
+                  <div className="flex-1 pt-1">
+                    <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
                       {t('onboarding.salon.profilePicHelper') || 'Upload your salon logo or image (optional)'}
                     </p>
                   </div>
@@ -218,10 +220,10 @@ export const SalonOnboarding: React.FC = () => {
                   type="text"
                   placeholder={t('onboarding.salon.businessNamePlaceholder')}
                   {...register('businessName', { required: 'Business name is required' })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
                 />
                 {errors.businessName && (
-                  <p className="mt-1 text-sm text-red-600">{errors.businessName.message}</p>
+                  <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.businessName.message}</p>
                 )}
               </div>
 
@@ -232,27 +234,27 @@ export const SalonOnboarding: React.FC = () => {
                 </label>
                 <textarea
                   {...register('description', { required: t('onboarding.salon.errors.descriptionRequired') })}
-                  rows={4}
+                  rows={3}
                   placeholder={t('onboarding.salon.descriptionPlaceholder')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all resize-none"
+                  className="w-full px-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all resize-none"
                 />
                 {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
+                  <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.description.message}</p>
                 )}
               </div>
 
-              {/* Preferred Categories - Multi-select Pills */}
+              {/* Preferred Categories - Responsive Grid */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-gray-700 mb-2.5">
                   {t('onboarding.salon.preferredCategories')}
                 </label>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {CATEGORIES.map((category) => (
                     <button
                       key={category}
                       type="button"
                       onClick={() => toggleCategory(category)}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                      className={`px-3 py-2 md:px-4 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all active:scale-95 ${
                         selectedCategories.includes(category)
                           ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-md'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -263,18 +265,18 @@ export const SalonOnboarding: React.FC = () => {
                   ))}
                 </div>
                 {errors.preferredCategories && (
-                  <p className="mt-1 text-sm text-red-600">{errors.preferredCategories.message}</p>
+                  <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.preferredCategories.message}</p>
                 )}
               </div>
 
-              {/* Region/Area - Japanese Prefectures Dropdown */}
+              {/* Region/Area */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   {t('onboarding.salon.region') || 'Region/Area'}
                 </label>
                 <select
                   {...register('region', { required: t('onboarding.salon.errors.regionRequired') || 'Region is required' })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
                 >
                   <option value="">{t('onboarding.salon.regionPlaceholder') || 'Select your prefecture'}</option>
                   {PREFECTURES.map((pref) => (
@@ -284,7 +286,7 @@ export const SalonOnboarding: React.FC = () => {
                   ))}
                 </select>
                 {errors.region && (
-                  <p className="mt-1 text-sm text-red-600">{errors.region.message}</p>
+                  <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.region.message}</p>
                 )}
               </div>
 
@@ -297,15 +299,15 @@ export const SalonOnboarding: React.FC = () => {
                   type="url"
                   placeholder={t('onboarding.salon.websitePlaceholder')}
                   {...register('website')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2.5 md:py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
                 />
                 {errors.website && (
-                  <p className="mt-1 text-sm text-red-600">{errors.website.message}</p>
+                  <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.website.message}</p>
                 )}
               </div>
 
-              {/* Established Year & Team Size - Side by Side */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Established Year & Team Size */}
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     {t('onboarding.salon.establishedYearOptional')}
@@ -318,10 +320,10 @@ export const SalonOnboarding: React.FC = () => {
                       min: { value: 1900, message: t('onboarding.salon.errors.yearInvalid') },
                       max: { value: new Date().getFullYear(), message: t('onboarding.salon.errors.yearFuture') },
                     })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+                    className="w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
                   />
                   {errors.establishedYear && (
-                    <p className="mt-1 text-sm text-red-600">{errors.establishedYear.message}</p>
+                    <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.establishedYear.message}</p>
                   )}
                 </div>
 
@@ -336,10 +338,10 @@ export const SalonOnboarding: React.FC = () => {
                       valueAsNumber: true,
                       min: { value: 1, message: t('onboarding.salon.errors.teamSizeMin') },
                     })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+                    className="w-full px-3 py-2.5 md:px-4 md:py-3 text-sm md:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
                   />
                   {errors.teamSize && (
-                    <p className="mt-1 text-sm text-red-600">{errors.teamSize.message}</p>
+                    <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.teamSize.message}</p>
                   )}
                 </div>
               </div>
@@ -353,18 +355,18 @@ export const SalonOnboarding: React.FC = () => {
                   {...register('operatingHours')}
                   rows={3}
                   placeholder={t('onboarding.salon.operatingHoursPlaceholder')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all resize-none font-mono text-sm"
+                  className="w-full px-4 py-2.5 md:py-3 text-xs md:text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all resize-none font-mono"
                 />
                 {errors.operatingHours && (
-                  <p className="mt-1 text-sm text-red-600">{errors.operatingHours.message}</p>
+                  <p className="mt-1.5 text-xs md:text-sm text-red-600">{errors.operatingHours.message}</p>
                 )}
               </div>
 
-              {/* Submit Button */}
+              {/* Submit Button - Mobile Optimized */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-4 rounded-xl text-white text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl mt-6 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700"
+                className="w-full py-3.5 md:py-4 rounded-xl text-white text-sm md:text-base font-semibold shadow-lg transition-all duration-300 hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 mt-2"
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">

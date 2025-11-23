@@ -1,6 +1,6 @@
 {
   "brand": {
-    "name": "ビューティフルエンサー",
+    "name": "Real Media",
     "tagline": "ナノ・マイクロインフルエンサーと美容サロンをつなぐプラットフォーム"
   },
   "common": {
@@ -263,7 +263,7 @@
       "signupLink": "こちらから新規登録"
     },
     "signup": {
-      "title": "ビューティフルエンサーへようこそ",
+      "title": "Real Mediaへようこそ",
       "subtitle": "アカウントタイプを選んで始めましょう",
       "selectRoleTitle": "SIGN UP",
       "roleInfluencer": "インフルエンサーです",
@@ -559,7 +559,8 @@
       "status": "ステータス",
       "more": "その他",
       "influencer": "インフルエンサー",
-      "salon": "サロン"
+      "salon": "サロン",
+      "activeProjects": "アクティブなプロジェクト"
     }
   },
   "profile": {
@@ -792,7 +793,7 @@
     "helpPrefix": "問題が解決しない場合は"
   },
   "footer": {
-    "copyright": "© 2025 ビューティフルエンサー All rights reserved."
+    "copyright": "© 2025 Real Media All rights reserved."
   },
   "instagram": {
     "title": {
@@ -1536,16 +1537,16 @@
       "noResults": "フィルター条件に一致する案件がありません。検索条件を調整してください。"
     },
     "projectTypes": {
-      "SPONSORED_POST": "スポンサー投稿",
-      "PRODUCT_REVIEW": "商品レビュー",
-      "BRAND_AMBASSADOR": "ブランドアンバサダー",
-      "EVENT_COVERAGE": "イベント取材",
-      "TUTORIAL_VIDEO": "チュートリアル動画",
-      "UNBOXING": "開封動画",
-      "GIVEAWAY": "プレゼント企画",
-      "COLLABORATION": "コラボレーション",
-      "STORE_VISIT": "店舗訪問",
-      "OTHER": "その他"
+      "sponsoredpost": "スポンサー投稿",
+      "productreview": "商品レビュー",
+      "brandambassador": "ブランドアンバサダー",
+      "eventcoverage": "イベント取材",
+      "tutorialvideo": "チュートリアル動画",
+      "unboxing": "開封動画",
+      "giveaway": "プレゼント企画",
+      "collaboration": "コラボレーション",
+      "storevisit": "店舗訪問",
+      "other": "その他"
     },
     "status": {
       "draft": "下書き",

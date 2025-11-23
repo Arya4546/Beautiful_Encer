@@ -196,6 +196,7 @@ class DiscoveryController {
             instagramHandle: true,
             tiktokHandle: true,
             facebookPage: true,
+            region: true,
             createdAt: true,
             user: {
               select: {
@@ -203,6 +204,36 @@ class DiscoveryController {
                 name: true,
                 email: true,
               },
+            },
+            projects: {
+              where: {
+                visibility: 'PUBLIC',
+                isOpen: true,
+                status: {
+                  notIn: ['COMPLETED', 'CANCELLED'],
+                },
+              },
+              select: {
+                id: true,
+                title: true,
+                projectType: true,
+                description: true,
+                category: true,
+                budget: true,
+                startDate: true,
+                endDate: true,
+                location: true,
+                tags: true,
+                viewCount: true,
+                applicationCount: true,
+                maxApplications: true,
+                applicationDeadline: true,
+                createdAt: true,
+              },
+              orderBy: {
+                createdAt: 'desc',
+              },
+              take: 3, // Show up to 3 active projects per salon
             },
           },
           orderBy: {
