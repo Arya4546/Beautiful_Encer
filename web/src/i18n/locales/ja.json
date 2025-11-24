@@ -724,8 +724,17 @@
       "connectionSent": "つながりリクエストを送信しました",
       "connectionAccepted": "つながりを承認しました",
       "connectionRejected": "つながりを拒否しました",
+      "connectionWithdrawn": "リクエストを取り消しました",
       "logoutSuccess": "ログアウトしました",
-      "dataSynced": "データを同期しました"
+      "dataSynced": "データを同期しました",
+      "passwordChanged": "パスワードを変更しました！",
+      "accountDeleted": "アカウントを削除しました",
+      "profilePictureUpdated": "プロフィール画像を更新しました！",
+      "notificationRead": "通知を既読にしました",
+      "allNotificationsRead": "すべての通知を既読にしました",
+      "notificationDeleted": "通知を削除しました",
+      "requestAccepted": "リクエストを承認しました！",
+      "paymentCompleted": "お支払いが完了しました！ログインしてください。"
     },
     "error": {
       "loginFailed": "ログインに失敗しました。もう一度お試しください。",
@@ -745,7 +754,20 @@
       "forgotPasswordFailed": "リセットメールの送信に失敗しました。もう一度お試しください。",
       "otpVerificationFailed": "確認コードが無効または期限切れです。もう一度お試しください。",
       "resetPasswordFailed": "パスワードのリセットに失敗しました。もう一度お試しください。",
-      "invalidResetSession": "パスワードリセットのセッションが無効です。最初からやり直してください。"
+      "invalidResetSession": "パスワードリセットのセッションが無効です。最初からやり直してください。",
+      "actionFailed": "操作に失敗しました",
+      "passwordMismatch": "新しいパスワードが一致しません",
+      "passwordChangeFailed": "パスワードの変更に失敗しました",
+      "accountDeleteFailed": "アカウントの削除に失敗しました",
+      "profilePictureUpdateFailed": "プロフィール画像の更新に失敗しました",
+      "notificationReadFailed": "通知の既読に失敗しました",
+      "allNotificationsReadFailed": "すべての通知の既読に失敗しました",
+      "notificationDeleteFailed": "通知の削除に失敗しました",
+      "profileLoadFailed": "プロフィールの読み込みに失敗しました",
+      "paymentSessionExpired": "支払いセッションが期限切れです。もう一度サインアップしてください。",
+      "invalidPaymentSession": "無効な支払いセッション",
+      "paymentVerificationFailed": "支払いの確認に失敗しました",
+      "sessionVerificationFailed": "セッションの確認は成功しましたが、メールが見つかりません。ログインしてください。"
     }
   },
   "categories": {
