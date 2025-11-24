@@ -61,7 +61,7 @@ export const ProjectMiniCard: React.FC<ProjectMiniCardProps> = ({ project }) => 
   };
 
   const handleClick = () => {
-    navigate(`/influencer/marketplace/${project.id}`);
+    navigate(`/marketplace/projects/${project.id}`);
   };
 
   return (

@@ -205,7 +205,7 @@ class DiscoveryController {
                 email: true,
               },
             },
-            projects: {
+            projectsSent: {
               where: {
                 visibility: 'PUBLIC',
                 isOpen: true,

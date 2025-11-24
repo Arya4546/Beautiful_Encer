@@ -725,8 +725,17 @@
       "connectionSent": "Connection request sent",
       "connectionAccepted": "Connection accepted",
       "connectionRejected": "Connection rejected",
+      "connectionWithdrawn": "Request withdrawn",
       "logoutSuccess": "Logged out successfully",
-      "dataSynced": "Data synced successfully"
+      "dataSynced": "Data synced successfully",
+      "passwordChanged": "Password changed successfully!",
+      "accountDeleted": "Account deleted successfully",
+      "profilePictureUpdated": "Profile picture updated successfully!",
+      "notificationRead": "Notification marked as read",
+      "allNotificationsRead": "All notifications marked as read",
+      "notificationDeleted": "Notification deleted",
+      "requestAccepted": "Request accepted successfully!",
+      "paymentCompleted": "Payment completed successfully! Please login to continue."
     },
     "error": {
       "loginFailed": "Login failed. Please try again.",
@@ -746,7 +755,20 @@
       "forgotPasswordFailed": "Failed to send reset email. Please try again.",
       "otpVerificationFailed": "Invalid or expired OTP. Please try again.",
       "resetPasswordFailed": "Failed to reset password. Please try again.",
-      "invalidResetSession": "Invalid password reset session. Please start over."
+      "invalidResetSession": "Invalid password reset session. Please start over.",
+      "actionFailed": "Action failed",
+      "passwordMismatch": "New passwords do not match",
+      "passwordChangeFailed": "Failed to change password",
+      "accountDeleteFailed": "Failed to delete account",
+      "profilePictureUpdateFailed": "Failed to update profile picture",
+      "notificationReadFailed": "Failed to mark notification as read",
+      "allNotificationsReadFailed": "Failed to mark all notifications as read",
+      "notificationDeleteFailed": "Failed to delete notification",
+      "profileLoadFailed": "Failed to load profile data",
+      "paymentSessionExpired": "Payment session expired. Please sign up again.",
+      "invalidPaymentSession": "Invalid payment session",
+      "paymentVerificationFailed": "Payment verification failed",
+      "sessionVerificationFailed": "Session verification succeeded but email not found. Please login."
     }
   },
   "categories": {

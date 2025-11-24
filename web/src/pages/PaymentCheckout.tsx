@@ -17,10 +17,10 @@ export const PaymentCheckout: React.FC = () => {
 
   useEffect(() => {
     if (!salonId || !email) {
-      showToast.error('Payment session expired. Please sign up again.');
+      showToast.error(t('toast.error.paymentSessionExpired'));
       navigate('/signup/salon');
     }
-  }, [salonId, email, navigate]);
+  }, [salonId, email, navigate, t]);
 
   const plans = {
     monthly: {

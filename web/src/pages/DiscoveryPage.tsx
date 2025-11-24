@@ -51,7 +51,7 @@ interface User {
     description?: string;
     preferredCategories?: string[];
     region?: string;
-    projects?: Project[];
+    projectsSent?: Project[];
   };
 }
 
@@ -217,7 +217,7 @@ export const DiscoveryPage: React.FC = () => {
             description: salon.description,
             preferredCategories: salon.preferredCategories,
             region: salon.region,
-            projects: salon.projects || [],
+            projectsSent: salon.projectsSent || [],
           },
         }));
       }
@@ -447,18 +447,18 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
       if (connectionStatus.status === 'none') {
         await connectionService.sendRequest({ receiverId: user.id });
         onStatusChange({ status: 'sent' });
-        showToast.success('Connection request sent!');
+        showToast.success(t('toast.success.connectionSent'));
       } else if (connectionStatus.status === 'sent' && connectionStatus.requestId) {
         await connectionService.withdrawRequest(connectionStatus.requestId);
         onStatusChange({ status: 'none' });
-        showToast.success('Request withdrawn');
+        showToast.success(t('toast.success.connectionWithdrawn'));
       } else if (connectionStatus.status === 'received' && connectionStatus.requestId) {
         await connectionService.acceptRequest(connectionStatus.requestId);
         onStatusChange({ status: 'connected', requestId: connectionStatus.requestId });
-        showToast.success('Request accepted!');
+        showToast.success(t('toast.success.connectionAccepted'));
       }
     } catch (error: any) {
-      showToast.error(error.response?.data?.error || 'Action failed');
+      showToast.error(error.response?.data?.error || t('toast.error.actionFailed'));
     } finally {
       setLoading(false);
     }
@@ -699,20 +699,20 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, onViewProfile, connec
       </div>
 
       {/* Active Projects Section - Only for Salons */}
-      {user.role === 'SALON' && user.salon?.projects && user.salon.projects.length > 0 && (
+      {user.role === 'SALON' && user.salon?.projectsSent && user.salon.projectsSent.length > 0 && (
         <div className="relative mt-6 pt-6 border-t border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-base md:text-lg font-bold text-gray-900 flex items-center gap-2">
               <div className="w-1.5 h-6 bg-gradient-to-b from-pink-500 to-purple-600 rounded-full"></div>
               {t('discovery.card.activeProjects', 'Active Projects')}
               <span className="px-2 py-0.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-semibold rounded-full">
-                {user.salon.projects.length}
+                {user.salon.projectsSent.length}
               </span>
             </h4>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-            {user.salon.projects.map((project) => (
+            {user.salon.projectsSent.map((project) => (
               <ProjectMiniCard key={project.id} project={project} />
             ))}
           </div>

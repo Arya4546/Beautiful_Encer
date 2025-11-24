@@ -22,7 +22,7 @@ export const PaymentSuccess: React.FC = () => {
 
   const verifyPayment = async () => {
     if (!sessionId) {
-      showToast.error('Invalid payment session');
+      showToast.error(t('toast.error.invalidPaymentSession'));
       navigate('/login');
       return;
     }
@@ -35,7 +35,7 @@ export const PaymentSuccess: React.FC = () => {
         
         // Show toast only once
         if (!hasShownToast) {
-          showToast.success('Payment completed successfully! Please login to continue.');
+          showToast.success(t('toast.success.paymentCompleted'));
           setHasShownToast(true);
         }
         
@@ -44,7 +44,7 @@ export const PaymentSuccess: React.FC = () => {
         
         if (!email) {
           console.error('No email in session result');
-          showToast.error('Session verification succeeded but email not found. Please login.');
+          showToast.error(t('toast.error.sessionVerificationFailed'));
           setTimeout(() => navigate('/login'), 2000);
           return;
         }
@@ -54,18 +54,18 @@ export const PaymentSuccess: React.FC = () => {
           navigate('/login', { 
             state: { 
               email,
-              message: 'Payment completed successfully! Please login to continue.',
+              message: t('toast.success.paymentCompleted'),
               fromPayment: true
             } 
           });
         }, 2000);
       } else {
-        showToast.error('Payment verification failed');
+        showToast.error(t('toast.error.paymentVerificationFailed'));
         navigate('/payment/cancel');
       }
     } catch (error) {
       console.error('Payment verification error:', error);
-      showToast.error('Failed to verify payment');
+      showToast.error(t('toast.error.paymentVerificationFailed'));
       navigate('/payment/cancel');
     } finally {
       setVerifying(false);
