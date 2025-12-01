@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../utils/toast';
+import { getTranslatedApiError } from '../../utils/errorTranslation';
 import { FiMail, FiArrowLeft } from 'react-icons/fi';
 import { authService } from '../../services/auth.service';
 
@@ -35,8 +36,7 @@ export const ForgotPasswordPage: React.FC = () => {
       showToast.success(t('auth.forgotPassword.otpSent'));
       navigate('/verify-forgot-otp', { state: { email: data.email } });
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.error || t('toast.error.forgotPasswordFailed');
-      showToast.error(errorMessage);
+      showToast.error(getTranslatedApiError(error, 'toast.error.forgotPasswordFailed'));
     } finally {
       setIsLoading(false);
     }

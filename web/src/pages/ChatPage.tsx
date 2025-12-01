@@ -8,6 +8,7 @@ import { BottomNav } from '../components/layout/BottomNav';
 import { MessageActionsDropdown } from '../components/MessageActionsDropdown';
 import { Send, X, ArrowLeft } from 'lucide-react';
 import { showToast } from '../utils/toast';
+import { getTranslatedApiError } from '../utils/errorTranslation';
 
 export const ChatPage: React.FC = () => {
   const { t } = useTranslation();
@@ -205,14 +206,14 @@ export const ChatPage: React.FC = () => {
       if (editingMessage) {
         await chatService.editMessage(editingMessage.id, messageInput);
         setEditingMessage(null);
-        showToast.success('Message updated');
+        showToast.success(t('toast.success.messageUpdated'));
       } else {
         await chatService.sendMessage(selectedConversation.id, messageInput);
       }
       setMessageInput('');
     } catch (error: any) {
       console.error('Failed to send message:', error);
-      showToast.error(error?.response?.data?.error || 'Failed to send message');
+      showToast.error(getTranslatedApiError(error, 'toast.error.messageFailed'));
       // Restore message input on error
       setMessageInput(tempMessage);
     } finally {
@@ -229,14 +230,14 @@ export const ChatPage: React.FC = () => {
 
   // Handle delete message
   const handleDeleteMessage = async (messageId: string) => {
-    if (!window.confirm('Delete this message? This action cannot be undone.')) return;
+    if (!window.confirm(t('chat.confirmDelete'))) return;
 
     try {
       await chatService.deleteMessage(messageId);
-      showToast.success('Message deleted');
+      showToast.success(t('toast.success.messageDeleted'));
     } catch (error: any) {
       console.error('Failed to delete message:', error);
-      showToast.error(error?.response?.data?.error || 'Failed to delete message');
+      showToast.error(getTranslatedApiError(error, 'toast.error.actionFailed'));
     }
   };
 

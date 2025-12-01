@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
+import { getTranslatedApiError } from '../utils/errorTranslation';
 import {
   FiArrowLeft,
   FiMapPin,
@@ -107,6 +109,7 @@ const formatNumber = (num: number): string => {
 export const UserProfilePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const currentUser = useAuthStore((state) => state.user);
 
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -138,8 +141,8 @@ export const UserProfilePage: React.FC = () => {
       const response = await profileService.getUserProfile(userId!);
       setUser(response);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load profile');
-      showToast.error('Failed to load profile');
+      setError(err.response?.data?.error || t('toast.error.profileLoadFailed'));
+      showToast.error(t('toast.error.profileLoadFailed'));
     } finally {
       setLoading(false);
     }
@@ -149,16 +152,16 @@ export const UserProfilePage: React.FC = () => {
     try {
       if (connectionStatus.status === 'none') {
         await sendRequest();
-        showToast.success('Connection request sent');
+        showToast.success(t('toast.success.connectionSent'));
       } else if (connectionStatus.status === 'sent') {
         await withdrawRequest();
-        showToast.success('Connection request withdrawn');
+        showToast.success(t('toast.success.connectionWithdrawn'));
       } else if (connectionStatus.status === 'received') {
         await acceptRequest();
-        showToast.success('Connection request accepted');
+        showToast.success(t('toast.success.connectionAccepted'));
       }
     } catch (error) {
-      showToast.error('Failed to update connection');
+      showToast.error(t('toast.error.connectionFailed'));
     }
   };
 

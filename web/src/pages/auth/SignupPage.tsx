@@ -74,7 +74,7 @@ export const SignupPage: React.FC = () => {
     }
 
     if (data.password !== data.confirmPassword) {
-      showToast.error('Passwords do not match');
+      showToast.error(t('toast.error.passwordMismatch'));
       return;
     }
 

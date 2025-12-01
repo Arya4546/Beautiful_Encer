@@ -8,6 +8,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../utils/toast';
+import { getTranslatedApiError } from '../../utils/errorTranslation';
 import { FiArrowLeft } from 'react-icons/fi';
 import { authService } from '../../services/auth.service';
 
@@ -87,8 +88,7 @@ export const VerifyForgotOTPPage: React.FC = () => {
       showToast.success(t('auth.verifyForgotOtp.otpVerified'));
       navigate('/reset-password', { state: { email, otp: otpString } });
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.error || t('toast.error.otpVerificationFailed');
-      showToast.error(errorMessage);
+      showToast.error(getTranslatedApiError(error, 'toast.error.otpVerificationFailed'));
       
       // Clear OTP on error
       setOtp(['', '', '', '', '', '']);
@@ -109,8 +109,7 @@ export const VerifyForgotOTPPage: React.FC = () => {
       setOtp(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.error || t('toast.error.resendFailed');
-      showToast.error(errorMessage);
+      showToast.error(getTranslatedApiError(error, 'toast.error.resendFailed'));
     } finally {
       setIsResending(false);
     }

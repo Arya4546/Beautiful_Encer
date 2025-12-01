@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
+import { getTranslatedApiError } from '../utils/errorTranslation';
 import { 
   User, 
   Lock, 
@@ -60,7 +61,7 @@ export const ProfilePage: React.FC = () => {
     setIsLoggingOut(true);
     await new Promise(resolve => setTimeout(resolve, 300)); // Brief delay for UI feedback
     logout();
-    showToast.success('Logged out successfully');
+    showToast.success(t('toast.success.logoutSuccess'));
     navigate('/login');
     setIsLoggingOut(false);
   };
@@ -150,7 +151,7 @@ export const ProfilePage: React.FC = () => {
       sessionStorage.setItem('profile_data_fetched', 'true');
       setProfileDataLoaded(true);
     } catch (error: any) {
-      showToast.error('Failed to load profile data');
+      showToast.error(t('toast.error.profileLoadFailed'));
       console.error(error);
     } finally {
       setLoading(false);
@@ -180,11 +181,11 @@ export const ProfilePage: React.FC = () => {
       }
 
       await profileService.updateProfile(updateData);
-      showToast.success('Profile updated successfully!');
+      showToast.success(t('toast.success.profileUpdated'));
       setShowModal(null);
       await loadProfileData();
     } catch (error: any) {
-      showToast.error(error.response?.data?.error || 'Failed to update profile');
+      showToast.error(getTranslatedApiError(error, 'toast.error.profileUpdateFailed'));
       console.error(error);
     } finally {
       setLoading(false);
@@ -195,12 +196,12 @@ export const ProfilePage: React.FC = () => {
     e.preventDefault();
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      showToast.error('New passwords do not match');
+      showToast.error(t('toast.error.passwordMismatch'));
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
-      showToast.error('Password must be at least 6 characters long');
+      showToast.error(t('auth.validation.passwordTooShort'));
       return;
     }
 
@@ -212,11 +213,11 @@ export const ProfilePage: React.FC = () => {
       };
 
       await profileService.changePassword(data);
-      showToast.success('Password changed successfully!');
+      showToast.success(t('toast.success.passwordChanged'));
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setShowModal(null);
     } catch (error: any) {
-      showToast.error(error.response?.data?.error || 'Failed to change password');
+      showToast.error(getTranslatedApiError(error, 'toast.error.passwordChangeFailed'));
       console.error(error);
     } finally {
       setLoading(false);
@@ -225,17 +226,17 @@ export const ProfilePage: React.FC = () => {
 
   const handleDeleteAccount = async () => {
     if (!deletePassword) {
-      showToast.error('Please enter your password');
+      showToast.error(t('profile.settings.enterPassword'));
       return;
     }
 
     try {
       setLoading(true);
       await profileService.deleteAccount(deletePassword);
-      showToast.success('Account deleted successfully');
+      showToast.success(t('toast.success.accountDeleted'));
       logout();
     } catch (error: any) {
-      showToast.error(error.response?.data?.error || 'Failed to delete account');
+      showToast.error(getTranslatedApiError(error, 'toast.error.accountDeleteFailed'));
       console.error(error);
     } finally {
       setLoading(false);
@@ -247,7 +248,7 @@ export const ProfilePage: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        showToast.error('Image size should be less than 5MB');
+        showToast.error(t('profile.settings.imageSizeLimit'));
         return;
       }
 
@@ -261,7 +262,7 @@ export const ProfilePage: React.FC = () => {
 
   const handleProfilePictureUpdate = async () => {
     if (!fileInputRef.current?.files?.[0]) {
-      showToast.error('Please select an image');
+      showToast.error(t('profile.settings.selectImage'));
       return;
     }
 
@@ -273,7 +274,7 @@ export const ProfilePage: React.FC = () => {
 
       const response = await profileService.uploadProfilePicture(formData);
       
-      showToast.success('Profile picture updated successfully!');
+      showToast.success(t('toast.success.profilePictureUpdated'));
       setImagePreview(null);
       setShowModal(null);
       
@@ -289,7 +290,7 @@ export const ProfilePage: React.FC = () => {
       
       await loadProfileData();
     } catch (error: any) {
-      showToast.error(error.response?.data?.error || 'Failed to upload image');
+      showToast.error(getTranslatedApiError(error, 'toast.error.profilePictureUpdateFailed'));
       console.error(error);
     } finally {
       setUploadingImage(false);

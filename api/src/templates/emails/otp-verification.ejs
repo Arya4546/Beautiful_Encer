@@ -1,0 +1,48 @@
+<h2 style="margin: 0 0 20px 0; color: #1a1a2e; font-size: 20px; font-weight: 600; border-bottom: 2px solid #c41e3a; padding-bottom: 10px;">
+  メール認証コードのご案内
+</h2>
+
+<p style="margin: 0 0 15px 0; color: #495057; font-size: 15px; line-height: 1.8;">
+  <%= userName %> 様
+</p>
+
+<p style="margin: 0 0 25px 0; color: #495057; font-size: 15px; line-height: 1.8;">
+  REAL MEDIAへのご登録ありがとうございます。<br />
+  メールアドレスの認証を完了するため、以下の認証コードをご入力ください。
+</p>
+
+<!-- OTP Code Box -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
+  <tr>
+    <td align="center">
+      <table border="0" cellpadding="0" cellspacing="0" style="background-color: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px;">
+        <tr>
+          <td style="padding: 25px 50px;">
+            <p style="margin: 0 0 8px 0; color: #6c757d; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">
+              認証コード
+            </p>
+            <p style="margin: 0; color: #c41e3a; font-size: 36px; font-weight: 700; letter-spacing: 8px; font-family: 'Courier New', monospace;">
+              <%= otp %>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Warning Box -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 25px 0;">
+  <tr>
+    <td style="background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px; padding: 15px 20px;">
+      <p style="margin: 0; color: #856404; font-size: 13px; line-height: 1.6;">
+        <strong>ご注意:</strong> この認証コードは <strong>10分間</strong> 有効です。<br />
+        セキュリティのため、このコードは他の方と共有しないでください。
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 25px 0 0 0; color: #6c757d; font-size: 13px; line-height: 1.6;">
+  本メールにお心当たりのない場合は、このメールを無視していただくか、下記お問い合わせ窓口までご連絡ください。
+</p>

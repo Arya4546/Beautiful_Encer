@@ -8,6 +8,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../utils/toast';
+import { getTranslatedApiError } from '../../utils/errorTranslation';
 import { FiArrowLeft } from 'react-icons/fi';
 import { authService } from '../../services/auth.service';
 import { validateOTP } from '../../utils/validation';
@@ -29,21 +30,21 @@ export const VerifyOtpPage: React.FC = () => {
     // Only check once to prevent multiple toasts
     if (!hasCheckedEmail) {
       if (!email) {
-        showToast.error('Email not found. Please sign up again.');
+        showToast.error(t('toast.error.emailNotFound'));
         navigate('/signup');
       }
       setHasCheckedEmail(true);
     }
-  }, [email, navigate, hasCheckedEmail]);
+  }, [email, navigate, hasCheckedEmail, t]);
 
   // Check if user is coming from payment (should not be here)
   useEffect(() => {
     if (fromPayment && email) {
       console.warn('[VerifyOtpPage] User redirected from payment - should go to login instead');
-      showToast.success('Email already verified. Please login to continue.');
+      showToast.success(t('toast.success.emailAlreadyVerified'));
       navigate('/login', { state: { email } });
     }
-  }, [fromPayment, email, navigate]);
+  }, [fromPayment, email, navigate, t]);
 
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) {
@@ -101,7 +102,7 @@ export const VerifyOtpPage: React.FC = () => {
       }
     } catch (err: any) {
       if (!silent) {
-        showToast.error(err?.response?.data?.error || t('toast.error.somethingWrong'));
+        showToast.error(getTranslatedApiError(err, 'toast.error.resendFailed'));
       }
       console.error('[VerifyOtpPage.handleResendOtp] Error:', err);
     } finally {
@@ -180,10 +181,9 @@ export const VerifyOtpPage: React.FC = () => {
     } catch (error: any) {
       // Handle specific error codes
       if (error.response?.data?.code === 'RATE_LIMIT_EXCEEDED') {
-        showToast.error(error.response.data.message || 'Too many attempts. Please try again later.');
+        showToast.error(t('toast.error.tooManyOtpRequests'));
       } else {
-        const errorMessage = error.response?.data?.error || t('toast.error.otpFailed');
-        showToast.error(errorMessage);
+        showToast.error(getTranslatedApiError(error, 'toast.error.otpFailed'));
       }
     } finally {
       setIsLoading(false);

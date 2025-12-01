@@ -1,158 +1,256 @@
 import SibApiV3Sdk from "sib-api-v3-sdk";
-import logger from '../utils/logger.util.js';
+import ejs from "ejs";
+import path from "path";
+import { fileURLToPath } from "url";
+import logger from "../utils/logger.util.js";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// Brevo API setup
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 const apiKey = defaultClient.authentications["api-key"];
 apiKey.apiKey = process.env.BREVO_API_KEY;
 const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
+// Email configuration
+const SENDER_EMAIL = process.env.EMAIL_FROM || "noreply@sutekibank.com";
+const SENDER_NAME = process.env.EMAIL_FROM_NAME || "REAL MEDIA";
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "support_realmedia@sutekibank.com";
+const FRONTEND_URL = process.env.FRONTEND_URL || "https://sutekibank.com";
+// Template paths
+const TEMPLATES_DIR = path.join(__dirname, "../templates/emails");
 /**
- * Generate branded email HTML with magenta/purple theme
+ * Render EJS template with data
  */
-const getEmailTemplate = (title, message, otp, purpose) => {
-    return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${title}</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="min-height: 100vh;">
-        <tr>
-          <td align="center" style="padding: 40px 20px;">
-            <!-- Main Container -->
-            <table width="100%" max-width="600px" cellpadding="0" cellspacing="0" style="background: rgba(255, 255, 255, 0.98); border-radius: 24px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); overflow: hidden; backdrop-filter: blur(10px);">
-              
-              <!-- Header with Gradient -->
-              <tr>
-                <td style="background: linear-gradient(135deg, #d946ef 0%, #a855f7 50%, #667eea 100%); padding: 40px 30px; text-align: center;">
-                  <h1 style="margin: 0; color: white; font-size: 32px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                    ✨ Real Media
-                  </h1>
-                  <p style="margin: 10px 0 0 0; color: rgba(255, 255, 255, 0.95); font-size: 16px; font-weight: 500;">
-                    Influencer Marketing Platform
-                  </p>
-                </td>
-              </tr>
-
-              <!-- Content -->
-              <tr>
-                <td style="padding: 50px 40px;">
-                  <h2 style="margin: 0 0 20px 0; color: #1f2937; font-size: 24px; font-weight: 600;">
-                    ${title}
-                  </h2>
-                  
-                  <p style="margin: 0 0 30px 0; color: #4b5563; font-size: 16px; line-height: 1.6;">
-                    ${message}
-                  </p>
-
-                  <!-- OTP Box with Gradient Border -->
-                  <div style="text-align: center; margin: 40px 0;">
-                    <div style="display: inline-block; background: linear-gradient(135deg, #d946ef, #a855f7, #667eea); padding: 3px; border-radius: 16px; box-shadow: 0 8px 24px rgba(217, 70, 239, 0.3);">
-                      <div style="background: white; border-radius: 14px; padding: 25px 50px;">
-                        <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
-                          Your OTP Code
-                        </p>
-                        <p style="margin: 0; font-size: 42px; font-weight: 700; letter-spacing: 8px; background: linear-gradient(135deg, #d946ef 0%, #a855f7 50%, #667eea 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                          ${otp}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Warning -->
-                  <div style="background: linear-gradient(135deg, rgba(217, 70, 239, 0.1), rgba(168, 85, 247, 0.1)); border-left: 4px solid #d946ef; border-radius: 8px; padding: 16px 20px; margin: 30px 0;">
-                    <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.5;">
-                      ⏰ <strong style="color: #d946ef;">Important:</strong> This OTP will expire in <strong>10 minutes</strong>. Please do not share this code with anyone.
-                    </p>
-                  </div>
-
-                  <p style="margin: 30px 0 0 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
-                    If you didn't request this ${purpose}, please ignore this email or contact our support team.
-                  </p>
-                </td>
-              </tr>
-
-              <!-- Footer -->
-              <tr>
-                <td style="background: #f9fafb; padding: 30px 40px; border-top: 1px solid #e5e7eb;">
-                  <p style="margin: 0 0 10px 0; color: #1f2937; font-size: 16px; font-weight: 600;">
-                    Best regards,
-                  </p>
-                  <p style="margin: 0; background: linear-gradient(135deg, #d946ef 0%, #a855f7 50%, #667eea 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 16px; font-weight: 700;">
-                    Team Real Media
-                  </p>
-                  
-                  <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-                    <p style="margin: 0; color: #9ca3af; font-size: 12px; line-height: 1.5;">
-                        © 2025 Real Media. All rights reserved.<br>
-                        This is an automated email. Please do not reply to this message.
-                    </p>
-                  </div>
-                </td>
-              </tr>
-
-            </table>
-          </td>
-        </tr>
-      </table>
-    </body>
-    </html>
-  `;
+const renderTemplate = async (templateName, data) => {
+    const baseLayoutPath = path.join(TEMPLATES_DIR, "base-layout.ejs");
+    const contentTemplatePath = path.join(TEMPLATES_DIR, `${templateName}.ejs`);
+    // Render the content template first
+    const content = await ejs.renderFile(contentTemplatePath, data);
+    // Render the base layout with the content
+    const html = await ejs.renderFile(baseLayoutPath, {
+        title: data.title || "REAL MEDIA",
+        content,
+        supportEmail: SUPPORT_EMAIL,
+        currentYear: new Date().getFullYear(),
+    });
+    return html;
 };
 /**
- * Send OTP email for signup verification
+ * Send email via Brevo
  */
-export const sendOtpEmail = async (to, otp) => {
-    const html = getEmailTemplate('Email Verification', 'Thank you for signing up with Real Media! To complete your registration, please verify your email address using the OTP code below:', otp, 'verification');
+const sendEmail = async (to, subject, htmlContent) => {
     try {
-        logger.log(`📧 [Email Service] Sending OTP email to: ${to}`);
-        logger.log(`📧 [Email Service] OTP Code: ${otp}`);
         const result = await tranEmailApi.sendTransacEmail({
-            sender: { email: "singharya9693@gmail.com", name: "Real Media" },
+            sender: { email: SENDER_EMAIL, name: SENDER_NAME },
             to: [{ email: to }],
-            subject: "✨ Real Media - Verify Your Email",
-            htmlContent: html,
+            subject,
+            htmlContent,
         });
-        logger.log(`✅ OTP email sent successfully to ${to}`);
+        logger.log(`✅ Email sent successfully to ${to}`);
         logger.log(`✅ Message ID: ${result.messageId}`);
         return result;
     }
     catch (error) {
-        logger.error("❌ Failed to send OTP email:", error);
+        logger.error("❌ Failed to send email:", error);
         logger.error("❌ Error details:", {
             message: error.message,
             response: error.response?.text || error.response?.body,
-            code: error.code
+            code: error.code,
         });
-        throw new Error("Failed to send OTP email.");
+        throw new Error(`Failed to send email: ${error.message}`);
     }
+};
+// ===========================
+// OTP & Authentication Emails
+// ===========================
+/**
+ * Send OTP email for signup verification
+ */
+export const sendOtpEmail = async (to, otp, userName) => {
+    logger.log(`📧 [Email Service] Sending OTP email to: ${to}`);
+    logger.log(`📧 [Email Service] OTP Code: ${otp}`);
+    const html = await renderTemplate("otp-verification", {
+        title: "メール認証",
+        userName: userName || "お客様",
+        otp,
+    });
+    return sendEmail(to, "【REAL MEDIA】メール認証コードのご案内", html);
 };
 /**
  * Send OTP email for password reset
  */
-export const sendPasswordResetOtpEmail = async (to, otp) => {
-    const html = getEmailTemplate('Password Reset Request', 'We received a request to reset your password. Use the OTP code below to proceed with resetting your password:', otp, 'password reset');
+export const sendPasswordResetOtpEmail = async (to, otp, userName) => {
+    logger.log(`🔐 [Email Service] Sending password reset OTP to: ${to}`);
+    logger.log(`🔐 [Email Service] OTP Code: ${otp}`);
+    const html = await renderTemplate("password-reset", {
+        title: "パスワードリセット",
+        userName: userName || "お客様",
+        otp,
+    });
+    return sendEmail(to, "【REAL MEDIA】パスワードリセットのご案内", html);
+};
+// ===========================
+// Registration Complete Emails
+// ===========================
+/**
+ * Send registration complete email for influencers
+ */
+export const sendInfluencerRegistrationEmail = async (to, userName) => {
+    logger.log(`📧 [Email Service] Sending influencer registration email to: ${to}`);
+    const html = await renderTemplate("influencer-registration", {
+        title: "インフルエンサー登録完了",
+        userName,
+        userEmail: to,
+        loginUrl: `${FRONTEND_URL}/login`,
+    });
+    return sendEmail(to, "【REAL MEDIA】インフルエンサー登録完了のお知らせ", html);
+};
+/**
+ * Send registration complete email for salons/clients
+ */
+export const sendSalonRegistrationEmail = async (to, businessName, contactName) => {
+    logger.log(`📧 [Email Service] Sending salon registration email to: ${to}`);
+    const html = await renderTemplate("salon-registration", {
+        title: "クライアント登録完了",
+        businessName,
+        contactName,
+        userEmail: to,
+        loginUrl: `${FRONTEND_URL}/login`,
+    });
+    return sendEmail(to, "【REAL MEDIA】クライアント登録完了のお知らせ", html);
+};
+// ===========================
+// Message Notification Emails
+// ===========================
+/**
+ * Send new message notification to influencer (from salon)
+ */
+export const sendMessageNotificationToInfluencer = async (to, influencerName, salonName, messagePreview, conversationId) => {
+    logger.log(`📧 [Email Service] Sending message notification to influencer: ${to}`);
+    // Truncate message preview if too long
+    const truncatedPreview = messagePreview.length > 100
+        ? messagePreview.substring(0, 100) + "..."
+        : messagePreview;
+    const html = await renderTemplate("new-message-to-influencer", {
+        title: "新着メッセージ",
+        userName: influencerName,
+        salonName,
+        messagePreview: truncatedPreview,
+        chatUrl: `${FRONTEND_URL}/chat/${conversationId}`,
+    });
+    return sendEmail(to, "【REAL MEDIA】新しいメッセージが届きました", html);
+};
+/**
+ * Send new message notification to salon (from influencer)
+ */
+export const sendMessageNotificationToSalon = async (to, businessName, influencerName, messagePreview, conversationId) => {
+    logger.log(`📧 [Email Service] Sending message notification to salon: ${to}`);
+    // Truncate message preview if too long
+    const truncatedPreview = messagePreview.length > 100
+        ? messagePreview.substring(0, 100) + "..."
+        : messagePreview;
+    const html = await renderTemplate("new-message-to-salon", {
+        title: "新着メッセージ",
+        businessName,
+        influencerName,
+        messagePreview: truncatedPreview,
+        chatUrl: `${FRONTEND_URL}/chat/${conversationId}`,
+    });
+    return sendEmail(to, "【REAL MEDIA】新しいメッセージが届きました", html);
+};
+// ===========================
+// Request/Application Emails
+// ===========================
+/**
+ * Send collaboration request notification to influencer (from salon)
+ */
+export const sendRequestNotificationToInfluencer = async (to, influencerName, salonName, projectName, requestMessage) => {
+    logger.log(`📧 [Email Service] Sending request notification to influencer: ${to}`);
+    const html = await renderTemplate("new-request-to-influencer", {
+        title: "新しいリクエスト",
+        userName: influencerName,
+        salonName,
+        projectName: projectName || null,
+        requestMessage: requestMessage || null,
+        requestUrl: `${FRONTEND_URL}/requests`,
+    });
+    return sendEmail(to, "【REAL MEDIA】新しいコラボリクエストが届きました", html);
+};
+/**
+ * Send project application notification to salon (from influencer)
+ */
+export const sendApplicationNotificationToSalon = async (to, businessName, influencerName, projectName, applicationMessage) => {
+    logger.log(`📧 [Email Service] Sending application notification to salon: ${to}`);
+    const html = await renderTemplate("new-request-to-salon", {
+        title: "新しい応募",
+        businessName,
+        influencerName,
+        projectName,
+        applicationMessage: applicationMessage || null,
+        applicationUrl: `${FRONTEND_URL}/salon/projects`,
+    });
+    return sendEmail(to, `【REAL MEDIA】「${projectName}」に新しい応募がありました`, html);
+};
+// ===========================
+// Payment & Subscription Emails
+// ===========================
+/**
+ * Send subscription payment complete email
+ */
+export const sendSubscriptionPaymentEmail = async (to, businessName, planName, amount, paymentDate, nextBillingDate) => {
+    logger.log(`📧 [Email Service] Sending subscription payment email to: ${to}`);
+    const html = await renderTemplate("subscription-payment", {
+        title: "お支払い完了",
+        businessName,
+        planName,
+        amount,
+        paymentDate,
+        nextBillingDate,
+        dashboardUrl: `${FRONTEND_URL}/salon/dashboard`,
+    });
+    return sendEmail(to, "【REAL MEDIA】お支払いが完了しました", html);
+};
+// ===========================
+// Utility Functions
+// ===========================
+/**
+ * Format date for Japanese email display
+ */
+export const formatDateJapanese = (date) => {
+    return date.toLocaleDateString("ja-JP", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
+};
+/**
+ * Test email connection (for health checks)
+ */
+export const testEmailConnection = async () => {
     try {
-        logger.log(`🔐 [Email Service] Sending password reset OTP to: ${to}`);
-        logger.log(`🔐 [Email Service] OTP Code: ${otp}`);
-        const result = await tranEmailApi.sendTransacEmail({
-            sender: { email: "singharya9693@gmail.com", name: "Real Media" },
-            to: [{ email: to }],
-            subject: "🔐 Real Media - Reset Your Password",
-            htmlContent: html,
-        });
-        logger.log(`✅ Password reset OTP email sent successfully to ${to}`);
-        logger.log(`✅ Message ID: ${result.messageId}`);
-        return result;
+        // Brevo doesn't have a direct ping endpoint, but we can check if API key is configured
+        if (!process.env.BREVO_API_KEY) {
+            logger.warn("⚠️ BREVO_API_KEY not configured");
+            return false;
+        }
+        logger.log("✅ Email service configured with Brevo");
+        return true;
     }
     catch (error) {
-        logger.error("❌ Failed to send password reset OTP email:", error);
-        logger.error("❌ Error details:", {
-            message: error.message,
-            response: error.response?.text || error.response?.body,
-            code: error.code
-        });
-        throw new Error("Failed to send password reset OTP email.");
+        logger.error("❌ Email connection test failed:", error);
+        return false;
     }
+};
+// Default export for backward compatibility
+export default {
+    sendOtpEmail,
+    sendPasswordResetOtpEmail,
+    sendInfluencerRegistrationEmail,
+    sendSalonRegistrationEmail,
+    sendMessageNotificationToInfluencer,
+    sendMessageNotificationToSalon,
+    sendRequestNotificationToInfluencer,
+    sendApplicationNotificationToSalon,
+    sendSubscriptionPaymentEmail,
+    formatDateJapanese,
+    testEmailConnection,
 };

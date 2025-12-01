@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../utils/toast';
+import { getTranslatedApiError } from '../../utils/errorTranslation';
 import { FiMail, FiLock, FiArrowLeft, FiEye, FiEyeOff } from 'react-icons/fi';
 import { authService } from '../../services/auth.service';
 import { useAuthStore } from '../../store/authStore';
@@ -79,13 +80,12 @@ export const LoginPage: React.FC = () => {
       } else if (code === 'PAYMENT_REQUIRED') {
         const salonId = error?.response?.data?.salonId;
         const email = error?.response?.data?.email || data.email;
-        showToast.error(error?.response?.data?.message || 'Payment required to access salon account');
+        showToast.error(t('toast.error.paymentRequired'));
         navigate('/payment/checkout', { state: { salonId, email } });
       } else if (code === 'TERMS_NOT_ACCEPTED') {
-        showToast.error(error?.response?.data?.message || t('toast.error.loginFailed'));
+        showToast.error(getTranslatedApiError(error, 'toast.error.termsNotAccepted'));
       } else {
-        const errorMessage = error?.response?.data?.error || t('toast.error.loginFailed');
-        showToast.error(errorMessage);
+        showToast.error(getTranslatedApiError(error, 'toast.error.loginFailed'));
       }
     } finally {
       setIsLoading(false);

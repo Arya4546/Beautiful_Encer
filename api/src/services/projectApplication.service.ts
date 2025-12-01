@@ -5,6 +5,7 @@
 
 import { prisma } from '../lib/prisma.js';
 import type { ApplicationStatus, Prisma } from '@prisma/client';
+import { sendApplicationNotificationToSalon } from './email.service.js';
 
 interface CreateApplicationDto {
   projectId: string;
@@ -118,6 +119,15 @@ class ProjectApplicationService {
           }),
         },
       });
+
+      // Send email notification to salon (fire-and-forget)
+      sendApplicationNotificationToSalon(
+        application.project.salon.user.email,
+        application.project.salon.businessName || application.project.salon.user.name,
+        application.influencer.user.name,
+        application.project.title,
+        data.coverLetter
+      );
 
       return {
         success: true,

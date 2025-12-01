@@ -4,7 +4,12 @@ import crypto from 'crypto';
 import { prisma } from '../lib/prisma.js';
 import { Role } from '@prisma/client';
 import { generateTokens } from '../services/jwt.service.js';
-import { sendOtpEmail, sendPasswordResetOtpEmail } from '../services/email.service.js';
+import { 
+  sendOtpEmail, 
+  sendPasswordResetOtpEmail,
+  sendInfluencerRegistrationEmail,
+  sendSalonRegistrationEmail
+} from '../services/email.service.js';
 import { otpRateLimiter } from '../utils/otpRateLimiter.util.js';
 import { validateEmail, validatePassword, validatePhoneNumber, validateName } from '../utils/validation.util.js';
 
@@ -103,7 +108,7 @@ class AuthController {
 
       // Send OTP email
       try {
-        await sendOtpEmail(email, otp);
+        await sendOtpEmail(email, otp, name);
       } catch (emailError) {
         console.error('[AuthController.influencerSignup] Failed to send OTP email:', emailError);
         // Don't fail signup if email fails - user can resend
@@ -269,6 +274,17 @@ class AuthController {
       // Reset rate limit on successful verification
       otpRateLimiter.resetAttempts(email);
 
+      // Send registration complete email (fire-and-forget)
+      if (user.role === Role.INFLUENCER && user.influencer) {
+        sendInfluencerRegistrationEmail(user.email, user.name);
+      } else if (user.role === Role.SALON && user.salon) {
+        sendSalonRegistrationEmail(
+          user.email, 
+          user.salon.businessName || user.name,
+          user.name
+        );
+      }
+
       // Return appropriate response based on role and next steps
       const response: any = { 
         message: 'Email verified successfully.',
@@ -428,7 +444,7 @@ class AuthController {
 
       // Send OTP email
       try {
-        await sendOtpEmail(email, otp);
+        await sendOtpEmail(email, otp, name);
       } catch (emailError) {
         console.error('[AuthController.salonSignup] Failed to send OTP email:', emailError);
         // Don't fail signup if email fails - user can resend
@@ -725,7 +741,10 @@ class AuthController {
 
       // Send OTP email
       try {
-        await sendOtpEmail(email, otp);
+        const userName = user.role === Role.SALON 
+          ? user.salon?.businessName || user.name 
+          : user.name;
+        await sendOtpEmail(email, otp, userName);
       } catch (emailError) {
         console.error('[AuthController.resendOtp] Failed to send OTP email:', emailError);
         return res.status(500).json({ 
@@ -787,8 +806,11 @@ class AuthController {
         },
       });
 
-      // Send OTP email
-      await sendPasswordResetOtpEmail(email, otp);
+      // Send OTP email (include user name for personalization)
+      const userName = user.role === Role.SALON 
+        ? user.salon?.businessName || user.name 
+        : user.name;
+      await sendPasswordResetOtpEmail(email, otp, userName);
 
       return res.status(200).json({ 
         message: 'Password reset OTP sent to your email',
@@ -921,6 +943,10 @@ class AuthController {
       // Check if user exists
       const user = await prisma.user.findUnique({
         where: { email },
+        include: {
+          influencer: true,
+          salon: true,
+        },
       });
 
       if (!user) {
@@ -938,8 +964,11 @@ class AuthController {
         data: { email, otp, expiresAt },
       });
 
-      // Send OTP email
-      await sendPasswordResetOtpEmail(email, otp);
+      // Send OTP email (include user name for personalization)
+      const userName = user.role === Role.SALON 
+        ? user.salon?.businessName || user.name 
+        : user.name;
+      await sendPasswordResetOtpEmail(email, otp, userName);
 
       return res.status(200).json({ message: 'OTP resent successfully' });
     } catch (error: any) {

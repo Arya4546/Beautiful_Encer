@@ -24,7 +24,7 @@ export const DashboardPage: React.FC = () => {
 
   const handleLogout = () => {
     logout();
-    showToast.success('Logged out successfully');
+    showToast.success(t('toast.success.logoutSuccess'));
     navigate('/');
   };
 
