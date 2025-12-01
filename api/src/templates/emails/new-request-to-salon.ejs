@@ -1,0 +1,86 @@
+<h2 style="margin: 0 0 20px 0; color: #1a1a2e; font-size: 20px; font-weight: 600; border-bottom: 2px solid #c41e3a; padding-bottom: 10px;">
+  新しいプロジェクト応募が届きました
+</h2>
+
+<p style="margin: 0 0 15px 0; color: #495057; font-size: 15px; line-height: 1.8;">
+  <%= businessName %> 様
+</p>
+
+<p style="margin: 0 0 25px 0; color: #495057; font-size: 15px; line-height: 1.8;">
+  <%= influencerName %> 様から「<%= projectName %>」への応募がありました！
+</p>
+
+<!-- Application Details -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 25px 0; background-color: #f8f9fa; border-radius: 8px;">
+  <tr>
+    <td style="padding: 20px;">
+      <p style="margin: 0 0 15px 0; color: #1a1a2e; font-size: 14px; font-weight: 600;">
+        応募詳細
+      </p>
+      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e9ecef; color: #6c757d; font-size: 13px; width: 35%;">
+            インフルエンサー名
+          </td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e9ecef; color: #495057; font-size: 13px;">
+            <%= influencerName %>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e9ecef; color: #6c757d; font-size: 13px;">
+            プロジェクト名
+          </td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #e9ecef; color: #495057; font-size: 13px;">
+            <%= projectName %>
+          </td>
+        </tr>
+        <% if (applicationMessage) { %>
+        <tr>
+          <td style="padding: 8px 0; color: #6c757d; font-size: 13px; vertical-align: top;">
+            メッセージ
+          </td>
+          <td style="padding: 8px 0; color: #495057; font-size: 13px;">
+            <%= applicationMessage %>
+          </td>
+        </tr>
+        <% } %>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Info Box -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 25px 0;">
+  <tr>
+    <td style="background-color: #cfe2ff; border-left: 4px solid #0d6efd; border-radius: 4px; padding: 15px 20px;">
+      <p style="margin: 0; color: #084298; font-size: 13px; line-height: 1.6;">
+        インフルエンサーのプロフィールを確認し、「承認」または「辞退」を選択してください。<br />
+        承認すると、インフルエンサー様とチャットでやり取りができるようになります。
+      </p>
+    </td>
+  </tr>
+</table>
+
+<!-- CTA Button -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 30px 0;">
+  <tr>
+    <td align="center">
+      <!--[if mso]>
+      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="<%= applicationUrl %>" style="height:48px;v-text-anchor:middle;width:200px;" arcsize="10%" stroke="f" fillcolor="#c41e3a">
+        <w:anchorlock/>
+        <center style="color:#ffffff;font-family:'Hiragino Sans','Yu Gothic',sans-serif;font-size:14px;font-weight:bold;">応募を確認</center>
+      </v:roundrect>
+      <![endif]-->
+      <!--[if !mso]><!-->
+      <a href="<%= applicationUrl %>" style="background: linear-gradient(135deg, #c41e3a 0%, #a11830 100%); color: #ffffff; display: inline-block; font-size: 14px; font-weight: 600; text-decoration: none; padding: 14px 40px; border-radius: 6px; text-align: center;">
+        応募を確認
+      </a>
+      <!--<![endif]-->
+    </td>
+  </tr>
+</table>
+
+<p style="margin: 25px 0 0 0; color: #6c757d; font-size: 13px; line-height: 1.6;">
+  ※ このメールは自動送信されています。<br />
+  メール通知の設定は、アプリの設定画面から変更できます。
+</p>

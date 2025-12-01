@@ -100,8 +100,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
       setUser(profile);
     } catch (err: any) {
       console.error('Failed to fetch profile:', err);
-      setError(err.response?.data?.error || 'Failed to load profile');
-      showToast.error('Failed to load user profile');
+      setError(t('toast.error.profileLoadFailed'));
+      showToast.error(t('toast.error.profileLoadFailed'));
     } finally {
       setLoading(false);
     }
@@ -122,7 +122,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ userId, isOpen, onCl
       await chatService.getOrCreateConversation(userId);
       onClose();
       navigate('/chat');
-      showToast.success('Opening chat...');
+      showToast.success(t('chat.openingChat'));
     } catch (err: any) {
       console.error('Failed to start chat:', err);
       if (err.response?.status === 403) {

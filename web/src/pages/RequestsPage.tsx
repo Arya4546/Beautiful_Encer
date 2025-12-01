@@ -4,6 +4,7 @@ import { FiUserPlus, FiCheck, FiClock, FiX, FiMessageSquare } from 'react-icons/
 import { useAuthStore } from '../store/authStore';
 import connectionService, { type ConnectionRequest } from '../services/connection.service';
 import { showToast } from '../utils/toast';
+import { getTranslatedApiError } from '../utils/errorTranslation';
 import { Header } from '../components/layout/Header';
 import { Sidebar } from '../components/layout/Sidebar';
 import { BottomNav } from '../components/layout/BottomNav';
@@ -90,7 +91,7 @@ export const RequestsPage: React.FC = () => {
         setHasMore(response.pagination.hasMore);
       }
     } catch (error: any) {
-      showToast.error(error.response?.data?.error || 'Failed to load requests');
+      showToast.error(getTranslatedApiError(error, 'toast.error.actionFailed'));
     } finally {
       setLoading(false);
     }
@@ -99,7 +100,7 @@ export const RequestsPage: React.FC = () => {
   const handleAcceptRequest = async (requestId: string) => {
     try {
       await connectionService.acceptRequest(requestId);
-      showToast.success('Request accepted successfully!');
+      showToast.success(t('toast.success.requestAccepted'));
       // Clear cache and refresh the list
       const cacheKey = `requests_${activeTab}_fetched`;
       sessionStorage.removeItem(cacheKey);
@@ -107,14 +108,14 @@ export const RequestsPage: React.FC = () => {
       setPage(1);
       fetchRequests(1);
     } catch (error: any) {
-      showToast.error(error.response?.data?.error || 'Failed to accept request');
+      showToast.error(getTranslatedApiError(error, 'toast.error.actionFailed'));
     }
   };
 
   const handleRejectRequest = async (requestId: string) => {
     try {
       await connectionService.rejectRequest(requestId);
-      showToast.success('Request rejected');
+      showToast.success(t('toast.success.connectionRejected'));
       // Clear cache and refresh the list
       const cacheKey = `requests_${activeTab}_fetched`;
       sessionStorage.removeItem(cacheKey);
@@ -122,20 +123,20 @@ export const RequestsPage: React.FC = () => {
       setPage(1);
       fetchRequests(1);
     } catch (error: any) {
-      showToast.error(error.response?.data?.error || 'Failed to reject request');
+      showToast.error(getTranslatedApiError(error, 'toast.error.actionFailed'));
     }
   };
 
   const handleWithdrawRequest = async (requestId: string) => {
     try {
       await connectionService.withdrawRequest(requestId);
-      showToast.success('Request withdrawn');
+      showToast.success(t('toast.success.connectionWithdrawn'));
       // Refresh the list
       setRequests([]);
       setPage(1);
       fetchRequests(1);
     } catch (error: any) {
-      showToast.error(error.response?.data?.error || 'Failed to withdraw request');
+      showToast.error(getTranslatedApiError(error, 'toast.error.actionFailed'));
     }
   };
 

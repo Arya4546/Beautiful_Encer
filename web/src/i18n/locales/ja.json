@@ -625,7 +625,12 @@
     "age": "年齢",
     "gender": "性別",
     "select": "選択してください",
-    "saveChanges": "変更を保存する"
+    "saveChanges": "変更を保存する",
+    "settings": {
+      "enterPassword": "パスワードを入力してください",
+      "imageSizeLimit": "画像のサイズは5MB以下にしてください",
+      "selectImage": "画像を選択してください"
+    }
   },
   "fileUpload": {
     "dropHere": "ここに画像をドロップ、または",
@@ -659,7 +664,9 @@
       "edit": "編集",
       "delete": "削除",
       "copy": "コピー"
-    }
+    },
+    "confirmDelete": "このメッセージを削除しますか？この操作は取り消せません。",
+    "openingChat": "チャットを開いています..."
   },
   "requests": {
     "title": "つながりリクエスト",
@@ -717,6 +724,7 @@
       "signupSuccess": "アカウントを作成しました！",
       "otpSent": "確認コードを送信しました",
       "otpVerified": "メールアドレスを確認しました！",
+      "emailAlreadyVerified": "メールアドレスは既に確認済みです。ログインしてください。",
       "profileUpdated": "プロフィールを更新しました",
       "messageSent": "メッセージを送信しました",
       "messageDeleted": "メッセージを削除しました",
@@ -740,9 +748,12 @@
       "loginFailed": "ログインに失敗しました。もう一度お試しください。",
       "signupFailed": "アカウント作成に失敗しました。もう一度お試しください。",
       "otpFailed": "確認コードが正しくありません。もう一度お試しください。",
+      "otpExpired": "確認コードの有効期限が切れました。新しいコードを取得してください。",
       "profileUpdateFailed": "プロフィールの更新に失敗しました",
       "messageFailed": "メッセージの送信に失敗しました",
       "connectionFailed": "つながりリクエストの送信に失敗しました",
+      "connectionAlreadyExists": "リクエストは既に送信されています",
+      "alreadyConnected": "このユーザーとは既につながっています",
       "syncFailed": "データの同期に失敗しました",
       "uploadFailed": "ファイルのアップロードに失敗しました",
       "networkError": "ネットワークエラーが発生しました。接続を確認してください。",
@@ -751,6 +762,7 @@
       "onlyConnectedUsers": "つながっているユーザーとのみチャットできます",
       "failedToStartChat": "チャットの開始に失敗しました",
       "emailNotFound": "このメールアドレスのアカウントが見つかりません",
+      "emailAlreadyExists": "このメールアドレスは既に登録されています",
       "forgotPasswordFailed": "リセットメールの送信に失敗しました。もう一度お試しください。",
       "otpVerificationFailed": "確認コードが無効または期限切れです。もう一度お試しください。",
       "resetPasswordFailed": "パスワードのリセットに失敗しました。もう一度お試しください。",
@@ -767,7 +779,12 @@
       "paymentSessionExpired": "支払いセッションが期限切れです。もう一度サインアップしてください。",
       "invalidPaymentSession": "無効な支払いセッション",
       "paymentVerificationFailed": "支払いの確認に失敗しました",
-      "sessionVerificationFailed": "セッションの確認は成功しましたが、メールが見つかりません。ログインしてください。"
+      "sessionVerificationFailed": "セッションの確認は成功しましたが、メールが見つかりません。ログインしてください。",
+      "tooManyOtpRequests": "確認コードのリクエストが多すぎます。しばらくお待ちください。",
+      "termsNotAccepted": "利用規約とプライバシーポリシーに同意してください。",
+      "missingRequiredFields": "必須項目をすべて入力してください。",
+      "resendFailed": "確認コードの再送信に失敗しました。もう一度お試しください。",
+      "paymentRequired": "アカウントにアクセスするにはお支払いが必要です。"
     }
   },
   "categories": {

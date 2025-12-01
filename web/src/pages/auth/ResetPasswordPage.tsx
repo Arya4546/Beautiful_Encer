@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { showToast } from '../../utils/toast';
+import { getTranslatedApiError } from '../../utils/errorTranslation';
 import { FiLock, FiArrowLeft, FiEye, FiEyeOff } from 'react-icons/fi';
 import { authService } from '../../services/auth.service';
 
@@ -62,8 +63,7 @@ export const ResetPasswordPage: React.FC = () => {
         } 
       });
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.error || t('toast.error.resetPasswordFailed');
-      showToast.error(errorMessage);
+      showToast.error(getTranslatedApiError(error, 'toast.error.resetPasswordFailed'));
     } finally {
       setIsLoading(false);
     }

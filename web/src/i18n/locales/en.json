@@ -626,7 +626,12 @@
     "age": "Age",
     "gender": "Gender",
     "select": "Select",
-    "saveChanges": "Save Changes"
+    "saveChanges": "Save Changes",
+    "settings": {
+      "enterPassword": "Please enter your password",
+      "imageSizeLimit": "Image size should be less than 5MB",
+      "selectImage": "Please select an image"
+    }
   },
   "fileUpload": {
     "dropHere": "Drop your image here, or",
@@ -660,7 +665,9 @@
       "edit": "Edit",
       "delete": "Delete",
       "copy": "Copy"
-    }
+    },
+    "confirmDelete": "Delete this message? This action cannot be undone.",
+    "openingChat": "Opening chat..."
   },
   "requests": {
     "title": "Connection Requests",
@@ -718,6 +725,7 @@
       "signupSuccess": "Account created successfully!",
       "otpSent": "OTP sent successfully",
       "otpVerified": "Email verified successfully!",
+      "emailAlreadyVerified": "Email already verified. Please login to continue.",
       "profileUpdated": "Profile updated successfully",
       "messageSent": "Message sent",
       "messageDeleted": "Message deleted",
@@ -741,9 +749,12 @@
       "loginFailed": "Login failed. Please try again.",
       "signupFailed": "Signup failed. Please try again.",
       "otpFailed": "Invalid OTP. Please try again.",
+      "otpExpired": "OTP has expired. Please request a new one.",
       "profileUpdateFailed": "Failed to update profile",
       "messageFailed": "Failed to send message",
       "connectionFailed": "Failed to send connection request",
+      "connectionAlreadyExists": "Connection request already sent",
+      "alreadyConnected": "You are already connected with this user",
       "syncFailed": "Failed to sync data",
       "uploadFailed": "Failed to upload file",
       "networkError": "Network error. Please check your connection.",
@@ -752,6 +763,7 @@
       "onlyConnectedUsers": "You can only chat with connected users",
       "failedToStartChat": "Failed to start chat",
       "emailNotFound": "No account found with this email address",
+      "emailAlreadyExists": "An account with this email already exists",
       "forgotPasswordFailed": "Failed to send reset email. Please try again.",
       "otpVerificationFailed": "Invalid or expired OTP. Please try again.",
       "resetPasswordFailed": "Failed to reset password. Please try again.",
@@ -768,7 +780,12 @@
       "paymentSessionExpired": "Payment session expired. Please sign up again.",
       "invalidPaymentSession": "Invalid payment session",
       "paymentVerificationFailed": "Payment verification failed",
-      "sessionVerificationFailed": "Session verification succeeded but email not found. Please login."
+      "sessionVerificationFailed": "Session verification succeeded but email not found. Please login.",
+      "tooManyOtpRequests": "Too many OTP requests. Please wait and try again.",
+      "termsNotAccepted": "You must accept the Terms of Service and Privacy Policy.",
+      "missingRequiredFields": "Please fill in all required fields.",
+      "resendFailed": "Failed to resend OTP. Please try again.",
+      "paymentRequired": "Payment required to access your account."
     }
   },
   "categories": {

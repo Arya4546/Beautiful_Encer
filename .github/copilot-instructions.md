@@ -390,4 +390,49 @@ Build note:
   - Service mirrors Instagram implementation 1:1 for consistency and maintainability
   - All TypeScript types are properly defined with camelCase naming (e.g., `followersCount` not `follower_count`)
 
+### J. Email System with EJS Templates (Japanese)
+- Purpose: Professional transactional emails in Japanese using Brevo API with EJS templates
+- Backend:
+  - Service: `api/src/services/email.service.ts` - Rewritten to use EJS templating
+  - Templates: `api/src/templates/emails/` directory with:
+    - `base-layout.ejs` - Base HTML template with REAL MEDIA branding, table-based layout for cross-client compatibility
+    - `otp-verification.ejs` - Email verification OTP
+    - `password-reset.ejs` - Forgot password OTP
+    - `influencer-registration.ejs` - Registration complete for influencers
+    - `salon-registration.ejs` - Registration complete for salons/clients
+    - `new-message-to-influencer.ejs` - New message notification (salon → influencer)
+    - `new-message-to-salon.ejs` - New message notification (influencer → salon)
+    - `new-request-to-influencer.ejs` - Collaboration request notification
+    - `new-request-to-salon.ejs` - Project application notification
+    - `subscription-payment.ejs` - Payment complete notification
+  - Uses Brevo (Sendinblue) API via `sib-api-v3-sdk`
+  - All emails in professional Japanese with proper honorifics (様)
+- Configuration (env vars):
+  - `BREVO_API_KEY` - Required for email sending
+  - `EMAIL_FROM` - Sender email (default: noreply@sutekibank.com)
+  - `EMAIL_FROM_NAME` - Sender name (default: REAL MEDIA)
+  - `SUPPORT_EMAIL` - Support contact (default: support_realmedia@sutekibank.com)
+  - `FRONTEND_URL` - Base URL for email links
+- Template features:
+  - Table-based HTML layout for Gmail/Outlook/Yahoo compatibility
+  - MSO conditionals for Outlook VML buttons
+  - Japanese typography support (Hiragino Sans, Yu Gothic, Meiryo)
+  - Responsive design with media queries
+  - Preheader text support
+- Email functions available:
+  - `sendOtpEmail(to, otp, userName?)` - Email verification
+  - `sendPasswordResetOtpEmail(to, otp, userName?)` - Password reset
+  - `sendInfluencerRegistrationEmail(to, userName)` - Registration complete
+  - `sendSalonRegistrationEmail(to, businessName, contactName)` - Registration complete
+  - `sendMessageNotificationToInfluencer(to, influencerName, salonName, messagePreview, conversationId)`
+  - `sendMessageNotificationToSalon(to, businessName, influencerName, messagePreview, conversationId)`
+  - `sendRequestNotificationToInfluencer(to, influencerName, salonName, projectName?, requestMessage?)`
+  - `sendApplicationNotificationToSalon(to, businessName, influencerName, projectName, applicationMessage?)`
+  - `sendSubscriptionPaymentEmail(to, businessName, planName, amount, paymentDate, nextBillingDate)`
+  - `formatDateJapanese(date)` - Utility for Japanese date formatting
+- Notes:
+  - Domain sutekibank.com must have DNS records (DKIM, DMARC, SPF) configured for Brevo
+  - All content localized in Japanese; no bilingual templates needed
+  - OTP codes expire after 10 minutes
+
 This addendum is maintained to help future sessions pick up seamlessly. If you add new endpoints or behavior, append similar notes here.
