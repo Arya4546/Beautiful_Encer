@@ -5,6 +5,7 @@
 
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { showToast } from '../utils/toast';
 import { useAuthStore } from '../store/authStore';
@@ -12,6 +13,7 @@ import { Button } from '../components/ui/Button';
 import { FiLogOut, FiUser, FiCheckCircle } from 'react-icons/fi';
 
 export const DashboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
