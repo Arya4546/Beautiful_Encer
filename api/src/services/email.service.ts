@@ -1,6 +1,7 @@
-import SibApiV3Sdk from "sib-api-v3-sdk";
+import nodemailer from "nodemailer";
 import ejs from "ejs";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import logger from "../utils/logger.util.js";
 import { prisma } from "../lib/prisma.js";
@@ -8,12 +9,16 @@ import { prisma } from "../lib/prisma.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Brevo API setup
-const defaultClient = SibApiV3Sdk.ApiClient.instance;
-const apiKey = defaultClient.authentications["api-key"];
-apiKey.apiKey = process.env.BREVO_API_KEY;
-
-const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
+// Nodemailer SMTP setup (using Brevo SMTP relay)
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
+  port: parseInt(process.env.SMTP_PORT || "587"),
+  secure: false, // Use STARTTLS
+  auth: {
+    user: process.env.SMTP_USER || process.env.EMAIL_FROM,
+    pass: process.env.SMTP_PASS || process.env.BREVO_SMTP_KEY,
+  },
+});
 
 // Email configuration
 const SENDER_EMAIL = process.env.EMAIL_FROM || "noreply@sutekibank.com";
@@ -21,8 +26,27 @@ const SENDER_NAME = process.env.EMAIL_FROM_NAME || "REAL MEDIA";
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "support_realmedia@sutekibank.com";
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://sutekibank.com";
 
-// Template paths
-const TEMPLATES_DIR = path.join(__dirname, "../templates/emails");
+// Template paths - try multiple locations for dev vs production
+const findTemplatesDir = (): string => {
+  const possiblePaths = [
+    path.join(__dirname, "../templates/emails"),  // dist/templates/emails (production)
+    path.join(__dirname, "../../src/templates/emails"),  // src/templates/emails (from dist)
+    path.resolve(process.cwd(), "src/templates/emails"),  // From project root (dev with tsx)
+    path.resolve(process.cwd(), "dist/templates/emails"),  // From project root (production)
+  ];
+  
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      logger.log(`📁 [Email Service] Using templates directory: ${p}`);
+      return p;
+    }
+  }
+  
+  logger.warn(`⚠️ [Email Service] Templates directory not found. Tried: ${possiblePaths.join(", ")}`);
+  return possiblePaths[0]; // Default to first option
+};
+
+const TEMPLATES_DIR = findTemplatesDir();
 
 // In-memory cache for message notification throttling
 // Key: `${conversationId}:${recipientId}`, Value: last notification timestamp
@@ -42,7 +66,9 @@ setInterval(() => {
  * Check if email service is properly configured
  */
 const isEmailServiceConfigured = (): boolean => {
-  return !!process.env.BREVO_API_KEY;
+  const hasAuth = !!(process.env.SMTP_PASS || process.env.BREVO_SMTP_KEY);
+  const hasUser = !!(process.env.SMTP_USER || process.env.EMAIL_FROM);
+  return hasAuth && hasUser;
 };
 
 /**
@@ -76,7 +102,7 @@ const renderTemplate = async (
 };
 
 /**
- * Send email via Brevo (internal function)
+ * Send email via Nodemailer SMTP (internal function)
  * @throws Error if email fails to send
  */
 const sendEmail = async (
@@ -85,7 +111,7 @@ const sendEmail = async (
   htmlContent: string
 ): Promise<any> => {
   if (!isEmailServiceConfigured()) {
-    logger.warn("⚠️ [Email Service] BREVO_API_KEY not configured, skipping email");
+    logger.warn("⚠️ [Email Service] SMTP credentials not configured, skipping email");
     return null;
   }
 
@@ -102,21 +128,21 @@ const sendEmail = async (
   }
 
   try {
-    const result = await tranEmailApi.sendTransacEmail({
-      sender: { email: SENDER_EMAIL, name: SENDER_NAME },
-      to: [{ email: to }],
+    const result = await transporter.sendMail({
+      from: `"${SENDER_NAME}" <${SENDER_EMAIL}>`,
+      to,
       subject,
-      htmlContent,
+      html: htmlContent,
     });
 
-    logger.log(`✅ Email sent successfully to ${to}`);
+    logger.log(`✅ Email sent successfully to ${to} (messageId: ${result.messageId})`);
     return result;
   } catch (error: any) {
     logger.error("❌ Failed to send email:", error);
     logger.error("❌ Error details:", {
       message: error.message,
-      response: error.response?.text || error.response?.body,
       code: error.code,
+      command: error.command,
     });
     throw new Error(`Failed to send email: ${error.message}`);
   }
@@ -604,11 +630,13 @@ export const formatDateJapanese = (date: Date): string => {
  */
 export const testEmailConnection = async (): Promise<boolean> => {
   try {
-    if (!process.env.BREVO_API_KEY) {
-      logger.warn("⚠️ BREVO_API_KEY not configured");
+    if (!isEmailServiceConfigured()) {
+      logger.warn("⚠️ SMTP credentials not configured");
       return false;
     }
-    logger.log("✅ Email service configured with Brevo");
+    // Verify SMTP connection
+    await transporter.verify();
+    logger.log("✅ Email service configured with Nodemailer SMTP");
     return true;
   } catch (error) {
     logger.error("❌ Email connection test failed:", error);

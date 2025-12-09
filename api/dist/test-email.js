@@ -2,30 +2,37 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import nodemailer from 'nodemailer';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 console.log('🔍 Environment Check:');
-console.log('BREVO_API_KEY:', process.env.BREVO_API_KEY ? '✅ Set' : '❌ Not Set');
-console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? '✅ Set' : '❌ Not Set');
-console.log('EMAIL_HOST:', process.env.EMAIL_HOST || '❌ Not Set');
-console.log('EMAIL_PORT:', process.env.EMAIL_PORT || '❌ Not Set');
-console.log('EMAIL_USER:', process.env.EMAIL_USER || '❌ Not Set');
+console.log('SMTP_HOST:', process.env.SMTP_HOST || 'smtp-relay.brevo.com (default)');
+console.log('SMTP_PORT:', process.env.SMTP_PORT || '587 (default)');
+console.log('SMTP_USER:', process.env.SMTP_USER ? '✅ Set' : (process.env.EMAIL_FROM ? `✅ Using EMAIL_FROM: ${process.env.EMAIL_FROM}` : '❌ Not Set'));
+console.log('SMTP_PASS:', process.env.SMTP_PASS || process.env.BREVO_SMTP_KEY ? '✅ Set' : '❌ Not Set');
 console.log('');
-// Try to send a test email
-import SibApiV3Sdk from "sib-api-v3-sdk";
-const defaultClient = SibApiV3Sdk.ApiClient.instance;
-const apiKey = defaultClient.authentications["api-key"];
-apiKey.apiKey = process.env.BREVO_API_KEY;
-const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
+// Create Nodemailer transporter
+const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
+    port: parseInt(process.env.SMTP_PORT || "587"),
+    secure: false, // Use STARTTLS
+    auth: {
+        user: process.env.SMTP_USER || process.env.EMAIL_FROM,
+        pass: process.env.SMTP_PASS || process.env.BREVO_SMTP_KEY,
+    },
+});
 const testEmail = async () => {
     try {
+        console.log('📧 Verifying SMTP connection...');
+        await transporter.verify();
+        console.log('✅ SMTP connection verified!');
         console.log('📧 Attempting to send test email...');
-        const result = await tranEmailApi.sendTransacEmail({
-            sender: { email: "singharya9693@gmail.com", name: "Real Media" },
-            to: [{ email: "singharya9693@gmail.com" }], // Change to your email
+        const result = await transporter.sendMail({
+            from: `"Real Media" <${process.env.EMAIL_FROM || "noreply@sutekibank.com"}>`,
+            to: "singharya9693@gmail.com", // Change to your email
             subject: "🧪 Test Email - Real Media",
-            htmlContent: `
+            html: `
         <html>
           <body style="font-family: Arial, sans-serif; padding: 20px;">
             <h1 style="color: #d946ef;">Test Email</h1>
@@ -42,7 +49,8 @@ const testEmail = async () => {
     catch (error) {
         console.error('❌ Failed to send email:');
         console.error('Error:', error.message);
-        console.error('Response:', error.response?.text || error.response?.body);
+        console.error('Code:', error.code);
+        console.error('Command:', error.command);
     }
 };
 testEmail();

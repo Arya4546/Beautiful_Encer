@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma.js';
 import notificationController from './notification.controller.js';
+import { sendRequestNotificationToInfluencer, sendRequestNotificationToSalon } from '../services/email.service.js';
 class ConnectionController {
     /**
      * Send a connection request
@@ -99,6 +100,11 @@ class ConnectionController {
                             name: true,
                             email: true,
                             role: true,
+                            salon: {
+                                select: {
+                                    businessName: true,
+                                },
+                            },
                         },
                     },
                     receiver: {
@@ -107,6 +113,16 @@ class ConnectionController {
                             name: true,
                             email: true,
                             role: true,
+                            influencer: {
+                                select: {
+                                    id: true,
+                                },
+                            },
+                            salon: {
+                                select: {
+                                    businessName: true,
+                                },
+                            },
                         },
                     },
                 },
@@ -123,6 +139,18 @@ class ConnectionController {
                     senderRole: connectionRequest.sender.role,
                 },
             });
+            // Send email notification (fire-and-forget)
+            if (connectionRequest.receiver.role === 'INFLUENCER') {
+                // Salon sending request to influencer
+                const salonName = connectionRequest.sender.salon?.businessName || connectionRequest.sender.name;
+                sendRequestNotificationToInfluencer(connectionRequest.receiver.email, connectionRequest.receiver.name, salonName, undefined, // no project name for direct connection
+                message || undefined);
+            }
+            else if (connectionRequest.receiver.role === 'SALON') {
+                // Influencer sending request to salon
+                sendRequestNotificationToSalon(connectionRequest.receiver.email, connectionRequest.receiver.salon?.businessName || connectionRequest.receiver.name, connectionRequest.sender.name, undefined, // no project name for direct connection
+                message || undefined);
+            }
             return res.status(201).json({
                 success: true,
                 message: 'Connection request sent successfully',
