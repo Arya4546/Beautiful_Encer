@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc --build",
+    "build": "tsc --build && npm run copy-templates",
+    "copy-templates": "node -e \"const fs = require('fs'); const path = require('path'); const src = 'src/templates'; const dest = 'dist/templates'; if (fs.existsSync(src)) { fs.cpSync(src, dest, { recursive: true }); console.log('Templates copied to dist/templates'); }\"",
     "start": "node dist/server.js",
     "prisma": "prisma generate",
     "migrate": "prisma migrate dev",
@@ -42,8 +43,6 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^7.0.10",
     "prisma": "^6.17.0",
-    "resend": "^6.3.0",
-    "sib-api-v3-sdk": "^8.5.0",
     "socket.io": "^4.8.1",
     "stripe": "^19.3.0",
     "typescript": "^5.9.3"

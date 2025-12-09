@@ -1,6 +1,7 @@
 import { stripe, STRIPE_CONFIG } from '../config/stripe.config.js';
 import { prisma } from '../lib/prisma.js';
 import { PaymentStatus, SubscriptionStatus, SubscriptionPlan } from '@prisma/client';
+import { sendSubscriptionPaymentEmail, formatDateJapanese } from './email.service.js';
 class PaymentService {
     /**
      * Create a Stripe Checkout session for salon subscription
@@ -339,6 +340,17 @@ class PaymentService {
                         stripeCustomerId: session.customer,
                     },
                 });
+                // Send payment confirmation email (fire-and-forget, outside transaction)
+                // Query salon with user info for email
+                const salonWithUser = await prisma.salon.findUnique({
+                    where: { id: salonId },
+                    include: { user: true },
+                });
+                if (salonWithUser?.user?.email) {
+                    const planName = plan === 'monthly' ? 'スタンダードプラン（月額）' : 'プレミアムプラン（年額）';
+                    const amount = session.amount_total ? Math.floor(session.amount_total / 100) : 0; // Convert cents to main currency
+                    sendSubscriptionPaymentEmail(salonWithUser.user.email, salonWithUser.businessName || salonWithUser.user.name, planName, amount, formatDateJapanese(new Date()), formatDateJapanese(currentPeriodEnd));
+                }
             });
             console.log(`[PaymentService.handleSuccessfulPayment] Payment completed successfully for salon ${salonId}`);
         }

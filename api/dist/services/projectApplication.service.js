@@ -3,6 +3,7 @@
  * Handles influencer applications to projects
  */
 import { prisma } from '../lib/prisma.js';
+import { sendApplicationNotificationToSalon } from './email.service.js';
 class ProjectApplicationService {
     /**
      * Submit application to a project (Influencer only)
@@ -96,6 +97,8 @@ class ProjectApplicationService {
                     }),
                 },
             });
+            // Send email notification to salon (fire-and-forget)
+            sendApplicationNotificationToSalon(application.project.salon.user.email, application.project.salon.businessName || application.project.salon.user.name, application.influencer.user.name, application.project.title, data.coverLetter);
             return {
                 success: true,
                 application,

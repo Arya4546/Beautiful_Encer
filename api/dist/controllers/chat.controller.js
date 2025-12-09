@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma.js';
 import notificationController from './notification.controller.js';
+import { sendMessageNotificationToInfluencer, sendMessageNotificationToSalon } from '../services/email.service.js';
 // Module-level Socket.IO instance to avoid 'this' context issues
 let socketIOInstance = null;
 class ChatController {
@@ -520,29 +521,75 @@ class ChatController {
                         select: {
                             id: true,
                             name: true,
+                            email: true,
+                            role: true,
+                            influencer: {
+                                select: {
+                                    profilePic: true,
+                                },
+                            },
+                            salon: {
+                                select: {
+                                    businessName: true,
+                                    profilePic: true,
+                                },
+                            },
                         },
                     },
                 },
             });
-            // Get sender info
+            // Get sender info with full details
             const sender = await prisma.user.findUnique({
                 where: { id: userId },
-                select: { name: true },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    role: true,
+                    influencer: {
+                        select: {
+                            profilePic: true,
+                        },
+                    },
+                    salon: {
+                        select: {
+                            businessName: true,
+                            profilePic: true,
+                        },
+                    },
+                },
             });
-            // Send notification to each participant
+            const senderName = sender?.role === 'SALON'
+                ? (sender.salon?.businessName || sender.name)
+                : sender?.name || 'Someone';
+            // Send notification and email to each participant
             for (const participant of participants) {
+                // Create in-app notification
                 await notificationController.createNotification({
                     userId: participant.userId,
                     type: 'NEW_MESSAGE',
                     title: 'New Message',
-                    message: `${sender?.name || 'Someone'} sent you a message`,
+                    message: `${senderName} sent you a message`,
                     messageId: message.id,
                     conversationId: conversationId,
                     metadata: {
-                        senderName: sender?.name,
-                        preview: content.length > 50 ? content.substring(0, 50) + '...' : content,
+                        senderName,
+                        preview: content && content.length > 50 ? content.substring(0, 50) + '...' : content,
                     },
                 });
+                // Send email notification (fire-and-forget with smart throttling)
+                // Only sends first email of the day per conversation
+                const recipientName = participant.user.role === 'SALON'
+                    ? (participant.user.salon?.businessName || participant.user.name)
+                    : participant.user.name;
+                if (participant.user.role === 'INFLUENCER') {
+                    // Send to influencer (from salon)
+                    sendMessageNotificationToInfluencer(participant.user.email, recipientName || 'インフルエンサー', senderName, content || '', conversationId, participant.userId);
+                }
+                else if (participant.user.role === 'SALON') {
+                    // Send to salon (from influencer)
+                    sendMessageNotificationToSalon(participant.user.email, recipientName || 'サロン', senderName, content || '', conversationId, participant.userId);
+                }
             }
             return res.status(201).json({
                 success: true,

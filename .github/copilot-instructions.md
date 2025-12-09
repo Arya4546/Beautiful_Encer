@@ -391,9 +391,9 @@ Build note:
   - All TypeScript types are properly defined with camelCase naming (e.g., `followersCount` not `follower_count`)
 
 ### J. Email System with EJS Templates (Japanese)
-- Purpose: Professional transactional emails in Japanese using Brevo API with EJS templates
+- Purpose: Professional transactional emails in Japanese using Nodemailer SMTP with EJS templates
 - Backend:
-  - Service: `api/src/services/email.service.ts` - Rewritten to use EJS templating
+  - Service: `api/src/services/email.service.ts` - Uses Nodemailer with EJS templating
   - Templates: `api/src/templates/emails/` directory with:
     - `base-layout.ejs` - Base HTML template with REAL MEDIA branding, table-based layout for cross-client compatibility
     - `otp-verification.ejs` - Email verification OTP
@@ -405,10 +405,13 @@ Build note:
     - `new-request-to-influencer.ejs` - Collaboration request notification
     - `new-request-to-salon.ejs` - Project application notification
     - `subscription-payment.ejs` - Payment complete notification
-  - Uses Brevo (Sendinblue) API via `sib-api-v3-sdk`
+  - Uses Nodemailer with Brevo SMTP relay (smtp-relay.brevo.com:587)
   - All emails in professional Japanese with proper honorifics (様)
 - Configuration (env vars):
-  - `BREVO_API_KEY` - Required for email sending
+  - `SMTP_HOST` - SMTP server (default: smtp-relay.brevo.com)
+  - `SMTP_PORT` - SMTP port (default: 587)
+  - `SMTP_USER` - SMTP login email
+  - `SMTP_PASS` or `BREVO_SMTP_KEY` - SMTP password/key (starts with xsmtpsib-)
   - `EMAIL_FROM` - Sender email (default: noreply@sutekibank.com)
   - `EMAIL_FROM_NAME` - Sender name (default: REAL MEDIA)
   - `SUPPORT_EMAIL` - Support contact (default: support_realmedia@sutekibank.com)
