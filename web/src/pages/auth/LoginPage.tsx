@@ -75,8 +75,15 @@ export const LoginPage: React.FC = () => {
       const code = error?.response?.data?.code;
       if (code === 'EMAIL_NOT_VERIFIED') {
         const email = error?.response?.data?.email || data.email;
+        const devOtp = error?.response?.data?.devOtp; // DEV ONLY
         showToast.error(t('auth.verifyOtp.title'));
-        navigate('/verify-otp', { state: { email } });
+        // DEV ONLY: Show OTP in toast if returned by API
+        if (devOtp) {
+          setTimeout(() => {
+            showToast.success(`[DEV] Your OTP: ${devOtp}`, { duration: 30000 });
+          }, 500);
+        }
+        navigate('/verify-otp', { state: { email, devOtp } });
       } else if (code === 'PAYMENT_REQUIRED') {
         const salonId = error?.response?.data?.salonId;
         const email = error?.response?.data?.email || data.email;

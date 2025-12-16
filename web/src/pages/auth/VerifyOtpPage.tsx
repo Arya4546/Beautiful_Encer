@@ -19,6 +19,7 @@ export const VerifyOtpPage: React.FC = () => {
   const location = useLocation();
   const email = location.state?.email;
   const fromPayment = location.state?.fromPayment;
+  const devOtp = location.state?.devOtp; // DEV ONLY: OTP passed from signup
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,10 +33,15 @@ export const VerifyOtpPage: React.FC = () => {
       if (!email) {
         showToast.error(t('toast.error.emailNotFound'));
         navigate('/signup');
+      } else if (devOtp) {
+        // DEV ONLY: Show OTP in toast if passed from signup
+        setTimeout(() => {
+          showToast.success(`[DEV] Your OTP: ${devOtp}`, { duration: 30000 });
+        }, 1000);
       }
       setHasCheckedEmail(true);
     }
-  }, [email, navigate, hasCheckedEmail, t]);
+  }, [email, navigate, hasCheckedEmail, t, devOtp]);
 
   // Check if user is coming from payment (should not be here)
   useEffect(() => {
@@ -96,9 +102,15 @@ export const VerifyOtpPage: React.FC = () => {
     
     try {
       setIsResending(true);
-      await authService.resendOtp(email);
+      const response = await authService.resendOtp(email);
       if (!silent) {
         showToast.success(t('toast.success.otpSent'));
+      }
+      // DEV ONLY: Show OTP in toast if returned by API (when email service is unavailable)
+      if ((response as any).devOtp) {
+        setTimeout(() => {
+          showToast.success(`[DEV] Your OTP: ${(response as any).devOtp}`, { duration: 30000 });
+        }, 500);
       }
     } catch (err: any) {
       if (!silent) {

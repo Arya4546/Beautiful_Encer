@@ -104,13 +104,22 @@ export const SignupPage: React.FC = () => {
 
       // NEW FLOW: Always go to OTP verification first (for both influencers and salons)
       showToast.success(response.message || 'Account created! Please check your email for verification code.');
+      
+      // DEV ONLY: Show OTP in toast if returned by API (when email service is unavailable)
+      if ((response as any).devOtp) {
+        setTimeout(() => {
+          showToast.success(`[DEV] Your OTP: ${(response as any).devOtp}`, { duration: 30000 });
+        }, 500);
+      }
+      
       navigate('/verify-otp', { 
         state: { 
           email: data.email,
           role: selectedRole,
           userId: response.userId,
           salonId: response.salonId,
-          influencerId: response.influencerId
+          influencerId: response.influencerId,
+          devOtp: (response as any).devOtp, // Pass to verify page too
         } 
       });
     } catch (error: any) {
