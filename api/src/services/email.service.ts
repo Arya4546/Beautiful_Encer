@@ -9,6 +9,13 @@ import { prisma } from "../lib/prisma.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Log SMTP configuration at startup (without sensitive data)
+logger.log(`📧 [Email Service] Initializing with config:`);
+logger.log(`   SMTP_HOST: ${process.env.SMTP_HOST || "smtp-relay.brevo.com"}`);
+logger.log(`   SMTP_PORT: ${process.env.SMTP_PORT || "587"}`);
+logger.log(`   SMTP_USER: ${process.env.SMTP_USER ? "✅ Set" : "❌ Not set"}`);
+logger.log(`   SMTP_PASS: ${process.env.SMTP_PASS ? "✅ Set" : process.env.BREVO_SMTP_KEY ? "✅ Set (BREVO_SMTP_KEY)" : "❌ Not set"}`);
+
 // Nodemailer SMTP setup (using Brevo SMTP relay)
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "smtp-relay.brevo.com",
@@ -18,7 +25,25 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER || process.env.EMAIL_FROM,
     pass: process.env.SMTP_PASS || process.env.BREVO_SMTP_KEY,
   },
+  // Increase timeouts for slow network connections (e.g., on Render)
+  connectionTimeout: 30000, // 30 seconds
+  greetingTimeout: 30000,   // 30 seconds
+  socketTimeout: 60000,     // 60 seconds
+  // Enable connection pooling
+  pool: true,
+  maxConnections: 5,
+  maxMessages: 100,
 });
+
+// Verify SMTP connection on startup (non-blocking)
+transporter.verify()
+  .then(() => {
+    logger.log("✅ [Email Service] SMTP connection verified successfully");
+  })
+  .catch((error: any) => {
+    logger.error("❌ [Email Service] SMTP connection verification failed:", error.message);
+    logger.error("   Make sure SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS are correctly set in environment variables");
+  });
 
 // Email configuration
 const SENDER_EMAIL = process.env.EMAIL_FROM || "noreply@sutekibank.com";
