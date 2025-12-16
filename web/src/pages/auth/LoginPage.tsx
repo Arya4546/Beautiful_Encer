@@ -80,7 +80,7 @@ export const LoginPage: React.FC = () => {
         // DEV ONLY: Show OTP in toast if returned by API
         if (devOtp) {
           setTimeout(() => {
-            showToast.success(`[DEV] Your OTP: ${devOtp}`, { duration: 30000 });
+            showToast.success(`[DEV] Your OTP: ${devOtp}`);
           }, 500);
         }
         navigate('/verify-otp', { state: { email, devOtp } });

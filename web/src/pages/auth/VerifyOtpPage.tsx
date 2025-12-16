@@ -36,7 +36,7 @@ export const VerifyOtpPage: React.FC = () => {
       } else if (devOtp) {
         // DEV ONLY: Show OTP in toast if passed from signup
         setTimeout(() => {
-          showToast.success(`[DEV] Your OTP: ${devOtp}`, { duration: 30000 });
+          showToast.success(`[DEV] Your OTP: ${devOtp}`);
         }, 1000);
       }
       setHasCheckedEmail(true);
@@ -109,7 +109,7 @@ export const VerifyOtpPage: React.FC = () => {
       // DEV ONLY: Show OTP in toast if returned by API (when email service is unavailable)
       if ((response as any).devOtp) {
         setTimeout(() => {
-          showToast.success(`[DEV] Your OTP: ${(response as any).devOtp}`, { duration: 30000 });
+          showToast.success(`[DEV] Your OTP: ${(response as any).devOtp}`);
         }, 500);
       }
     } catch (err: any) {

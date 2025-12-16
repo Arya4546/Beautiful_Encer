@@ -108,7 +108,7 @@ export const SignupPage: React.FC = () => {
       // DEV ONLY: Show OTP in toast if returned by API (when email service is unavailable)
       if ((response as any).devOtp) {
         setTimeout(() => {
-          showToast.success(`[DEV] Your OTP: ${(response as any).devOtp}`, { duration: 30000 });
+          showToast.success(`[DEV] Your OTP: ${(response as any).devOtp}`);
         }, 500);
       }
       
