@@ -120,6 +120,8 @@ class AuthController {
         userId: user.id,
         email: user.email,
         nextStep: 'VERIFY_EMAIL',
+        // DEV/DEBUG: Include OTP in response when SHOW_DEV_OTP=true (for testing when email service is unavailable)
+        ...(process.env.SHOW_DEV_OTP === 'true' && { devOtp: otp }),
       });
     } catch (error: any) {
       if (error.code === 'P2002') {
@@ -458,6 +460,8 @@ class AuthController {
         email: user.email,
         // Don't redirect to payment yet - verify email first!
         nextStep: 'VERIFY_EMAIL',
+        // DEV/DEBUG: Include OTP in response when SHOW_DEV_OTP=true (for testing when email service is unavailable)
+        ...(process.env.SHOW_DEV_OTP === 'true' && { devOtp: otp }),
       });
     } catch (error: any) {
       if (error.code === 'P2002') {
@@ -550,6 +554,8 @@ class AuthController {
           code: 'EMAIL_NOT_VERIFIED',
           message: 'Your email is not verified. Please verify using the OTP sent to your email.',
           email,
+          // DEV/DEBUG: Include OTP in response when SHOW_DEV_OTP=true (for testing when email service is unavailable)
+          ...(process.env.SHOW_DEV_OTP === 'true' && { devOtp: otp }),
         });
       }
 
@@ -755,7 +761,9 @@ class AuthController {
 
       return res.status(200).json({ 
         message: 'OTP resent successfully',
-        remainingAttempts: rateLimitCheck.remainingAttempts 
+        remainingAttempts: rateLimitCheck.remainingAttempts,
+        // DEV/DEBUG: Include OTP in response when SHOW_DEV_OTP=true (for testing when email service is unavailable)
+        ...(process.env.SHOW_DEV_OTP === 'true' && { devOtp: otp }),
       });
     } catch (error: any) {
       console.error('[AuthController.resendOtp] Error:', error);
