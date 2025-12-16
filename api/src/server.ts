@@ -23,6 +23,7 @@ import tokenRefreshJob from './jobs/tokenRefresh.job.js';
 import dataSyncSchedulerJob from './jobs/dataSyncScheduler.job.js';
 import instagramReminderJob from './jobs/instagramReminder.job.js';
 import { seedSuperAdmin } from './utils/seedSuperAdmin.util.js';
+import { testEmailConnection } from './services/email.service.js';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import logger from './utils/logger.util.js';
@@ -147,7 +148,60 @@ app.use('/api/v1/marketplace', marketplaceRoutes); // Project marketplace routes
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({ status: 'ok', message: 'Server is running' });
+  res.status(200).json({ 
+    status: 'ok', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    env: {
+      nodeEnv: process.env.NODE_ENV,
+      smtpHost: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+      smtpPort: process.env.SMTP_PORT || '587',
+      smtpUserSet: !!process.env.SMTP_USER,
+      smtpPassSet: !!(process.env.SMTP_PASS || process.env.BREVO_SMTP_KEY),
+      emailFromSet: !!process.env.EMAIL_FROM,
+    }
+  });
+});
+
+// SMTP connection test endpoint (for debugging email issues)
+app.get('/health/smtp', async (req: Request, res: Response) => {
+  try {
+    const isConnected = await testEmailConnection();
+    if (isConnected) {
+      res.status(200).json({ 
+        status: 'ok', 
+        message: 'SMTP connection successful',
+        config: {
+          host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+          port: process.env.SMTP_PORT || '587',
+          userConfigured: !!process.env.SMTP_USER,
+          passConfigured: !!(process.env.SMTP_PASS || process.env.BREVO_SMTP_KEY),
+        }
+      });
+    } else {
+      res.status(503).json({ 
+        status: 'error', 
+        message: 'SMTP connection failed or not configured',
+        config: {
+          host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+          port: process.env.SMTP_PORT || '587',
+          userConfigured: !!process.env.SMTP_USER,
+          passConfigured: !!(process.env.SMTP_PASS || process.env.BREVO_SMTP_KEY),
+        }
+      });
+    }
+  } catch (error: any) {
+    res.status(500).json({ 
+      status: 'error', 
+      message: error.message,
+      config: {
+        host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+        port: process.env.SMTP_PORT || '587',
+        userConfigured: !!process.env.SMTP_USER,
+        passConfigured: !!(process.env.SMTP_PASS || process.env.BREVO_SMTP_KEY),
+      }
+    });
+  }
 });
 
 // Initialize cron jobs for automated tasks
