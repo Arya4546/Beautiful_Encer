@@ -106,21 +106,27 @@ class AuthController {
       // Record OTP attempt
       otpRateLimiter.recordAttempt(email);
 
-      // Send OTP email
-      try {
-        await sendOtpEmail(email, otp, name);
-      } catch (emailError) {
-        console.error('[AuthController.influencerSignup] Failed to send OTP email:', emailError);
-        // Don't fail signup if email fails - user can resend
+      // Send OTP email (skip if SHOW_DEV_OTP is enabled)
+      if (process.env.SHOW_DEV_OTP !== 'true') {
+        try {
+          await sendOtpEmail(email, otp, name);
+        } catch (emailError) {
+          console.error('[AuthController.influencerSignup] Failed to send OTP email:', emailError);
+          // Don't fail signup if email fails - user can resend
+        }
+      } else {
+        console.log('[AuthController.influencerSignup] SHOW_DEV_OTP enabled - skipping email, OTP:', otp);
       }
 
       const { password: _, ...user } = newUser;
       return res.status(201).json({
-        message: 'Influencer registered successfully. Please check your email for an OTP to verify your account.',
+        message: process.env.SHOW_DEV_OTP === 'true' 
+          ? 'Account created! Use the OTP shown on screen to verify.'
+          : 'Influencer registered successfully. Please check your email for an OTP to verify your account.',
         userId: user.id,
         email: user.email,
         nextStep: 'VERIFY_EMAIL',
-        // DEV/DEBUG: Include OTP in response when SHOW_DEV_OTP=true (for testing when email service is unavailable)
+        // DEV/DEBUG: Include OTP in response when SHOW_DEV_OTP=true
         ...(process.env.SHOW_DEV_OTP === 'true' && { devOtp: otp }),
       });
     } catch (error: any) {
@@ -444,23 +450,29 @@ class AuthController {
       // Record OTP attempt
       otpRateLimiter.recordAttempt(email);
 
-      // Send OTP email
-      try {
-        await sendOtpEmail(email, otp, name);
-      } catch (emailError) {
-        console.error('[AuthController.salonSignup] Failed to send OTP email:', emailError);
-        // Don't fail signup if email fails - user can resend
+      // Send OTP email (skip if SHOW_DEV_OTP is enabled)
+      if (process.env.SHOW_DEV_OTP !== 'true') {
+        try {
+          await sendOtpEmail(email, otp, name);
+        } catch (emailError) {
+          console.error('[AuthController.salonSignup] Failed to send OTP email:', emailError);
+          // Don't fail signup if email fails - user can resend
+        }
+      } else {
+        console.log('[AuthController.salonSignup] SHOW_DEV_OTP enabled - skipping email, OTP:', otp);
       }
 
       const { password: _, ...user } = newUser;
       return res.status(201).json({
-        message: 'Salon registered successfully. Please check your email for an OTP to verify your account.',
+        message: process.env.SHOW_DEV_OTP === 'true'
+          ? 'Account created! Use the OTP shown on screen to verify.'
+          : 'Salon registered successfully. Please check your email for an OTP to verify your account.',
         userId: user.id,
         salonId: user.salon?.id,
         email: user.email,
         // Don't redirect to payment yet - verify email first!
         nextStep: 'VERIFY_EMAIL',
-        // DEV/DEBUG: Include OTP in response when SHOW_DEV_OTP=true (for testing when email service is unavailable)
+        // DEV/DEBUG: Include OTP in response when SHOW_DEV_OTP=true
         ...(process.env.SHOW_DEV_OTP === 'true' && { devOtp: otp }),
       });
     } catch (error: any) {
@@ -543,18 +555,25 @@ class AuthController {
         
         await prisma.otp.create({ data: { email, otp, expiresAt } });
         
-        try {
-          await sendOtpEmail(email, otp);
-        } catch (emailError) {
-          console.error('[AuthController.login] Failed to send OTP email:', emailError);
+        // Send OTP email (skip if SHOW_DEV_OTP is enabled)
+        if (process.env.SHOW_DEV_OTP !== 'true') {
+          try {
+            await sendOtpEmail(email, otp);
+          } catch (emailError) {
+            console.error('[AuthController.login] Failed to send OTP email:', emailError);
+          }
+        } else {
+          console.log('[AuthController.login] SHOW_DEV_OTP enabled - skipping email, OTP:', otp);
         }
 
         return res.status(403).json({
           error: 'EmailNotVerified',
           code: 'EMAIL_NOT_VERIFIED',
-          message: 'Your email is not verified. Please verify using the OTP sent to your email.',
+          message: process.env.SHOW_DEV_OTP === 'true'
+            ? 'Your email is not verified. Use the OTP shown on screen.'
+            : 'Your email is not verified. Please verify using the OTP sent to your email.',
           email,
-          // DEV/DEBUG: Include OTP in response when SHOW_DEV_OTP=true (for testing when email service is unavailable)
+          // DEV/DEBUG: Include OTP in response when SHOW_DEV_OTP=true
           ...(process.env.SHOW_DEV_OTP === 'true' && { devOtp: otp }),
         });
       }
@@ -745,24 +764,30 @@ class AuthController {
       // Record OTP attempt
       otpRateLimiter.recordAttempt(email);
 
-      // Send OTP email
-      try {
-        const userName = user.role === Role.SALON 
-          ? user.salon?.businessName || user.name 
-          : user.name;
-        await sendOtpEmail(email, otp, userName);
-      } catch (emailError) {
-        console.error('[AuthController.resendOtp] Failed to send OTP email:', emailError);
-        return res.status(500).json({ 
-          error: 'Failed to send OTP email',
-          message: 'Could not send email. Please try again later.'
-        });
+      // Send OTP email (skip if SHOW_DEV_OTP is enabled)
+      if (process.env.SHOW_DEV_OTP !== 'true') {
+        try {
+          const userName = user.role === Role.SALON 
+            ? user.salon?.businessName || user.name 
+            : user.name;
+          await sendOtpEmail(email, otp, userName);
+        } catch (emailError) {
+          console.error('[AuthController.resendOtp] Failed to send OTP email:', emailError);
+          return res.status(500).json({ 
+            error: 'Failed to send OTP email',
+            message: 'Could not send email. Please try again later.'
+          });
+        }
+      } else {
+        console.log('[AuthController.resendOtp] SHOW_DEV_OTP enabled - skipping email, OTP:', otp);
       }
 
       return res.status(200).json({ 
-        message: 'OTP resent successfully',
+        message: process.env.SHOW_DEV_OTP === 'true'
+          ? 'New OTP generated! Check the screen.'
+          : 'OTP resent successfully',
         remainingAttempts: rateLimitCheck.remainingAttempts,
-        // DEV/DEBUG: Include OTP in response when SHOW_DEV_OTP=true (for testing when email service is unavailable)
+        // DEV/DEBUG: Include OTP in response when SHOW_DEV_OTP=true
         ...(process.env.SHOW_DEV_OTP === 'true' && { devOtp: otp }),
       });
     } catch (error: any) {

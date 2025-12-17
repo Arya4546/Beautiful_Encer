@@ -35,15 +35,19 @@ const transporter = nodemailer.createTransport({
   maxMessages: 100,
 });
 
-// Verify SMTP connection on startup (non-blocking)
-transporter.verify()
-  .then(() => {
-    logger.log("✅ [Email Service] SMTP connection verified successfully");
-  })
-  .catch((error: any) => {
-    logger.error("❌ [Email Service] SMTP connection verification failed:", error.message);
-    logger.error("   Make sure SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS are correctly set in environment variables");
-  });
+// Verify SMTP connection on startup (non-blocking) - skip if SHOW_DEV_OTP is enabled
+if (process.env.SHOW_DEV_OTP === 'true') {
+  logger.log("⚠️ [Email Service] SHOW_DEV_OTP enabled - email sending is disabled, OTP will be shown in API response");
+} else {
+  transporter.verify()
+    .then(() => {
+      logger.log("✅ [Email Service] SMTP connection verified successfully");
+    })
+    .catch((error: any) => {
+      logger.error("❌ [Email Service] SMTP connection verification failed:", error.message);
+      logger.error("   Make sure SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS are correctly set in environment variables");
+    });
+}
 
 // Email configuration
 const SENDER_EMAIL = process.env.EMAIL_FROM || "noreply@sutekibank.com";
