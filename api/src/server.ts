@@ -57,7 +57,7 @@ app.use(cors());
 // Stripe webhook requires raw body, so we need to handle it before express.json()
 app.use('/api/v1/payment/webhook', express.raw({ type: 'application/json' }));
 
-// Parse JSON for all other routes
+// Parse JSON for all other routes  
 app.use(express.json());
 
 // Behind a proxy (Render/NGINX) to trust X-Forwarded-* headers for rate limit & IP detection
