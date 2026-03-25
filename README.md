@@ -1,4 +1,4 @@
-# Beautiful_Encer 🌸
+# Beautiful_Encer 🌸  
 
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-green.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
