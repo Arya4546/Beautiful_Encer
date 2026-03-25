@@ -36,6 +36,11 @@ if (!process.env.JWT_ACCESS_SECRET) {
   process.exit(1);
 }
 
+//test webhook git   
+//test webhook git   
+// node tmp/test-ai.js
+//test webhook git 
+
 const app: Express = express();
 const httpServer = createServer(app);
 const io = new SocketServer(httpServer, {
@@ -46,6 +51,8 @@ const io = new SocketServer(httpServer, {
   },
 });
 
+
+//testing webhook 
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
@@ -53,7 +60,7 @@ app.use(cors());
 // Stripe webhook requires raw body, so we need to handle it before express.json()
 app.use('/api/v1/payment/webhook', express.raw({ type: 'application/json' }));
 
-// Parse JSON for all other routes
+// Parse JSON for all other routes  
 app.use(express.json());
 
 // Behind a proxy (Render/NGINX) to trust X-Forwarded-* headers for rate limit & IP detection

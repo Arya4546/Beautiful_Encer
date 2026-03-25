@@ -1,4 +1,4 @@
-# Beautiful_Encer Web (Frontend)
+# Beautiful_Encer Web (Frontend)  
 
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
