@@ -31,6 +31,7 @@ import logger from './utils/logger.util.js';
 dotenv.config();
 
 // Verify JWT_ACCESS_SECRET is loaded
+//test webhook
 if (!process.env.JWT_ACCESS_SECRET) {
   logger.error('FATAL ERROR: JWT_ACCESS_SECRET is not defined in environment variables');
   process.exit(1);
