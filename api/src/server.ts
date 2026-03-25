@@ -35,7 +35,7 @@ if (!process.env.JWT_ACCESS_SECRET) {
   logger.error('FATAL ERROR: JWT_ACCESS_SECRET is not defined in environment variables');
   process.exit(1);
 }
-
+//test webhook
 const app: Express = express();
 const httpServer = createServer(app);
 const io = new SocketServer(httpServer, {
