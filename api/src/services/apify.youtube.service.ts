@@ -86,7 +86,7 @@ class ApifyYouTubeService {
 
   constructor() {
     const apiToken = process.env.APIFY_API_TOKEN;
-    this.actorId = process.env.APIFY_YOUTUBE_ACTOR_ID || 'monetizze/youtube-scraper';
+    this.actorId = process.env.APIFY_YOUTUBE_ACTOR_ID || 'johnvc/youtube-shorts-api';
 
     if (!apiToken) {
       throw new Error('APIFY_API_TOKEN is required in environment variables');
@@ -277,8 +277,15 @@ class ApifyYouTubeService {
         sortVideosBy: 'NEWEST',
       };
 
+      // johnvc/youtube-shorts-api (the default) takes a channels list and returns Shorts only
+      const shortsInput = {
+        channels: [channelUrl],
+        maxResultsShorts: this.MAX_VIDEOS,
+      };
+      const useShortsInput = this.actorId.includes('youtube-shorts-api');
+
       // Run the actor
-      const run = await this.client.actor(this.actorId).call(input, {
+      const run = await this.client.actor(this.actorId).call(useShortsInput ? shortsInput : input, {
         timeout: 120, // 2 minutes timeout
       });
 
@@ -315,7 +322,7 @@ class ApifyYouTubeService {
       const videos: YouTubeVideo[] = [];
       
       items.slice(0, this.MAX_VIDEOS).forEach((item: any) => {
-        if (item.type === 'video' && item.id) {
+        if ((item.type === 'video' || item.type === 'shorts') && item.id) {
           videos.push({
             id: item.id,
             title: item.title || '',
@@ -378,8 +385,8 @@ class ApifyYouTubeService {
       if (error.message?.includes('Insufficient permissions') || error.message?.includes('not found')) {
         throw new Error(
           `YouTube scraper actor "${this.actorId}" is not accessible. ` +
-          `Please verify the actor exists on Apify and try one of these verified public actors in .env: ` +
-          `"monetizze/youtube-scraper", "lhotanok/youtube-scraper", or "epctex/youtube-scraper"`
+          `Please verify the actor exists on Apify, or remove APIFY_YOUTUBE_ACTOR_ID from .env to use the default: ` +
+          `"johnvc/youtube-shorts-api" (Shorts only)`
         );
       }
       
